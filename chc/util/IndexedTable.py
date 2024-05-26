@@ -196,19 +196,13 @@ class IndexedTable(IndexedTableSuperclass):
     """
 
     def __new__(cls, name: str) -> "IndexedTable":
-        self = super().__new__(cls, name)
-        self.keytable: Dict[Tuple[str, str], int] = {}  # key -> index
-        self.indextable: Dict[int, IndexedTableValue] = {}  # index -> object
-        self.next = 1
-        self.reserved: List[int] = []
-        self.checkpoint: Optional[int] = None
-        return self
+        return super().__new__(cls, name)
 
     def reset(self) -> None:
-        self.keytable = {}
-        self.indextable = {}
+        self.keytable.clear()
+        self.indextable.clear()
         self.next = 1
-        self.reserved = []
+        self.reserved.clear()
         self.checkpoint = None
 
     def set_checkpoint(self) -> int:
@@ -236,7 +230,7 @@ class IndexedTable(IndexedTableSuperclass):
             if self.keytable[k] >= cp:
                 self.keytable.pop(k)
         self.checkpoint = None
-        self.reserved = []
+        self.reserved.clear()
         self.next = cp
         return cp
 
