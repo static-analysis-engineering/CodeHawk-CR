@@ -143,3 +143,7 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# Executables meant to be copioed into the source tree
+chc/bin/linux/canalyzer
+chc/bin/linux/parseFile

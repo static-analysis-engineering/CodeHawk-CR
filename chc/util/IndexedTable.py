@@ -30,8 +30,12 @@
 import xml.etree.ElementTree as ET
 
 import chc.util.fileutil as UF
+import chc_rust
 
 from typing import Callable, Dict, List, Generic, Optional, Tuple, TypeVar
+
+
+IndexedTableSuperclass = chc_rust.util.IndexedTableSuperclass
 
 
 class IndexedTableError(UF.CHCError):
@@ -180,20 +184,6 @@ def get_value(node: ET.Element) -> IndexedTableValue:
     return IndexedTableValue(*rep)
 
 
-class IndexedTableSuperclass:
-    def __init__(self, name: str) -> None:
-        self.name = name
-
-    def size(self) -> int:
-        raise NotImplementedError("size not overridden in IndexedTableSuperclass")
-
-    def reset(self) -> None:
-        raise NotImplementedError("reset not overridden in IndexedTableSuperclass")
-
-
-V = TypeVar("V", bound=IndexedTableValue)
-
-
 class IndexedTable(IndexedTableSuperclass):
     """Table to provide unique indices to objects represented by a key string.
 
@@ -205,13 +195,14 @@ class IndexedTable(IndexedTableSuperclass):
           the comma character cannot be used in any string representation.
     """
 
-    def __init__(self, name: str) -> None:
-        IndexedTableSuperclass.__init__(self, name)
+    def __new__(cls, name: str) -> "IndexedTable":
+        self = super().__new__(cls, name)
         self.keytable: Dict[Tuple[str, str], int] = {}  # key -> index
         self.indextable: Dict[int, IndexedTableValue] = {}  # index -> object
         self.next = 1
         self.reserved: List[int] = []
         self.checkpoint: Optional[int] = None
+        return self
 
     def reset(self) -> None:
         self.keytable = {}

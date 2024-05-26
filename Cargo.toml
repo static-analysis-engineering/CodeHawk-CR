@@ -1,0 +1,12 @@
+[package]
+name = "chc_rust"
+version = "0.1.0"
+authors = []
+edition = "2021"
+
+[lib]
+name = "chc_rust"
+
+[dependencies]
+maturin = "1.5.1"
+pyo3 = { version = "0.21.2", features = ["extension-module"] }
