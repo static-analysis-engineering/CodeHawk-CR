@@ -289,9 +289,6 @@ class IndexedTable(IndexedTableSuperclass):
         else:
             raise IndexedTableError("Trying to commit nonexisting index: " + str(index))
 
-    def size(self) -> int:
-        return self.next - 1
-
     def retrieve(self, index: int) -> IndexedTableValue:
         if index in self.indextable:
             return self.indextable[index]

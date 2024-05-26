@@ -1,5 +1,4 @@
 use pyo3::{
-    exceptions::PyException,
     prelude::*,
     types::{PyDict, PyList, PyString},
 };
@@ -36,9 +35,7 @@ impl IndexedTableSuperclass {
     }
 
     fn size(&self) -> PyResult<usize> {
-        Err(PyException::new_err(
-            "size not overridden in IndexedTableSuperclass",
-        ))
+        Ok(self.next - 1)
     }
 
     fn reset(&mut self, py: Python) -> PyResult<()> {
