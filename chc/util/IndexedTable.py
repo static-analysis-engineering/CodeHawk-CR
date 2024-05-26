@@ -216,9 +216,6 @@ class IndexedTable(IndexedTableSuperclass):
         self.next = cp
         return cp
 
-    def remove_checkpoint(self) -> None:
-        self.checkpoint = None
-
     def add(
             self,
             key: Tuple[str, str],

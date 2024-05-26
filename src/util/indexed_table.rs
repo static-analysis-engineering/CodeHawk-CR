@@ -14,7 +14,7 @@ pub fn module(py: Python) -> PyResult<Bound<PyModule>> {
 
 // TODO: use python types to avoid allocating a String for every tag
 #[pyfunction]
-fn get_key(tags: Vec<String>, args: Vec<usize>) -> (String, String) {
+fn get_key(tags: Vec<String>, args: Vec<isize>) -> (String, String) {
     (tags.iter().join(","), args.iter().join(","))
 }
 
@@ -37,11 +37,11 @@ struct IndexedTableSuperclass {
     #[pyo3(get)]
     indextable: Py<PyDict>,
     #[pyo3(get, set)]
-    next: usize,
+    next: isize,
     #[pyo3(get)]
     reserved: Py<PyList>,
     #[pyo3(get)]
-    checkpoint: Option<usize>,
+    checkpoint: Option<isize>,
 }
 
 #[pymethods]
@@ -58,7 +58,7 @@ impl IndexedTableSuperclass {
         }
     }
 
-    fn size(&self) -> usize {
+    fn size(&self) -> isize {
         self.next - 1
     }
 
@@ -73,7 +73,7 @@ impl IndexedTableSuperclass {
         Ok(())
     }
 
-    fn set_checkpoint(&mut self, py: Python) -> PyResult<usize> {
+    fn set_checkpoint(&mut self, py: Python) -> PyResult<isize> {
         if let Some(n) = self.checkpoint {
             let message = format!("Checkpoint has already been set at {n}");
             Err(indexed_table_error(py, message)?)
@@ -83,14 +83,18 @@ impl IndexedTableSuperclass {
         }
     }
 
+    fn remove_checkpoint(&mut self) {
+        self.checkpoint.take();
+    }
+
     // TODO: use python types to avoid allocating a String for every tag
     fn add_tags_args<'a, 'py>(
         &'a mut self,
         py: Python<'py>,
         tags: Vec<String>,
-        args: Vec<usize>,
+        args: Vec<isize>,
         f: Bound<'py, PyFunction>,
-    ) -> PyResult<usize> {
+    ) -> PyResult<isize> {
         let key = get_key(tags.clone(), args.clone());
         if let Some(item) = self.keytable.bind_borrowed(py).get_item(&key)? {
             FromPyObject::extract_bound(&item)
@@ -104,7 +108,7 @@ impl IndexedTableSuperclass {
         }
     }
 
-    fn retrieve<'a, 'py>(&'a self, py: Python<'py>, index: usize) -> PyResult<Bound<'py, PyAny>> {
+    fn retrieve<'a, 'py>(&'a self, py: Python<'py>, index: isize) -> PyResult<Bound<'py, PyAny>> {
         if let Some(item) = self.indextable.bind_borrowed(py).get_item(index)? {
             Ok(item)
         } else {
