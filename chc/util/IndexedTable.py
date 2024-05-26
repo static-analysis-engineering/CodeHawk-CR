@@ -233,22 +233,6 @@ class IndexedTable(IndexedTableSuperclass):
             self.next += 1
             return index
 
-    def add_tags_args(
-            self,
-            tags: List[str],
-            args: List[int],
-            f: Callable[[int, List[str], List[int]], IndexedTableValue]) -> int:
-        key = get_key(tags, args)
-        if key in self.keytable:
-            return self.keytable[key]
-        else:
-            index = self.next
-            obj = f(index, tags, args)
-            self.keytable[key] = index
-            self.indextable[index] = obj
-            self.next += 1
-            return index
-
     def reserve(self) -> int:
         index = self.next
         self.reserved.append(index)

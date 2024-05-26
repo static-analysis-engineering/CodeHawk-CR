@@ -2,7 +2,7 @@ use itertools::Itertools;
 use pyo3::{
     intern,
     prelude::*,
-    types::{PyDict, PyList, PyString},
+    types::{PyDict, PyFunction, PyList, PyString},
 };
 
 pub fn module(py: Python) -> PyResult<Bound<PyModule>> {
@@ -12,7 +12,7 @@ pub fn module(py: Python) -> PyResult<Bound<PyModule>> {
     Ok(module)
 }
 
-// TODO: use python types to avoid allocating a String for every argument
+// TODO: use python types to avoid allocating a String for every tag
 #[pyfunction]
 fn get_key(tags: Vec<String>, args: Vec<usize>) -> (String, String) {
     (tags.iter().join(","), args.iter().join(","))
@@ -80,6 +80,27 @@ impl IndexedTableSuperclass {
         } else {
             self.checkpoint = Some(self.next);
             Ok(self.next)
+        }
+    }
+
+    // TODO: use python types to avoid allocating a String for every tag
+    fn add_tags_args<'a, 'py>(
+        &'a mut self,
+        py: Python<'py>,
+        tags: Vec<String>,
+        args: Vec<usize>,
+        f: Bound<'py, PyFunction>,
+    ) -> PyResult<usize> {
+        let key = get_key(tags.clone(), args.clone());
+        if let Some(item) = self.keytable.bind_borrowed(py).get_item(&key)? {
+            FromPyObject::extract_bound(&item)
+        } else {
+            let index = self.next;
+            let obj = f.call1((index, tags, args))?;
+            self.keytable.bind_borrowed(py).set_item(&key, index)?;
+            self.indextable.bind_borrowed(py).set_item(&index, obj)?;
+            self.next += 1;
+            Ok(index)
         }
     }
 
