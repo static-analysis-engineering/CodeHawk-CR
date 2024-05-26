@@ -359,6 +359,7 @@ dependencies = [
 name = "chc_rust"
 version = "0.1.0"
 dependencies = [
+ "itertools 0.13.0",
  "maturin",
  "pyo3",
 ]
@@ -915,6 +916,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "itertools"
+version = "0.13.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "413ee7dfc52ee1a4949ceeb7dbc8a33f2d6c088194d9f922fb8318faf1f01186"
+dependencies = [
+ "either",
+]
+
+[[package]]
 name = "itoa"
 version = "1.0.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1041,7 +1051,7 @@ dependencies = [
  "goblin",
  "ignore",
  "indexmap 2.2.6",
- "itertools",
+ "itertools 0.12.1",
  "lddtree",
  "minijinja",
  "multipart",
@@ -2319,7 +2329,7 @@ version = "6.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "38a8931f8d167b6448076020e70b9de46dcf5ea1731212481a092d0071c4ac5b"
 dependencies = [
- "itertools",
+ "itertools 0.12.1",
  "nom",
 ]
 

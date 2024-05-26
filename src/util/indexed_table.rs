@@ -1,3 +1,4 @@
+use itertools::Itertools;
 use pyo3::{
     intern,
     prelude::*,
@@ -7,7 +8,14 @@ use pyo3::{
 pub fn module(py: Python) -> PyResult<Bound<PyModule>> {
     let module = PyModule::new_bound(py, "IndexedTable")?;
     module.add_class::<IndexedTableSuperclass>()?;
+    module.add_function(wrap_pyfunction!(get_key, &module)?)?;
     Ok(module)
+}
+
+// TODO: use python types to avoid allocating a String for every argument
+#[pyfunction]
+fn get_key(tags: Vec<String>, args: Vec<usize>) -> (String, String) {
+    (tags.iter().join(","), args.iter().join(","))
 }
 
 fn indexed_table_error(py: Python, message: String) -> PyResult<PyErr> {

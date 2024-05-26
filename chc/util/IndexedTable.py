@@ -35,6 +35,7 @@ import chc_rust
 from typing import Callable, Dict, List, Generic, Optional, Tuple, TypeVar
 
 
+get_key = chc_rust.util.IndexedTable.get_key
 IndexedTableSuperclass = chc_rust.util.IndexedTable.IndexedTableSuperclass
 
 
@@ -119,10 +120,6 @@ def get_rep(node: ET.Element) -> Tuple[int, List[str], List[int]]:
         print("args: " + str(args))
         print(e)
         raise
-
-
-def get_key(tags: List[str], args: List[int]) -> Tuple[str, str]:
-    return (",".join(tags), ",".join([str(x) for x in args]))
 
 
 class IndexedTableValue:

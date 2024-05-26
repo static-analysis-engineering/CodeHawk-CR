@@ -8,5 +8,6 @@ edition = "2021"
 name = "chc_rust"
 
 [dependencies]
+itertools = "0.13.0"
 maturin = "1.5.1"
 pyo3 = { version = "0.21.2", features = ["extension-module"] }
