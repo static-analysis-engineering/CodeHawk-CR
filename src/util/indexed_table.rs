@@ -4,6 +4,12 @@ use pyo3::{
     types::{PyDict, PyList, PyString},
 };
 
+pub fn module(py: Python) -> PyResult<Bound<PyModule>> {
+    let module = PyModule::new_bound(py, "IndexedTable")?;
+    module.add_class::<IndexedTableSuperclass>()?;
+    Ok(module)
+}
+
 fn indexed_table_error(py: Python, message: String) -> PyResult<PyErr> {
     let module = PyModule::import_bound(py, "chc.util.IndexedTable")?;
     let message_pystr = PyString::new_bound(py, &message);
@@ -15,7 +21,7 @@ fn indexed_table_error(py: Python, message: String) -> PyResult<PyErr> {
 
 #[derive(Clone)]
 #[pyclass(subclass)]
-pub struct IndexedTableSuperclass {
+struct IndexedTableSuperclass {
     #[pyo3(get)]
     name: Py<PyString>,
     #[pyo3(get)]

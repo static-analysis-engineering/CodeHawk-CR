@@ -35,7 +35,7 @@ import chc_rust
 from typing import Callable, Dict, List, Generic, Optional, Tuple, TypeVar
 
 
-IndexedTableSuperclass = chc_rust.util.IndexedTableSuperclass
+IndexedTableSuperclass = chc_rust.util.IndexedTable.IndexedTableSuperclass
 
 
 class IndexedTableError(UF.CHCError):
