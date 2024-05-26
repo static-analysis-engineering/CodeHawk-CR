@@ -41,9 +41,12 @@ impl IndexedTableSuperclass {
         ))
     }
 
-    fn reset(&mut self) -> PyResult<()> {
-        Err(PyException::new_err(
-            "reset not overridden in IndexedTableSuperclass",
-        ))
+    fn reset(&mut self, py: Python) -> PyResult<()> {
+        self.keytable.bind_borrowed(py).clear();
+        self.indextable.bind_borrowed(py).clear();
+        self.next = 1;
+        self.reserved.bind_borrowed(py).call_method0("clear")?;
+        self.checkpoint = None;
+        Ok(())
     }
 }

@@ -198,13 +198,6 @@ class IndexedTable(IndexedTableSuperclass):
     def __new__(cls, name: str) -> "IndexedTable":
         return super().__new__(cls, name)
 
-    def reset(self) -> None:
-        self.keytable.clear()
-        self.indextable.clear()
-        self.next = 1
-        self.reserved.clear()
-        self.checkpoint = None
-
     def set_checkpoint(self) -> int:
         if self.checkpoint is None:
             self.checkpoint = self.next
