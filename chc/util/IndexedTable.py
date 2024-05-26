@@ -262,16 +262,6 @@ class IndexedTable(IndexedTableSuperclass):
                 result.append((key, self.indextable[self.keytable[key]]))
         return result
 
-    def write_xml(
-        self,
-            node: ET.Element,
-            f: Callable[[ET.Element, IndexedTableValue], None],
-            tag: str = "n") -> None:
-        for key in sorted(self.indextable):
-            snode = ET.Element(tag)
-            f(snode, self.indextable[key])
-            node.append(snode)
-
     def read_xml(
         self,
         node: Optional[ET.Element],

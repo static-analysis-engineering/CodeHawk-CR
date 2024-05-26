@@ -27,6 +27,12 @@ fn indexed_table_error(py: Python, message: String) -> PyResult<PyErr> {
     Ok(PyErr::from_value_bound(value))
 }
 
+fn element_tree_element<'a, 'py>(py: Python<'py>, tag: &'a str) -> PyResult<Bound<'py, PyAny>> {
+    let module = PyModule::import_bound(py, "xml.etree.ElementTree")?;
+    let tag_pystr = PyString::new_bound(py, tag);
+    module.getattr("Element")?.call1((tag_pystr,))
+}
+
 #[derive(Clone)]
 #[pyclass(subclass)]
 struct IndexedTableSuperclass {
@@ -130,5 +136,24 @@ impl IndexedTableSuperclass {
             );
             Err(indexed_table_error(py, message)?)
         }
+    }
+
+    fn write_xml(
+        &self,
+        py: Python,
+        node: Bound<PyAny>,
+        f: Bound<PyFunction>,
+        tag: Option<&str>,
+    ) -> PyResult<()> {
+        let tag = tag.unwrap_or("n");
+        let indextable = self.indextable.bind_borrowed(py);
+        let mut indexes: Vec<isize> = indextable.keys().extract()?;
+        indexes.sort();
+        for key in indexes {
+            let snode = element_tree_element(py, tag)?;
+            f.call1((&snode, indextable.get_item(key)?.unwrap()))?;
+            node.call_method1("append", (snode,))?;
+        }
+        Ok(())
     }
 }
