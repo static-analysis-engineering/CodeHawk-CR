@@ -68,4 +68,18 @@ impl IndexedTableSuperclass {
             Ok(self.next)
         }
     }
+
+    fn retrieve<'a, 'py>(&'a self, py: Python<'py>, index: usize) -> PyResult<Bound<'py, PyAny>> {
+        if let Some(item) = self.indextable.bind_borrowed(py).get_item(index)? {
+            Ok(item)
+        } else {
+            let message = format!(
+                "Unable to retrieve item {} from table {} (size {})",
+                index,
+                self.name,
+                self.size()
+            );
+            Err(indexed_table_error(py, message)?)
+        }
+    }
 }

@@ -281,23 +281,6 @@ class IndexedTable(IndexedTableSuperclass):
         else:
             raise IndexedTableError("Trying to commit nonexisting index: " + str(index))
 
-    def retrieve(self, index: int) -> IndexedTableValue:
-        if index in self.indextable:
-            return self.indextable[index]
-        else:
-            msg = (
-                "Unable to retrieve item "
-                + str(index)
-                + " from table "
-                + self.name
-                + " (size: "
-                + str(self.size())
-                + ")"
-            )
-            raise IndexedTableError(
-                msg + "\n" + self.name + ", size: " + str(self.size())
-            )
-
     def retrieve_by_key(
         self, f: Callable[[Tuple[str, str]], bool]
     ) -> List[Tuple[Tuple[str, str], IndexedTableValue]]:
