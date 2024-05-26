@@ -80,8 +80,8 @@ attribute_index = {
 class CTyp(CDictionaryRecord):
     """Base class of all variable types."""
 
-    def __init__(self, cd: "CDictionary", ixval: IT.IndexedTableValue) -> None:
-        CDictionaryRecord.__init__(self, cd, ixval)
+    def __new__(cls, cd: "CDictionary", ixval: IT.IndexedTableValue) -> "CTyp":
+        return super().__new__(cls, cd, ixval)
 
     def expand(self) -> "CTyp":
         return self
@@ -209,8 +209,8 @@ class CTypVoid(CTyp):
     * args[0]: attributes
     """
 
-    def __init__(self, cd: "CDictionary", ixval: IT.IndexedTableValue) -> None:
-        CTyp.__init__(self, cd, ixval)
+    def __new__(cls, cd: "CDictionary", ixval: IT.IndexedTableValue) -> "CTypVoid":
+        return super().__new__(cls, cd, ixval)
 
     @property
     def is_void(self) -> bool:
@@ -235,8 +235,8 @@ class CTypInt(CTyp):
     * args[0]: index of attributes in cdictionary
     """
 
-    def __init__(self, cd: "CDictionary", ixval: IT.IndexedTableValue) -> None:
-        CTyp.__init__(self, cd, ixval)
+    def __new__(cls, cd: "CDictionary", ixval: IT.IndexedTableValue) -> "CTypInt":
+        return super().__new__(cls, cd, ixval)
 
     @property
     def is_int(self) -> bool:
@@ -273,8 +273,8 @@ class CTypFloat(CTyp):
     * args[0]: attributes
     """
 
-    def __init__(self, cd: "CDictionary", ixval: IT.IndexedTableValue) -> None:
-        CTyp.__init__(self, cd, ixval)
+    def __new__(cls, cd: "CDictionary", ixval: IT.IndexedTableValue) -> "CTypFloat":
+        return super().__new__(cls, cd, ixval)
 
     @property
     def is_float(self) -> bool:
@@ -307,8 +307,8 @@ class CTypNamed(CTyp):
     * args[0]: attributes
     """
 
-    def __init__(self, cd: "CDictionary", ixval: IT.IndexedTableValue) -> None:
-        CTyp.__init__(self, cd, ixval)
+    def __new__(cls, cd: "CDictionary", ixval: IT.IndexedTableValue) -> "CTypNamed":
+        return super().__new__(cls, cd, ixval)
 
     @property
     def name(self) -> str:
@@ -349,8 +349,8 @@ class CTypComp(CTyp):
     * args[1]: index of attributes in cdictionary
     """
 
-    def __init__(self, cd: "CDictionary", ixval: IT.IndexedTableValue) -> None:
-        CTyp.__init__(self, cd, ixval)
+    def __new__(cls, cd: "CDictionary", ixval: IT.IndexedTableValue) -> "CTypComp":
+        return super().__new__(cls, cd, ixval)
 
     @property
     def ckey(self) -> int:
@@ -404,8 +404,8 @@ class CTypEnum(CTyp):
     * args[0]: index of attributes in cdictionary
     """
 
-    def __init__(self, cd: "CDictionary", ixval: IT.IndexedTableValue) -> None:
-        CTyp.__init__(self, cd, ixval)
+    def __new__(cls, cd: "CDictionary", ixval: IT.IndexedTableValue) -> "CTypEnum":
+        return super().__new__(cls, cd, ixval)
 
     @property
     def name(self) -> str:
@@ -439,8 +439,8 @@ class CTypBuiltinVaargs(CTyp):
     * args[0]: index of attributes in cdictionary
     """
 
-    def __init__(self, cd: "CDictionary", ixval: IT.IndexedTableValue) -> None:
-        CTyp.__init__(self, cd, ixval)
+    def __new__(cls, cd: "CDictionary", ixval: IT.IndexedTableValue) -> "CTypBuiltinVaargs":
+        return super().__new__(cls, cd, ixval)
 
     @property
     def is_builtin_vaargs(self) -> bool:
@@ -464,8 +464,8 @@ class CTypPtr(CTyp):
     * args[1]: index of attributes in cdictionary
     """
 
-    def __init__(self, cd: "CDictionary", ixval: IT.IndexedTableValue) -> None:
-        CTyp.__init__(self, cd, ixval)
+    def __new__(cls, cd: "CDictionary", ixval: IT.IndexedTableValue) -> "CTypPtr":
+        return super().__new__(cls, cd, ixval)
 
     @property
     def pointedto_type(self) -> CTyp:
@@ -501,8 +501,8 @@ class CTypArray(CTyp):
     * args[2]: index of attributes in cdictionary
     """
 
-    def __init__(self, cd: "CDictionary", ixval: IT.IndexedTableValue) -> None:
-        CTyp.__init__(self, cd, ixval)
+    def __new__(cls, cd: "CDictionary", ixval: IT.IndexedTableValue) -> "CTypArray":
+        return super().__new__(cls, cd, ixval)
 
     @property
     def array_basetype(self) -> CTyp:
@@ -563,8 +563,8 @@ class CTypFun(CTyp):
     * args[3]: index of attributes in cdictionary
     """
 
-    def __init__(self, cd: "CDictionary", ixval: IT.IndexedTableValue) -> None:
-        CTyp.__init__(self, cd, ixval)
+    def __new__(cls, cd: "CDictionary", ixval: IT.IndexedTableValue) -> "CTypFun":
+        return super().__new__(cls, cd, ixval)
 
     @property
     def return_type(self) -> CTyp:
@@ -638,8 +638,8 @@ class CFunArg(CDictionaryRecord):
     * args[1]: index of attributes in cdictionary
     """
 
-    def __init__(self, cd: "CDictionary", ixval: IT.IndexedTableValue) -> None:
-        CDictionaryRecord.__init__(self, cd, ixval)
+    def __new__(cls, cd: "CDictionary", ixval: IT.IndexedTableValue) -> "CFunArg":
+        return super().__new__(cls, cd, ixval)
 
     @property
     def name(self) -> str:
@@ -665,8 +665,8 @@ class CFunArgs(CDictionaryRecord):
     * args[0..]: indices of function arguments in cdictionary
     """
 
-    def __init__(self, cd: "CDictionary", ixval: IT.IndexedTableValue) -> None:
-        CDictionaryRecord.__init__(self, cd, ixval)
+    def __new__(cls, cd: "CDictionary", ixval: IT.IndexedTableValue) -> "CFunArgs":
+        return super().__new__(cls, cd, ixval)
 
     @property
     def arguments(self) -> List[CFunArg]:

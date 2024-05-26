@@ -124,14 +124,16 @@ def get_rep(node: ET.Element) -> Tuple[int, List[str], List[int]]:
 
 class IndexedTableValue:
 
-    def __init__(
-            self,
+    def __new__(
+            cls,
             index: int,
             tags: List[str],
-            args: List[int]) -> None:
+            args: List[int]) -> "IndexedTableValue":
+        self = super().__new__(cls)
         self._index = index
         self._tags = tags
         self._args = args
+        return self
 
     @property
     def index(self) -> int:

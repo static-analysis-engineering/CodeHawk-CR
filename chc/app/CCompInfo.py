@@ -52,10 +52,10 @@ class CCompInfo(CDeclarationsRecord):
     * args[3..]: field indices
     """
 
-    def __init__(
-        self, decls: "CDeclarations", ixval: IT.IndexedTableValue
-    ) -> None:
-        CDeclarationsRecord.__init__(self, decls, ixval)
+    def __new__(
+        cls, decls: "CDeclarations", ixval: IT.IndexedTableValue
+    ) -> "CCompInfo":
+        return super().__new__(cls, decls, ixval)
 
     @property
     def fields(self) -> List["CFieldInfo"]:

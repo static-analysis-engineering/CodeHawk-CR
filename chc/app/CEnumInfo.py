@@ -43,8 +43,8 @@ if TYPE_CHECKING:
 class CEnumInfo(CDeclarationsRecord):
     """Global enum definition."""
 
-    def __init__(self, decls: "CFileDeclarations", ixval: IT.IndexedTableValue):
-        CDeclarationsRecord.__init__(self, decls, ixval)
+    def __new__(cls, decls: "CFileDeclarations", ixval: IT.IndexedTableValue) -> "CEnumInfo":
+        return super().__new__(cls, decls, ixval)
 
     @property
     def ename(self) -> str:

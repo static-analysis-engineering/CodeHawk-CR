@@ -62,10 +62,10 @@ class CVarInfo(CDeclarationsRecord):
 
     """
 
-    def __init__(
-            self, cdecls: "CDeclarations", ixval: IT.IndexedTableValue
-    ) -> None:
-        CDeclarationsRecord.__init__(self, cdecls, ixval)
+    def __new__(
+            cls, cdecls: "CDeclarations", ixval: IT.IndexedTableValue
+    ) -> "CVarInfo":
+        return super().__new__(cls, cdecls, ixval)
 
     @property
     def vname(self) -> str:

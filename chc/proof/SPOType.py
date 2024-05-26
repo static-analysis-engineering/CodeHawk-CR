@@ -48,10 +48,10 @@ if TYPE_CHECKING:
 class SPOType(CFunPOType):
     """Base class for supporting proof obligation types."""
 
-    def __init__(
-            self, pod: "CFunPODictionary", ixval: IndexedTableValue
-    ) -> None:
-        CFunPOType.__init__(self, pod, ixval)
+    def __new__(
+            cls, pod: "CFunPODictionary", ixval: IndexedTableValue
+    ) -> "SPOType":
+        return super().__new__(cls, pod, ixval)
 
     @property
     def is_local_spo(self) -> bool:
@@ -82,10 +82,10 @@ class LocalSPOType(SPOType):
     * args[2]: index of predicate in predicate dictionary
     """
 
-    def __init__(
-            self, pod: "CFunPODictionary", ixval: IndexedTableValue
-    ) -> None:
-        SPOType.__init__(self, pod, ixval)
+    def __new__(
+            cls, pod: "CFunPODictionary", ixval: IndexedTableValue
+    ) -> "LocalSPOType":
+        return super().__new__(cls, pod, ixval)
 
     @property
     def is_local_spo(self) -> bool:
@@ -124,10 +124,10 @@ class CallsiteSPOType(SPOType):
     * args[3]: api-id
     """
 
-    def __init__(
-            self, pod: "CFunPODictionary", ixval: IndexedTableValue
-    ) -> None:
-        SPOType.__init__(self, pod, ixval)
+    def __new__(
+            cls, pod: "CFunPODictionary", ixval: IndexedTableValue
+    ) -> "CallsiteSPOType":
+        return super().__new__(cls, pod, ixval)
 
     @property
     def is_callsite_spo(self) -> bool:
@@ -170,10 +170,10 @@ class ReturnsiteSPOType(SPOType):
     * args[3]: index of xpredicate in interface dictionary
     """
 
-    def __init__(
-            self, pod: "CFunPODictionary", ixval: IndexedTableValue
-    ) -> None:
-        SPOType.__init__(self, pod, ixval)
+    def __new__(
+            cls, pod: "CFunPODictionary", ixval: IndexedTableValue
+    ) -> "ReturnsiteSPOType":
+        return super().__new__(cls, pod, ixval)
 
     @property
     def is_returnsite_spo(self) -> bool:

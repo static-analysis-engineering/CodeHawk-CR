@@ -42,12 +42,13 @@ if TYPE_CHECKING:
 class AssignDictionaryRecord(IT.IndexedTableValue):
     """Base class for all objects kept in the CFileAssignmentDictionary."""
 
-    def __init__(
-            self,
+    def __new__(
+            cls,
             ad: "CFileAssignmentDictionary",
             ixval: IT.IndexedTableValue) -> None:
-        IT.IndexedTableValue.__init__(self, ixval.index, ixval.tags, ixval.args)
+        self = super().__new__(cls, ixval.index, ixval.tags, ixval.args)
         self._ad = ad
+        return self
 
     @property
     def ad(self) -> "CFileAssignmentDictionary":

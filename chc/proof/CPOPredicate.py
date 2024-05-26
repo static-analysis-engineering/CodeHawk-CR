@@ -115,10 +115,10 @@ def get_predicate_name(tag: str) -> str:
 class CPOPredicate(CFilePredicateRecord):
     """Base class for all predicates."""
 
-    def __init__(
-            self, pd: "CFilePredicateDictionary", ixval: IT.IndexedTableValue
+    def __new__(
+            cls, pd: "CFilePredicateDictionary", ixval: IT.IndexedTableValue
     ) -> None:
-        CFilePredicateRecord.__init__(self, pd, ixval)
+        return super().__new__(cls, pd, ixval)
 
     @property
     def predicate_name(self) -> str:
@@ -331,10 +331,10 @@ class CPONotNull(CPOPredicate):
     args[0]: index of exp in cdictionary
     """
 
-    def __init__(
-            self, pd: "CFilePredicateDictionary", ixval: IT.IndexedTableValue
-    ) -> None:
-        CPOPredicate.__init__(self, pd, ixval)
+    def __new__(
+            cls, pd: "CFilePredicateDictionary", ixval: IT.IndexedTableValue
+    ) -> "CPONotNull":
+        return super().__new__(cls, pd, ixval)
 
     @property
     def exp(self) -> "CExp":
@@ -368,10 +368,10 @@ class CPOGlobalAddress(CPOPredicate):
     - args[0]: index of exp in cdictionary
     """
 
-    def __init__(
-            self, pd: "CFilePredicateDictionary", ixval: IT.IndexedTableValue
-    ) -> None:
-        CPOPredicate.__init__(self, pd, ixval)
+    def __new__(
+            cls, pd: "CFilePredicateDictionary", ixval: IT.IndexedTableValue
+    ) -> "CPOGlobalAddress":
+        return super().__new__(cls, pd, ixval)
 
     @property
     def exp(self) -> "CExp":
@@ -404,10 +404,10 @@ class CPOHeapAddress(CPOPredicate):
     - args[0]: index of exp in cdictionary
     """
 
-    def __init__(
-            self, pd: "CFilePredicateDictionary", ixval: IT.IndexedTableValue
-    ) -> None:
-        CPOPredicate.__init__(self, pd, ixval)
+    def __new__(
+            cls, pd: "CFilePredicateDictionary", ixval: IT.IndexedTableValue
+    ) -> "CPOHeapAddress":
+        return super().__new__(cls, pd, ixval)
 
     @property
     def exp(self) -> "CExp":
@@ -442,10 +442,10 @@ class CPODistinctRegion(CPOPredicate):
     - args[1]: memref index
     """
 
-    def __init__(
-            self, pd: "CFilePredicateDictionary", ixval: IT.IndexedTableValue
-    ) -> None:
-        CPOPredicate.__init__(self, pd, ixval)
+    def __new__(
+            cls, pd: "CFilePredicateDictionary", ixval: IT.IndexedTableValue
+    ) -> "CPODistinctRegion":
+        return super().__new__(cls, pd, ixval)
 
     @property
     def exp(self) -> "CExp":
@@ -482,10 +482,10 @@ class CPONull(CPOPredicate):
     - args[0]: exp
     """
 
-    def __init__(
-            self, pd: "CFilePredicateDictionary", ixval: IT.IndexedTableValue
-    ) -> None:
-        CPOPredicate.__init__(self, pd, ixval)
+    def __new__(
+            cls, pd: "CFilePredicateDictionary", ixval: IT.IndexedTableValue
+    ) -> "CPONull":
+        return super().__new__(cls, pd, ixval)
 
     @property
     def exp(self) -> "CExp":
@@ -509,10 +509,10 @@ class CPOValidMem(CPOPredicate):
     - args[0]: index of exp in cdictionary
     """
 
-    def __init__(
-            self, pd: "CFilePredicateDictionary", ixval: IT.IndexedTableValue
-    ) -> None:
-        CPOPredicate.__init__(self, pd, ixval)
+    def __new__(
+            cls, pd: "CFilePredicateDictionary", ixval: IT.IndexedTableValue
+    ) -> "CPOValidMem":
+        return super().__new__(cls, pd, ixval)
 
     @property
     def exp(self) -> "CExp":
@@ -547,10 +547,10 @@ class CPOControlledResource(CPOPredicate):
     - args[0]: index of exp in cdictionary
     """
 
-    def __init__(
-            self, pd: "CFilePredicateDictionary", ixval: IT.IndexedTableValue
-    ) -> None:
-        CPOPredicate.__init__(self, pd, ixval)
+    def __new__(
+            cls, pd: "CFilePredicateDictionary", ixval: IT.IndexedTableValue
+    ) -> "CPOControlledResource":
+        return super().__new__(cls, pd, ixval)
 
     @property
     def exp(self) -> "CExp":
@@ -589,10 +589,10 @@ class CPOStackAddressEscape(CPOPredicate):
     - args[1]: index exp in cdictionary
     """
 
-    def __init__(
-            self, pd: "CFilePredicateDictionary", ixval: IT.IndexedTableValue
-    ) -> None:
-        CPOPredicate.__init__(self, pd, ixval)
+    def __new__(
+            cls, pd: "CFilePredicateDictionary", ixval: IT.IndexedTableValue
+    ) -> "CPOStackAddressEscape":
+        return super().__new__(cls, pd, ixval)
 
     @property
     def lval(self) -> "CLval":
@@ -626,10 +626,10 @@ class CPOInScope(CPOPredicate):
     - args[0]: index of exp in cdictionary
     """
 
-    def __init__(
-            self, pd: "CFilePredicateDictionary", ixval: IT.IndexedTableValue
-    ) -> None:
-        CPOPredicate.__init__(self, pd, ixval)
+    def __new__(
+            cls, pd: "CFilePredicateDictionary", ixval: IT.IndexedTableValue
+    ) -> "CPOInScope":
+        return super().__new__(cls, pd, ixval)
 
     @property
     def exp(self) -> "CExp":
@@ -653,10 +653,10 @@ class CPOAllocationBase(CPOPredicate):
     - args[0]: index of exp in cdictionary
     """
 
-    def __init__(
-            self, pd: "CFilePredicateDictionary", ixval: IT.IndexedTableValue
-    ) -> None:
-        CPOPredicate.__init__(self, pd, ixval)
+    def __new__(
+            cls, pd: "CFilePredicateDictionary", ixval: IT.IndexedTableValue
+    ) -> "CPOAllocationBase":
+        return super().__new__(cls, pd, ixval)
 
     @property
     def exp(self) -> "CExp":
@@ -680,10 +680,10 @@ class CPONewMemory(CPOPredicate):
     - args[0]: index of exp in cdictionary
     """
 
-    def __init__(
-            self, pd: "CFilePredicateDictionary", ixval: IT.IndexedTableValue
-    ) -> None:
-        CPOPredicate.__init__(self, pd, ixval)
+    def __new__(
+            cls, pd: "CFilePredicateDictionary", ixval: IT.IndexedTableValue
+    ) -> "CPONewMemory":
+        return super().__new__(cls, pd, ixval)
 
     @property
     def exp(self) -> "CExp":
@@ -708,10 +708,10 @@ class CPOBuffer(CPOPredicate):
     - args[1]: index of size in cdictionary
     """
 
-    def __init__(
-            self, pd: "CFilePredicateDictionary", ixval: IT.IndexedTableValue
-    ) -> None:
-        CPOPredicate.__init__(self, pd, ixval)
+    def __new__(
+            cls, pd: "CFilePredicateDictionary", ixval: IT.IndexedTableValue
+    ) -> "CPOBuffer":
+        return super().__new__(cls, pd, ixval)
 
     @property
     def exp(self) -> "CExp":
@@ -741,10 +741,10 @@ class CPORevBuffer(CPOPredicate):
     - args[1]: index of presize expression in cdictionary
     """
 
-    def __init__(
-            self, pd: "CFilePredicateDictionary", ixval: IT.IndexedTableValue
-    ) -> None:
-        CPOPredicate.__init__(self, pd, ixval)
+    def __new__(
+            cls, pd: "CFilePredicateDictionary", ixval: IT.IndexedTableValue
+    ) -> "CPORevBuffer":
+        return super().__new__(cls, pd, ixval)
 
     @property
     def exp(self) -> "CExp":
@@ -773,10 +773,10 @@ class CPOTypeAtOffset(CPOPredicate):
     - args[1]: index of exp in cdictionary
     """
 
-    def __init__(
-            self, pd: "CFilePredicateDictionary", ixval: IT.IndexedTableValue
-    ) -> None:
-        CPOPredicate.__init__(self, pd, ixval)
+    def __new__(
+            cls, pd: "CFilePredicateDictionary", ixval: IT.IndexedTableValue
+    ) -> "CPOTypeAtOffset":
+        return super().__new__(cls, pd, ixval)
 
     @property
     def typ(self) -> "CTyp":
@@ -805,10 +805,10 @@ class CPOLowerBound(CPOPredicate):
     - args[1]: index of exp in cdictionary
     """
 
-    def __init__(
-            self, pd: "CFilePredicateDictionary", ixval: IT.IndexedTableValue
-    ) -> None:
-        CPOPredicate.__init__(self, pd, ixval)
+    def __new__(
+            cls, pd: "CFilePredicateDictionary", ixval: IT.IndexedTableValue
+    ) -> "CPOLowerBound":
+        return super().__new__(cls, pd, ixval)
 
     @property
     def typ(self) -> "CTyp":
@@ -838,10 +838,10 @@ class CPOUpperBound(CPOPredicate):
     - args[1]: index of exp in cdictionary
     """
 
-    def __init__(
-            self, pd: "CFilePredicateDictionary", ixval: IT.IndexedTableValue
-    ) -> None:
-        CPOPredicate.__init__(self, pd, ixval)
+    def __new__(
+            cls, pd: "CFilePredicateDictionary", ixval: IT.IndexedTableValue
+    ) -> "CPOUpperBound":
+        return super().__new__(cls, pd, ixval)
 
     @property
     def typ(self) -> "CTyp":
@@ -870,10 +870,10 @@ class CPOIndexLowerBound(CPOPredicate):
     - args[0]: index of exp in cdictionary
     """
 
-    def __init__(
-            self, pd: "CFilePredicateDictionary", ixval: IT.IndexedTableValue
-    ) -> None:
-        CPOPredicate.__init__(self, pd, ixval)
+    def __new__(
+            cls, pd: "CFilePredicateDictionary", ixval: IT.IndexedTableValue
+    ) -> "CPOIndexLowerBound":
+        return super().__new__(cls, pd, ixval)
 
     @property
     def exp(self) -> "CExp":
@@ -899,10 +899,10 @@ class CPOIndexUpperBound(CPOPredicate):
     - args[1]: index of array size expression in cdictionary
     """
 
-    def __init__(
-            self, pd: "CFilePredicateDictionary", ixval: IT.IndexedTableValue
-    ) -> None:
-        CPOPredicate.__init__(self, pd, ixval)
+    def __new__(
+            cls, pd: "CFilePredicateDictionary", ixval: IT.IndexedTableValue
+    ) -> "CPOIndexUpperBound":
+        return super().__new__(cls, pd, ixval)
 
     @property
     def exp(self) -> "CExp":
@@ -936,10 +936,10 @@ class CPOInitialized(CPOPredicate):
     - args[0]: index of lval in cdictionary
     """
 
-    def __init__(
-            self, pd: "CFilePredicateDictionary", ixval: IT.IndexedTableValue
-    ) -> None:
-        CPOPredicate.__init__(self, pd, ixval)
+    def __new__(
+            cls, pd: "CFilePredicateDictionary", ixval: IT.IndexedTableValue
+    ) -> "CPOPredicate":
+        return super().__new__(cls, pd, ixval)
 
     @property
     def lval(self) -> "CLval":
@@ -971,10 +971,10 @@ class CPOInitializedRange(CPOPredicate):
     - args[1]: index of size in cdictionary
     """
 
-    def __init__(
-            self, pd: "CFilePredicateDictionary", ixval: IT.IndexedTableValue
-    ) -> None:
-        CPOPredicate.__init__(self, pd, ixval)
+    def __new__(
+            cls, pd: "CFilePredicateDictionary", ixval: IT.IndexedTableValue
+    ) -> "CPOInitializedRange":
+        return super().__new__(cls, pd, ixval)
 
     @property
     def exp(self) -> "CExp":
@@ -1009,10 +1009,10 @@ class CPOCast(CPOPredicate):
     - args[2]: index of exp in cdictionary
     """
 
-    def __init__(
-            self, pd: "CFilePredicateDictionary", ixval: IT.IndexedTableValue
-    ) -> None:
-        CPOPredicate.__init__(self, pd, ixval)
+    def __new__(
+            cls, pd: "CFilePredicateDictionary", ixval: IT.IndexedTableValue
+    ) -> "CPOCast":
+        return super().__new__(cls, pd, ixval)
 
     @property
     def exp(self) -> "CExp":
@@ -1056,10 +1056,10 @@ class CPOFormatCast(CPOPredicate):
     - args[2]: index of exp in cdictionary
     """
 
-    def __init__(
-            self, pd: "CFilePredicateDictionary", ixval: IT.IndexedTableValue
-    ) -> None:
-        CPOPredicate.__init__(self, pd, ixval)
+    def __new__(
+            cls, pd: "CFilePredicateDictionary", ixval: IT.IndexedTableValue
+    ) -> "CPOFormatCast":
+        return super().__new__(cls, pd, ixval)
 
     @property
     def exp(self) -> "CExp":
@@ -1102,10 +1102,10 @@ class CPOPointerCast(CPOPredicate):
     - args[2]: index of exp in cdictionary
     """
 
-    def __init__(
-            self, pd: "CFilePredicateDictionary", ixval: IT.IndexedTableValue
-    ) -> None:
-        CPOPredicate.__init__(self, pd, ixval)
+    def __new__(
+            cls, pd: "CFilePredicateDictionary", ixval: IT.IndexedTableValue
+    ) -> "CPOPointerCast":
+        return super().__new__(cls, pd, ixval)
 
     @property
     def exp(self) -> "CExp":
@@ -1157,10 +1157,10 @@ class CPOSignedToUnsignedCastLB(CPOPredicate):
     - args[0]: index of exp in cdictionary
     """
 
-    def __init__(
-            self, pd: "CFilePredicateDictionary", ixval: IT.IndexedTableValue
-    ) -> None:
-        CPOPredicate.__init__(self, pd, ixval)
+    def __new__(
+            cls, pd: "CFilePredicateDictionary", ixval: IT.IndexedTableValue
+    ) -> "CPOSignedToUnsignedCastLB":
+        return super().__new__(cls, pd, ixval)
 
     @property
     def exp(self) -> "CExp":
@@ -1204,10 +1204,10 @@ class CPOSignedToUnsignedCastUB(CPOPredicate):
     - args[0]: index of exp in cdictionary
     """
 
-    def __init__(
-            self, pd: "CFilePredicateDictionary", ixval: IT.IndexedTableValue
-    ) -> None:
-        CPOPredicate.__init__(self, pd, ixval)
+    def __new__(
+            cls, pd: "CFilePredicateDictionary", ixval: IT.IndexedTableValue
+    ) -> "CPOSignedToUnsignedCastUB":
+        return super().__new__(cls, pd, ixval)
 
     @property
     def exp(self) -> "CExp":
@@ -1251,10 +1251,10 @@ class CPOUnsignedToSignedCast(CPOPredicate):
     - args[0]: index of exp in cdictionary
     """
 
-    def __init__(
-            self, pd: "CFilePredicateDictionary", ixval: IT.IndexedTableValue
-    ) -> None:
-        CPOPredicate.__init__(self, pd, ixval)
+    def __new__(
+            cls, pd: "CFilePredicateDictionary", ixval: IT.IndexedTableValue
+    ) -> "CPOPredicate":
+        return super().__new__(cls, pd, ixval)
 
     @property
     def exp(self) -> "CExp":
@@ -1298,10 +1298,10 @@ class CPOUnsignedToUnsignedCast(CPOPredicate):
     - args[0]: index of exp in cdictionary
     """
 
-    def __init__(
-            self, pd: "CFilePredicateDictionary", ixval: IT.IndexedTableValue
-    ) -> None:
-        CPOPredicate.__init__(self, pd, ixval)
+    def __new__(
+            cls, pd: "CFilePredicateDictionary", ixval: IT.IndexedTableValue
+    ) -> "CPOUnsignedToUnsignedCast":
+        return super().__new__(cls, pd, ixval)
 
     @property
     def exp(self) -> "CExp":
@@ -1345,10 +1345,10 @@ class CPOSignedToSignedCastLB(CPOPredicate):
     - args[0]: index of exp in cdictionary
     """
 
-    def __init__(
-            self, pd: "CFilePredicateDictionary", ixval: IT.IndexedTableValue
-    ) -> None:
-        CPOPredicate.__init__(self, pd, ixval)
+    def __new__(
+            cls, pd: "CFilePredicateDictionary", ixval: IT.IndexedTableValue
+    ) -> "CPOSignedToSignedCastLB":
+        return super().__new__(cls, pd, ixval)
 
     @property
     def exp(self) -> "CExp":
@@ -1392,10 +1392,10 @@ class CPOSignedToSignedCastUB(CPOPredicate):
     - args[0]: index of exp in cdictionary
     """
 
-    def __init__(
-            self, pd: "CFilePredicateDictionary", ixval: IT.IndexedTableValue
-    ) -> None:
-        CPOPredicate.__init__(self, pd, ixval)
+    def __new__(
+            cls, pd: "CFilePredicateDictionary", ixval: IT.IndexedTableValue
+    ) -> "CPOSignedToSignedCastUB":
+        return super().__new__(cls, pd, ixval)
 
     @property
     def exp(self) -> "CExp":
@@ -1435,10 +1435,10 @@ class CPONotZero(CPOPredicate):
     - args[0]: index of exp in cdictionary
     """
 
-    def __init__(
-            self, pd: "CFilePredicateDictionary", ixval: IT.IndexedTableValue
-    ) -> None:
-        CPOPredicate.__init__(self, pd, ixval)
+    def __new__(
+            cls, pd: "CFilePredicateDictionary", ixval: IT.IndexedTableValue
+    ) -> "CPONotZero":
+        return super().__new__(cls, pd, ixval)
 
     @property
     def exp(self) -> "CExp":
@@ -1462,10 +1462,10 @@ class CPONonNegative(CPOPredicate):
     - args[0]: index of exp in cdictionary
     """
 
-    def __init__(
-            self, pd: "CFilePredicateDictionary", ixval: IT.IndexedTableValue
-    ) -> None:
-        CPOPredicate.__init__(self, pd, ixval)
+    def __new__(
+            cls, pd: "CFilePredicateDictionary", ixval: IT.IndexedTableValue
+    ) -> "CPONonNegative":
+        return super().__new__(cls, pd, ixval)
 
     @property
     def exp(self) -> "CExp":
@@ -1489,10 +1489,10 @@ class CPONullTerminated(CPOPredicate):
     - args[0]: index of exp in cdictionary
     """
 
-    def __init__(
-            self, pd: "CFilePredicateDictionary", ixval: IT.IndexedTableValue
-    ) -> None:
-        CPOPredicate.__init__(self, pd, ixval)
+    def __new__(
+            cls, pd: "CFilePredicateDictionary", ixval: IT.IndexedTableValue
+    ) -> "CPONullTerminated":
+        return super().__new__(cls, pd, ixval)
 
     @property
     def exp(self) -> "CExp":
@@ -1521,10 +1521,10 @@ class CPOIntUnderflow(CPOPredicate):
     - args[1]: index of exp2 in cdictionary
     """
 
-    def __init__(
-            self, pd: "CFilePredicateDictionary", ixval: IT.IndexedTableValue
-    ) -> None:
-        CPOPredicate.__init__(self, pd, ixval)
+    def __new__(
+            cls, pd: "CFilePredicateDictionary", ixval: IT.IndexedTableValue
+    ) -> "CPOIntUnderflow":
+        return super().__new__(cls, pd, ixval)
 
     @property
     def binop(self) -> str:
@@ -1574,10 +1574,10 @@ class CPOIntOverflow(CPOPredicate):
     - args[1]: index of exp2 in cdictionary
     """
 
-    def __init__(
-            self, pd: "CFilePredicateDictionary", ixval: IT.IndexedTableValue
-    ) -> None:
-        CPOPredicate.__init__(self, pd, ixval)
+    def __new__(
+            cls, pd: "CFilePredicateDictionary", ixval: IT.IndexedTableValue
+    ) -> "CPOIntOverflow":
+        return super().__new__(cls, pd, ixval)
 
     @property
     def binop(self) -> str:
@@ -1630,10 +1630,10 @@ class CPOUIntUnderflow(CPOPredicate):
     - args[1]: index of exp2 in cdictionary
     """
 
-    def __init__(
-            self, pd: "CFilePredicateDictionary", ixval: IT.IndexedTableValue
-    ) -> None:
-        CPOPredicate.__init__(self, pd, ixval)
+    def __new__(
+            cls, pd: "CFilePredicateDictionary", ixval: IT.IndexedTableValue
+    ) -> "CPOUIntUnderflow":
+        return super().__new__(cls, pd, ixval)
 
     @property
     def binop(self) -> str:
@@ -1686,10 +1686,10 @@ class CPOUIntOverflow(CPOPredicate):
     - args[1]: index of exp2 in cdictionary
     """
 
-    def __init__(
-            self, pd: "CFilePredicateDictionary", ixval: IT.IndexedTableValue
-    ) -> None:
-        CPOPredicate.__init__(self, pd, ixval)
+    def __new__(
+            cls, pd: "CFilePredicateDictionary", ixval: IT.IndexedTableValue
+    ) -> "CPOUIntOverflow":
+        return super().__new__(cls, pd, ixval)
 
     @property
     def binop(self) -> str:
@@ -1737,10 +1737,10 @@ class CPOWidthOverflow(CPOPredicate):
     - args[0]: exp
     """
 
-    def __init__(
-            self, pd: "CFilePredicateDictionary", ixval: IT.IndexedTableValue
-    ) -> None:
-        CPOPredicate.__init__(self, pd, ixval)
+    def __new__(
+            cls, pd: "CFilePredicateDictionary", ixval: IT.IndexedTableValue
+    ) -> "CPOWidthOverflow":
+        return super().__new__(cls, pd, ixval)
 
     @property
     def exp(self) -> "CExp":
@@ -1773,10 +1773,10 @@ class CPOPtrLowerBound(CPOPredicate):
     - args[2]: exp2
     """
 
-    def __init__(
-            self, pd: "CFilePredicateDictionary", ixval: IT.IndexedTableValue
-    ) -> None:
-        CPOPredicate.__init__(self, pd, ixval)
+    def __new__(
+            cls, pd: "CFilePredicateDictionary", ixval: IT.IndexedTableValue
+    ) -> "CPOPtrLowerBound":
+        return super().__new__(cls, pd, ixval)
 
     @property
     def typ(self) -> "CTyp":
@@ -1826,10 +1826,10 @@ class CPOPtrUpperBound(CPOPredicate):
     - args[2]: exp2
     """
 
-    def __init__(
-            self, pd: "CFilePredicateDictionary", ixval: IT.IndexedTableValue
-    ) -> None:
-        CPOPredicate.__init__(self, pd, ixval)
+    def __new__(
+            cls, pd: "CFilePredicateDictionary", ixval: IT.IndexedTableValue
+    ) -> "CPOPtrUpperBound":
+        return super().__new__(cls, pd, ixval)
 
     @property
     def typ(self) -> "CTyp":
@@ -1879,10 +1879,10 @@ class CPOPtrUpperBoundDeref(CPOPredicate):
     - args[2]: exp2
     """
 
-    def __init__(
-            self, pd: "CFilePredicateDictionary", ixval: IT.IndexedTableValue
-    ) -> None:
-        CPOPredicate.__init__(self, pd, ixval)
+    def __new__(
+            cls, pd: "CFilePredicateDictionary", ixval: IT.IndexedTableValue
+    ) -> "CPOPtrUpperBoundDeref":
+        return super().__new__(cls, pd, ixval)
 
     @property
     def typ(self) -> "CTyp":
@@ -1929,10 +1929,10 @@ class CPOCommonBase(CPOPredicate):
     - args[1]: index of exp2 in cdictionary
     """
 
-    def __init__(
-            self, pd: "CFilePredicateDictionary", ixval: IT.IndexedTableValue
-    ) -> None:
-        CPOPredicate.__init__(self, pd, ixval)
+    def __new__(
+            cls, pd: "CFilePredicateDictionary", ixval: IT.IndexedTableValue
+    ) -> "CPOCommonBase":
+        return super().__new__(cls, pd, ixval)
 
     @property
     def exp1(self) -> "CExp":
@@ -1962,10 +1962,10 @@ class CPOCommonBaseType(CPOPredicate):
     - args[1]: index of exp2 in cdictionary
     """
 
-    def __init__(
-            self, pd: "CFilePredicateDictionary", ixval: IT.IndexedTableValue
-    ) -> None:
-        CPOPredicate.__init__(self, pd, ixval)
+    def __new__(
+            cls, pd: "CFilePredicateDictionary", ixval: IT.IndexedTableValue
+    ) -> "CPOCommonBaseType":
+        return super().__new__(cls, pd, ixval)
 
     @property
     def exp1(self) -> "CExp":
@@ -1997,10 +1997,10 @@ class CPOFormatString(CPOPredicate):
     - args[0]: index exp in cdictionary
     """
 
-    def __init__(
-            self, pd: "CFilePredicateDictionary", ixval: IT.IndexedTableValue
-    ) -> None:
-        CPOPredicate.__init__(self, pd, ixval)
+    def __new__(
+            cls, pd: "CFilePredicateDictionary", ixval: IT.IndexedTableValue
+    ) -> "CPOFormatString":
+        return super().__new__(cls, pd, ixval)
 
     @property
     def exp(self) -> "CExp":
@@ -2031,10 +2031,10 @@ class CPOVarArgs(CPOPredicate):
       - 2..: indices of args in cdictionary
     """
 
-    def __init__(
-            self, pd: "CFilePredicateDictionary", ixval: IT.IndexedTableValue
-    ) -> None:
-        CPOPredicate.__init__(self, pd, ixval)
+    def __new__(
+            cls, pd: "CFilePredicateDictionary", ixval: IT.IndexedTableValue
+    ) -> "CPOVarArgs":
+        return super().__new__(cls, pd, ixval)
 
     @property
     def fmt(self) -> "CExp":
@@ -2067,10 +2067,10 @@ class CPONoOverlap(CPOPredicate):
     - args[1]: index of exp2 in cdictionary
     """
 
-    def __init__(
-            self, pd: "CFilePredicateDictionary", ixval: IT.IndexedTableValue
-    ) -> None:
-        CPOPredicate.__init__(self, pd, ixval)
+    def __new__(
+            cls, pd: "CFilePredicateDictionary", ixval: IT.IndexedTableValue
+    ) -> "CPONoOverlap":
+        return super().__new__(cls, pd, ixval)
 
     @property
     def exp1(self) -> "CExp":
@@ -2103,10 +2103,10 @@ class CPOValueConstraint(CPOPredicate):
     - args[0]: index of exp in cdictionary
     """
 
-    def __init__(
-            self, pd: "CFilePredicateDictionary", ixval: IT.IndexedTableValue
-    ) -> None:
-        CPOPredicate.__init__(self, pd, ixval)
+    def __new__(
+            cls, pd: "CFilePredicateDictionary", ixval: IT.IndexedTableValue
+    ) -> "CPOValueConstraint":
+        return super().__new__(cls, pd, ixval)
 
     @property
     def exp(self) -> "CExp":
@@ -2128,10 +2128,10 @@ class CPOPreservedAllMemory(CPOPredicate):
     """preserves-all-memory(): true of a function that does not free any memory.
     """
 
-    def __init__(
-            self, pd: "CFilePredicateDictionary", ixval: IT.IndexedTableValue
-    ) -> None:
-        CPOPredicate.__init__(self, pd, ixval)
+    def __new__(
+            cls, pd: "CFilePredicateDictionary", ixval: IT.IndexedTableValue
+    ) -> "CPOPreservedAllMemory":
+        return super().__new__(cls, pd, ixval)
 
     @property
     def is_preserves_all_memory(self) -> bool:
@@ -2148,10 +2148,10 @@ class CPOPreservedValue(CPOPredicate):
     - args[0]: index of exp in cdictionary
     """
 
-    def __init__(
-            self, pd: "CFilePredicateDictionary", ixval: IT.IndexedTableValue
-    ) -> None:
-        CPOPredicate.__init__(self, pd, ixval)
+    def __new__(
+            cls, pd: "CFilePredicateDictionary", ixval: IT.IndexedTableValue
+    ) -> "CPOPreservedValue":
+        return super().__new__(cls, pd, ixval)
 
     @property
     def exp(self) -> "CExp":

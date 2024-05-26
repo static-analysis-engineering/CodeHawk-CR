@@ -72,8 +72,8 @@ unoperatorstrings = {"neg": "-", "bnot": "~", "lnot": "!"}
 class CExp(CDictionaryRecord):
     """Base class for all expressions."""
 
-    def __init__(self, cd: "CDictionary", ixval: IT.IndexedTableValue) -> None:
-        CDictionaryRecord.__init__(self, cd, ixval)
+    def __new__(cls, cd: "CDictionary", ixval: IT.IndexedTableValue) -> None:
+        return super().__new__(cls, cd, ixval)
 
     @property
     def is_binop(self) -> bool:
@@ -165,8 +165,8 @@ class CExpConst(CExp):
     - args[0]: constant
     """
 
-    def __init__(self, cd: "CDictionary", ixval: IT.IndexedTableValue) -> None:
-        CExp.__init__(self, cd, ixval)
+    def __new__(cls, cd: "CDictionary", ixval: IT.IndexedTableValue) -> None:
+        return super().__new__(cls, cd, ixval)
 
     @property
     def is_constant(self) -> bool:
@@ -193,8 +193,8 @@ class CExpLval(CExp):
     - args[0]: index of lval in cdictionary
     """
 
-    def __init__(self, cd: "CDictionary", ixval: IT.IndexedTableValue) -> None:
-        CExp.__init__(self, cd, ixval)
+    def __new__(cls, cd: "CDictionary", ixval: IT.IndexedTableValue) -> None:
+        return super().__new__(cls, cd, ixval)
 
     @property
     def lval(self) -> "CLval":
@@ -227,8 +227,8 @@ class CExpSizeOf(CExp):
     - args[0]: index of target type in cdictionary
     """
 
-    def __init__(self, cd: "CDictionary", ixval: IT.IndexedTableValue) -> None:
-        CExp.__init__(self, cd, ixval)
+    def __new__(cls, cd: "CDictionary", ixval: IT.IndexedTableValue) -> None:
+        return super().__new__(cls, cd, ixval)
 
     @property
     def typ(self) -> "CTyp":
@@ -252,8 +252,8 @@ class CExpSizeOfE(CExp):
     - args[0]: exp
     """
 
-    def __init__(self, cd: "CDictionary", ixval: IT.IndexedTableValue) -> None:
-        CExp.__init__(self, cd, ixval)
+    def __new__(cls, cd: "CDictionary", ixval: IT.IndexedTableValue) -> None:
+        return super().__new__(cls, cd, ixval)
 
     @property
     def exp(self) -> CExp:
@@ -283,8 +283,8 @@ class CExpSizeOfStr(CExp):
     - args[0]:index of  string in the string table
     """
 
-    def __init__(self, cd: "CDictionary", ixval: IT.IndexedTableValue) -> None:
-        CExp.__init__(self, cd, ixval)
+    def __new__(cls, cd: "CDictionary", ixval: IT.IndexedTableValue) -> None:
+        return super().__new__(cls, cd, ixval)
 
     @property
     def stringvalue(self) -> str:
@@ -311,8 +311,8 @@ class CExpAlignOf(CExp):
     - args[0]: index of type in cdictionary
     """
 
-    def __init__(self, cd: "CDictionary", ixval: IT.IndexedTableValue) -> None:
-        CExp.__init__(self, cd, ixval)
+    def __new__(cls, cd: "CDictionary", ixval: IT.IndexedTableValue) -> None:
+        return super().__new__(cls, cd, ixval)
 
     @property
     def typ(self) -> "CTyp":
@@ -336,8 +336,8 @@ class CExpAlignOfE(CExp):
     - args[0]: index of expression in cdictionary
     """
 
-    def __init__(self, cd: "CDictionary", ixval: IT.IndexedTableValue) -> None:
-        CExp.__init__(self, cd, ixval)
+    def __new__(cls, cd: "CDictionary", ixval: IT.IndexedTableValue) -> None:
+        return super().__new__(cls, cd, ixval)
 
     @property
     def is_alignofe(self) -> bool:
@@ -373,8 +373,8 @@ class CExpUnOp(CExp):
     - args[1]: index of result type in cdictionary
     """
 
-    def __init__(self, cd: "CDictionary", ixval: IT.IndexedTableValue) -> None:
-        CExp.__init__(self, cd, ixval)
+    def __new__(cls, cd: "CDictionary", ixval: IT.IndexedTableValue) -> None:
+        return super().__new__(cls, cd, ixval)
 
     @property
     def exp(self) -> CExp:
@@ -418,8 +418,8 @@ class CExpBinOp(CExp):
     - args[2]: index of typ in cdictionary
     """
 
-    def __init__(self, cd: "CDictionary", ixval: IT.IndexedTableValue) -> None:
-        CExp.__init__(self, cd, ixval)
+    def __new__(cls, cd: "CDictionary", ixval: IT.IndexedTableValue) -> None:
+        return super().__new__(cls, cd, ixval)
 
     @property
     def exp1(self) -> CExp:
@@ -491,8 +491,8 @@ class CExpQuestion(CExp):
     - args[3]: index of result type in cdictionary
     """
 
-    def __init__(self, cd: "CDictionary", ixval: IT.IndexedTableValue) -> None:
-        CExp.__init__(self, cd, ixval)
+    def __new__(cls, cd: "CDictionary", ixval: IT.IndexedTableValue) -> None:
+        return super().__new__(cls, cd, ixval)
 
     @property
     def is_question(self) -> bool:
@@ -562,8 +562,8 @@ class CExpCastE(CExp):
     - args[1]: index of expression to be cast in cdictionary
     """
 
-    def __init__(self, cd: "CDictionary", ixval: IT.IndexedTableValue) -> None:
-        CExp.__init__(self, cd, ixval)
+    def __new__(cls, cd: "CDictionary", ixval: IT.IndexedTableValue) -> None:
+        return super().__new__(cls, cd, ixval)
 
     @property
     def exp(self) -> CExp:
@@ -604,8 +604,8 @@ class CExpAddrOf(CExp):
     - args[0]: index of lval in cdictionary
     """
 
-    def __init__(self, cd: "CDictionary", ixval: IT.IndexedTableValue) -> None:
-        CExp.__init__(self, cd, ixval)
+    def __new__(cls, cd: "CDictionary", ixval: IT.IndexedTableValue) -> None:
+        return super().__new__(cls, cd, ixval)
 
     @property
     def lval(self) -> "CLval":
@@ -638,8 +638,8 @@ class CExpAddrOfLabel(CExp):
     - args[0]: statement sid
     """
 
-    def __init__(self, cd: "CDictionary", ixval: IT.IndexedTableValue) -> None:
-        CExp.__init__(self, cd, ixval)
+    def __new__(cls, cd: "CDictionary", ixval: IT.IndexedTableValue) -> None:
+        return super().__new__(cls, cd, ixval)
 
     @property
     def label_sid(self) -> int:
@@ -659,8 +659,8 @@ class CExpStartOf(CExp):
     - args[0]: index of lval in cdictionary
     """
 
-    def __init__(self, cd: "CDictionary", ixval: IT.IndexedTableValue) -> None:
-        CExp.__init__(self, cd, ixval)
+    def __new__(cls, cd: "CDictionary", ixval: IT.IndexedTableValue) -> None:
+        return super().__new__(cls, cd, ixval)
 
     @property
     def lval(self) -> "CLval":
@@ -697,8 +697,8 @@ class CExpFnApp(CExp):
     - args[3..]: indices of arguments (optional) in cdictionary
     """
 
-    def __init__(self, cd: "CDictionary", ixval: IT.IndexedTableValue) -> None:
-        CExp.__init__(self, cd, ixval)
+    def __new__(cls, cd: "CDictionary", ixval: IT.IndexedTableValue) -> None:
+        return super().__new__(cls, cd, ixval)
 
     @property
     def is_fn_app(self) -> bool:
@@ -733,8 +733,8 @@ class CExpCnApp(CExp):
     - args[1..]: indices of arguments (optional) in cdictionary
     """
 
-    def __init__(self, cd: "CDictionary", ixval: IT.IndexedTableValue) -> None:
-        CExp.__init__(self, cd, ixval)
+    def __new__(cls, cd: "CDictionary", ixval: IT.IndexedTableValue) -> None:
+        return super().__new__(cls, cd, ixval)
 
     @property
     def is_cn_app(self) -> bool:

@@ -44,9 +44,9 @@ if TYPE_CHECKING:
 
 class CXVariable(CFunXprDictionaryRecord):
 
-    def __init__(
-            self, xd: "CFunXprDictionary", ixval: IndexedTableValue) -> None:
-        CFunXprDictionaryRecord.__init__(self, xd, ixval)
+    def __new__(
+            cls, xd: "CFunXprDictionary", ixval: IndexedTableValue) -> "CXVariable":
+        return super().__new__(cls, xd, ixval)
 
     @property
     def symbol(self) -> "CXSymbol":

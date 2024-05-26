@@ -44,10 +44,11 @@ if TYPE_CHECKING:
 
 class CTypsig(CDictionaryRecord):
 
-    def __init__(self, cd: "CDictionary", ixval: IT.IndexedTableValue) -> None:
-        CDictionaryRecord.__init__(self, cd, ixval)
+    def __new__(cls, cd: "CDictionary", ixval: IT.IndexedTableValue) -> "CTypsig":
+        self = super().__new__(cls, cd, ixval)
         self._cd = cd
         self._cfile = self.cd.cfile
+        return self
 
     @property
     def cd(self) -> "CDictionary":
@@ -66,8 +67,8 @@ class CTypsigArray(CTypsig):
     - args[0]: index of type signature of array base in cdictionary
     - args[1]: index of attributes in cdictionary
     """
-    def __init__(self, cd: "CDictionary", ixval: IT.IndexedTableValue) -> None:
-        CTypsig.__init__(self, cd, ixval)
+    def __new__(cls, cd: "CDictionary", ixval: IT.IndexedTableValue) -> "CTypsigArray":
+        return super().__new__(cls, cd, ixval)
 
     @property
     def opt_length(self) -> Optional[int]:
@@ -91,8 +92,8 @@ class CTypsigPtr(CTypsig):
 
     - args[0]: index of target type signature in cdictionary
     """
-    def __init__(self, cd: "CDictionary", ixval: IT.IndexedTableValue) -> None:
-        CTypsig.__init__(self, cd, ixval)
+    def __new__(cls, cd: "CDictionary", ixval: IT.IndexedTableValue) -> "CTypsigPtr":
+        return super().__new__(cls, cd, ixval)
 
     @property
     def typsig(self) -> CTypsig:
@@ -108,8 +109,8 @@ class CTypsigComp(CTypsig):
 
     - tags[1]: name of struct
     """
-    def __init__(self, cd: "CDictionary", ixval: IT.IndexedTableValue) -> None:
-        CTypsig.__init__(self, cd, ixval)
+    def __new__(cls, cd: "CDictionary", ixval: IT.IndexedTableValue) -> "CTypsigComp":
+        return super().__new__(cls, cd, ixval)
 
     @property
     def name(self) -> str:
@@ -126,8 +127,8 @@ class CTypsigFun(CTypsig):
     - args[0]: index of return value type signature in cdictionary
     - args[1]: index of list of argument type signatures in cdictionary
     """
-    def __init__(self, cd: "CDictionary", ixval: IT.IndexedTableValue) -> None:
-        CTypsig.__init__(self, cd, ixval)
+    def __new__(cls, cd: "CDictionary", ixval: IT.IndexedTableValue) -> "CTypsigFun":
+        return super().__new__(cls, cd, ixval)
 
     @property
     def returnval_typsig(self) -> CTypsig:
@@ -152,8 +153,8 @@ class CTypsigEnum(CTypsig):
 
     - tags[1]: enum name
     """
-    def __init__(self, cd: "CDictionary", ixval: IT.IndexedTableValue) -> None:
-        CTypsig.__init__(self, cd, ixval)
+    def __new__(cls, cd: "CDictionary", ixval: IT.IndexedTableValue) -> "CTypsigEnum":
+        return super().__new__(cls, cd, ixval)
 
     @property
     def name(self) -> str:
@@ -169,8 +170,8 @@ class CTypsigBase(CTypsig):
 
     - args[1]: index of type of base type signature in cdictionary.
     """
-    def __init__(self, cd: "CDictionary", ixval: IT.IndexedTableValue) -> None:
-        CTypsig.__init__(self, cd, ixval)
+    def __new__(cls, cd: "CDictionary", ixval: IT.IndexedTableValue) -> "CTypsigBase":
+        return super().__new__(cls, cd, ixval)
 
     @property
     def base_type(self) -> "CTyp":
@@ -182,9 +183,11 @@ class CTypsigBase(CTypsig):
 
 class CTypsigList(IT.IndexedTableValue):
 
-    def __init__(self, cd: "CDictionary", ixval: IT.IndexedTableValue) -> None:
+    def __new__(cls, cd: "CDictionary", ixval: IT.IndexedTableValue) -> None:
+        self = super().__new__(cls, ixval.index, ixval.tags, ixval.args)
         self.cd = cd
         self.cfile = self.cd.cfile
+        return self
 
     @property
     def typsig_list(self) -> List[CTypsig]:

@@ -45,10 +45,10 @@ if TYPE_CHECKING:
 class AssumptionType(CFunPODictionaryRecord):
     """Base class for assumption types."""
 
-    def __init__(
-            self, pod: "CFunPODictionary", ixval: IndexedTableValue
-    ) -> None:
-        CFunPODictionaryRecord.__init__(self, pod, ixval)
+    def __new__(
+            cls, pod: "CFunPODictionary", ixval: IndexedTableValue
+    ) -> "AssumptionType":
+        return super().__new__(cls, pod, ixval)
 
     @property
     def is_local_assumption(self) -> bool:
@@ -85,10 +85,10 @@ class LocalAssumptionType(AssumptionType):
     * args[0]: index of predicate in predicate dictionary
     """
 
-    def __init__(
-            self, pod: "CFunPODictionary", ixval: IndexedTableValue
-    ) -> None:
-        AssumptionType.__init__(self, pod, ixval)
+    def __new__(
+            cls, pod: "CFunPODictionary", ixval: IndexedTableValue
+    ) -> "LocalAssumptionType":
+        return super().__new__(cls, pod, ixval)
 
     @property
     def predicate(self) -> "CPOPredicate":
@@ -114,10 +114,10 @@ class ApiAssumptionType(AssumptionType):
     * args[0]: index of predicate in predicate dictionary
     """
 
-    def __init__(
-            self, pod: "CFunPODictionary", ixval: IndexedTableValue
-    ) -> None:
-        AssumptionType.__init__(self, pod, ixval)
+    def __new__(
+            cls, pod: "CFunPODictionary", ixval: IndexedTableValue
+    ) -> "ApiAssumptionType":
+        return super().__new__(cls, pod, ixval)
 
     @property
     def predicate(self) -> "CPOPredicate":
@@ -148,10 +148,10 @@ class GlobalApiAssumptionType(AssumptionType):
     * args[0]: index of predicate in predicate dictionary
     """
 
-    def __init__(
-            self, pod: "CFunPODictionary", ixval: IndexedTableValue
-    ) -> None:
-        AssumptionType.__init__(self, pod, ixval)
+    def __new__(
+            cls, pod: "CFunPODictionary", ixval: IndexedTableValue
+    ) -> "GlobalApiAssumptionType":
+        return super().__new__(cls, pod, ixval)
 
     @property
     def predicate(self) -> "CPOPredicate":
@@ -177,10 +177,10 @@ class PostconditionType(AssumptionType):
     * args[1]: index of xpredicate in interface dictionary
     """
 
-    def __init__(
-            self, pod: "CFunPODictionary", ixval: IndexedTableValue
-    ) -> None:
-        AssumptionType.__init__(self, pod, ixval)
+    def __new__(
+            cls, pod: "CFunPODictionary", ixval: IndexedTableValue
+    ) -> "PostconditionType":
+        return super().__new__(cls, pod, ixval)
 
     @property
     def xpredicate(self) -> "XPredicate":
@@ -209,10 +209,10 @@ class GlobalAssumptionType(AssumptionType):
     * args[0]: index of xpredicate in interfacedictionary
     """
 
-    def __init__(
-            self, pod: "CFunPODictionary", ixval: IndexedTableValue
-    ) -> None:
-        AssumptionType.__init__(self, pod, ixval)
+    def __new__(
+            cls, pod: "CFunPODictionary", ixval: IndexedTableValue
+    ) -> "GlobalAssumptionType":
+        return super().__new__(cls, pod, ixval)
 
     @property
     def xpredicate(self) -> "XPredicate":

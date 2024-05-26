@@ -46,9 +46,9 @@ class CTypeInfo(CDeclarationsRecord):
     - args[1]: index of type of type definition in cdictionary
     """
 
-    def __init__(
-            self, cdecls: "CDeclarations", ixval: IT.IndexedTableValue) -> None:
-        CDeclarationsRecord.__init__(self, cdecls, ixval)
+    def __new__(
+            cls, cdecls: "CDeclarations", ixval: IT.IndexedTableValue) -> "CTypeInfo":
+        return super().__new__(cls, cdecls, ixval)
 
     @property
     def name(self) -> str:

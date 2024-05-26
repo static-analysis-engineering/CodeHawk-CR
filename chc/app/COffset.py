@@ -42,8 +42,8 @@ if TYPE_CHECKING:
 class COffset(CDictionaryRecord):
     """Base class for an expression offset."""
 
-    def __init__(self, cd: "CDictionary", ixval: IT.IndexedTableValue) -> None:
-        CDictionaryRecord.__init__(self, cd, ixval)
+    def __new__(cls, cd: "CDictionary", ixval: IT.IndexedTableValue) -> "COffset":
+        return super().__new__(cls, cd, ixval)
 
     def has_offset(self) -> bool:
         return True
@@ -76,8 +76,8 @@ class COffset(CDictionaryRecord):
 @cdregistry.register_tag("n", COffset)
 class CNoOffset(COffset):
 
-    def __init__(self, cd: "CDictionary", ixval: IT.IndexedTableValue) -> None:
-        COffset.__init__(self, cd, ixval)
+    def __new__(cls, cd: "CDictionary", ixval: IT.IndexedTableValue) -> "CNoOffset":
+        return super().__new__(cls, cd, ixval)
 
     def has_offset(self) -> bool:
         return False
@@ -103,8 +103,8 @@ class CFieldOffset(COffset):
     * args[1]: index of sub-offset in cdictionary
     """
 
-    def __init__(self, cd: "CDictionary", ixval: IT.IndexedTableValue) -> None:
-        COffset.__init__(self, cd, ixval)
+    def __new__(cls, cd: "CDictionary", ixval: IT.IndexedTableValue) -> "CFieldOffset":
+        return super().__new__(cls, cd, ixval)
 
     @property
     def fieldname(self) -> str:
@@ -141,8 +141,8 @@ class CIndexOffset(COffset):
     * args[0]: index of base of index expression in cdictionary
     * args[1]: index of sub-offset in cdictionary
     """
-    def __init__(self, cd: "CDictionary", ixval: IT.IndexedTableValue) -> None:
-        COffset.__init__(self, cd, ixval)
+    def __new__(cls, cd: "CDictionary", ixval: IT.IndexedTableValue) -> "CIndexOffset":
+        return super().__new__(cls, cd, ixval)
 
     @property
     def index_exp(self) -> "CExp":

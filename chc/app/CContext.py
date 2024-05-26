@@ -42,11 +42,12 @@ if TYPE_CHECKING:
 
 class CContextDictionaryRecord(IndexedTableValue):
 
-    def __init__(
-            self, cxd: "CContextDictionary", ixval: IndexedTableValue
-    ) -> None:
-        IndexedTableValue.__init__(self, ixval.index, ixval.tags, ixval.args)
+    def __new__(
+            cls, cxd: "CContextDictionary", ixval: IndexedTableValue
+    ) -> "CContextDictionaryRecord":
+        self = super().__new__(cls, ixval.index, ixval.tags, ixval.args)
         self._cxd = cxd
+        return self
 
     @property
     def cxd(self) -> "CContextDictionary":
@@ -64,10 +65,10 @@ class CContextNode(CContextDictionaryRecord):
     - args[0]: stmt.id for statements, instr sequence number for instructions
     """
 
-    def __init__(
-            self, cxd: "CContextDictionary", ixval: IndexedTableValue
-    ) -> None:
-        CContextDictionaryRecord.__init__(self, cxd, ixval)
+    def __new__(
+            cls, cxd: "CContextDictionary", ixval: IndexedTableValue
+    ) -> "CContextNode":
+        return super().__new__(cls, cxd, ixval)
 
     @property
     def name(self) -> str:
@@ -96,10 +97,10 @@ class CfgContext(CContextDictionaryRecord):
       context last
     """
 
-    def __init__(
-            self, cxd: "CContextDictionary", ixval: IndexedTableValue
-    ) -> None:
-        CContextDictionaryRecord.__init__(self, cxd, ixval)
+    def __new__(
+            cls, cxd: "CContextDictionary", ixval: IndexedTableValue
+    ) -> "CfgContext":
+        return super().__new__(cls, cxd, ixval)
 
     @property
     def nodes(self) -> List[CContextNode]:
@@ -120,10 +121,10 @@ class ExpContext(CContextDictionaryRecord):
       context last
     """
 
-    def __init__(
-            self, cxd: "CContextDictionary", ixval: IndexedTableValue
-    ) -> None:
-        CContextDictionaryRecord.__init__(self, cxd, ixval)
+    def __new__(
+            cls, cxd: "CContextDictionary", ixval: IndexedTableValue
+    ) -> "ExpContext":
+        return super().__new__(cls, cxd, ixval)
 
     @property
     def nodes(self) -> List[CContextNode]:
@@ -140,10 +141,10 @@ class ProgramContext(CContextDictionaryRecord):
     args[1]: index of exp context in context dictionary
     """
 
-    def __init__(
-            self, cxd: "CContextDictionary", ixval: IndexedTableValue
-    ) -> None:
-        CContextDictionaryRecord.__init__(self, cxd, ixval)
+    def __new__(
+            cls, cxd: "CContextDictionary", ixval: IndexedTableValue
+    ) -> "ProgramContext":
+        return super().__new__(cls, cxd, ixval)
 
     @property
     def cfg_context(self) -> CfgContext:

@@ -55,9 +55,9 @@ xpr_operator_strings = {
 
 class CXXpr(CFunXprDictionaryRecord):
 
-    def __init__(
-            self, xd: "CFunXprDictionary", ixval: IndexedTableValue) -> None:
-        CFunXprDictionaryRecord.__init__(self, xd, ixval)
+    def __new__(
+            cls, xd: "CFunXprDictionary", ixval: IndexedTableValue) -> "CXXpr":
+        return super().__new__(cls, xd, ixval)
 
     @property
     def is_var(self) -> bool:
@@ -82,9 +82,9 @@ class CXXpr(CFunXprDictionaryRecord):
 @xprregistry.register_tag("v", CXXpr)
 class CXXVar(CXXpr):
 
-    def __init__(
-            self, xd: "CFunXprDictionary", ixval: IndexedTableValue) -> None:
-        CXXpr.__init__(self, xd, ixval)
+    def __new__(
+            cls, xd: "CFunXprDictionary", ixval: IndexedTableValue) -> "CXXVar":
+        return super().__new__(cls, xd, ixval)
 
     @property
     def is_var(self) -> bool:
@@ -101,9 +101,9 @@ class CXXVar(CXXpr):
 @xprregistry.register_tag("c", CXXpr)
 class CXXConst(CXXpr):
 
-    def __init__(
-            self, xd: "CFunXprDictionary", ixval: IndexedTableValue) -> None:
-        CXXpr.__init__(self, xd, ixval)
+    def __new__(
+            cls, xd: "CFunXprDictionary", ixval: IndexedTableValue) -> "CXXConst":
+        return super().__new__(cls, xd, ixval)
 
     @property
     def is_const(self) -> bool:
@@ -120,9 +120,9 @@ class CXXConst(CXXpr):
 @xprregistry.register_tag("x", CXXpr)
 class CXXOp(CXXpr):
 
-    def __init__(
-            self, xd: "CFunXprDictionary", ixval: IndexedTableValue) -> None:
-        CXXpr.__init__(self, xd, ixval)
+    def __new__(
+            cls, xd: "CFunXprDictionary", ixval: IndexedTableValue) -> "CXXOp":
+        return super().__new__(cls, xd, ixval)
 
     @property
     def is_op(self) -> bool:
@@ -162,9 +162,9 @@ class CXXOp(CXXpr):
 @xprregistry.register_tag("a", CXXpr)
 class CXXAttr(CXXpr):
 
-    def __init__(
-            self, xd: "CFunXprDictionary", ixval: IndexedTableValue) -> None:
-        CXXpr.__init__(self, xd, ixval)
+    def __new__(
+            cls, xd: "CFunXprDictionary", ixval: IndexedTableValue) -> "CXXAttr":
+        return super().__new__(cls, xd, ixval)
 
     @property
     def is_attr(self) -> bool:
@@ -184,9 +184,9 @@ class CXXAttr(CXXpr):
 
 class CXprList(CFunXprDictionaryRecord):
 
-    def __init__(
-            self, xd: "CFunXprDictionary", ixval: IndexedTableValue) -> None:
-        CFunXprDictionaryRecord.__init__(self, xd, ixval)
+    def __new__(
+            cls, xd: "CFunXprDictionary", ixval: IndexedTableValue) -> "CXprList":
+        return super().__new__(cls, xd, ixval)
 
     @property
     def xprs(self) -> List["CXXpr"]:
@@ -198,9 +198,9 @@ class CXprList(CFunXprDictionaryRecord):
 
 class CXprListList(CFunXprDictionaryRecord):
 
-    def __init__(
-            self, xd: "CFunXprDictionary", ixval: IndexedTableValue) -> None:
-        CFunXprDictionaryRecord.__init__(self, xd, ixval)
+    def __new__(
+            cls, xd: "CFunXprDictionary", ixval: IndexedTableValue) -> "CXprListList":
+        return super().__new__(cls, xd, ixval)
 
     @property
     def xprlists(self) -> List["CXprList"]:

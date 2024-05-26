@@ -47,8 +47,8 @@ class CEnumItem(CDeclarationsRecord):
     * args[0]: index of expression associated with the item in cdictionary
     * args[1]: index of definition location in the declarations
     """
-    def __init__(self, decls: "CFileDeclarations", ixval: IT.IndexedTableValue):
-        CDeclarationsRecord.__init__(self, decls, ixval)
+    def __new__(cls, decls: "CFileDeclarations", ixval: IT.IndexedTableValue) -> "CEnumItem":
+        return super().__new__(cls, decls, ixval)
 
     @property
     def name(self) -> str:

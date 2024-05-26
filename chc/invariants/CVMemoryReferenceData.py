@@ -45,9 +45,9 @@ if TYPE_CHECKING:
 
 class CVMemoryReferenceData(CFunVarDictionaryRecord):
 
-    def __init__(
-            self, vd: "CFunVarDictionary", ixval: IndexedTableValue) -> None:
-        CFunVarDictionaryRecord.__init__(self, vd, ixval)
+    def __new__(
+            cls, vd: "CFunVarDictionary", ixval: IndexedTableValue) -> "CVMemoryReferenceData":
+        return super().__new__(cls, vd, ixval)
 
     @property
     def base(self) -> "CVMemoryBase":

@@ -44,10 +44,11 @@ if TYPE_CHECKING:
 class CFunXprDictionaryRecord(IndexedTableValue):
     """Base class for all objects kept in the CFunXprDictionary."""
 
-    def __init__(
-            self, xd: "CFunXprDictionary", ixval: IndexedTableValue) -> None:
-        IndexedTableValue.__init__(self, ixval.index, ixval.tags, ixval.args)
+    def __new__(
+            cls, xd: "CFunXprDictionary", ixval: IndexedTableValue) -> None:
+        self = super().__new__(cls, ixval.index, ixval.tags, ixval.args)
         self._xd = xd
+        return self
 
     @property
     def xd(self) -> "CFunXprDictionary":
@@ -61,10 +62,11 @@ class CFunXprDictionaryRecord(IndexedTableValue):
 class CFunVarDictionaryRecord(IndexedTableValue):
     """Base class for all objects kept in the CFunVarDictionary."""
 
-    def __init__(
-            self, vd: "CFunVarDictionary", ixval: IndexedTableValue) -> None:
-        IndexedTableValue.__init__(self, ixval.index, ixval.tags, ixval.args)
+    def __new__(
+            cls, vd: "CFunVarDictionary", ixval: IndexedTableValue) -> None:
+        self = super().__new__(cls, ixval.index, ixval.tags, ixval.args)
         self._vd = vd
+        return self
 
     @property
     def vd(self) -> "CFunVarDictionary":
@@ -90,10 +92,11 @@ class CFunVarDictionaryRecord(IndexedTableValue):
 class CFunInvDictionaryRecord(IndexedTableValue):
     """Base class for all objects kept in the CFunInvDictionary."""
 
-    def __init__(
-            self, invd: "CFunInvDictionary", ixval: IndexedTableValue) -> None:
-        IndexedTableValue.__init__(self, ixval.index, ixval.tags, ixval.args)
+    def __new__(
+            cls, invd: "CFunInvDictionary", ixval: IndexedTableValue) -> None:
+        self = super().__new__(cls, ixval.index, ixval.tags, ixval.args)
         self._invd = invd
+        return self
 
     @property
     def invd(self) -> "CFunInvDictionary":

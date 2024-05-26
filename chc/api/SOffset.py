@@ -45,10 +45,10 @@ if TYPE_CHECKING:
 class SOffset(InterfaceDictionaryRecord):
     """Base class for s_term offset."""
 
-    def __init__(
-        self, ifd: "InterfaceDictionary", ixval: IT.IndexedTableValue
-    ) -> None:
-        InterfaceDictionaryRecord.__init__(self, ifd, ixval)
+    def __new__(
+        cls, ifd: "InterfaceDictionary", ixval: IT.IndexedTableValue
+    ) -> "SOffset":
+        return super().__new__(cls, ifd, ixval)
 
     @property
     def is_nooffset(self) -> bool:
@@ -73,10 +73,10 @@ class SOffset(InterfaceDictionaryRecord):
 class STArgNoOffset(SOffset):
     """No Offset."""
 
-    def __init__(
-        self, ifd: "InterfaceDictionary", ixval: IT.IndexedTableValue
-    ) -> None:
-        SOffset.__init__(self, ifd, ixval)
+    def __new__(
+        cls, ifd: "InterfaceDictionary", ixval: IT.IndexedTableValue
+    ) -> "STArgNoOffset":
+        return super().__new__(cls, ifd, ixval)
 
     @property
     def is_no_offset(self) -> bool:
@@ -97,10 +97,10 @@ class STArgFieldOffset(SOffset):
     args[0]: index of sub-offset in interface dictionary
     """
 
-    def __init__(
-        self, ifd: "InterfaceDictionary", ixval: IT.IndexedTableValue
-    ) -> None:
-        SOffset.__init__(self, ifd, ixval)
+    def __new__(
+        cls, ifd: "InterfaceDictionary", ixval: IT.IndexedTableValue
+    ) -> "STArgFieldOffset":
+        return super().__new__(cls, ifd, ixval)
 
     @property
     def field(self) -> str:
@@ -134,10 +134,10 @@ class STArgIndexOffset(SOffset):
     args[0]: index of sub-offset in interface dictionary
     """
 
-    def __init__(
-        self, cd: "InterfaceDictionary", ixval: IT.IndexedTableValue
-    ) -> None:
-        SOffset.__init__(self, cd, ixval)
+    def __new__(
+        cls, cd: "InterfaceDictionary", ixval: IT.IndexedTableValue
+    ) -> "STArgIndexOffset":
+        return super().__new__(cls, cd, ixval)
 
     @property
     def index(self) -> int:

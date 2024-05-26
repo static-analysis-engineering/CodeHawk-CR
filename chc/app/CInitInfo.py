@@ -44,8 +44,8 @@ if TYPE_CHECKING:
 class CInitInfo(CDeclarationsRecord):
     """Global variable initializer."""
 
-    def __init__(self, decls: "CDeclarations", ixval: IT.IndexedTableValue):
-        CDeclarationsRecord.__init__(self, decls, ixval)
+    def __new__(cls, decls: "CDeclarations", ixval: IT.IndexedTableValue) -> "CInitInfo":
+        return super().__new__(cls, decls, ixval)
 
     @property
     def is_single(self) -> bool:
@@ -62,8 +62,8 @@ class CSingleInitInfo(CInitInfo):
     - args[0]: index of initialization expression in cdictionary
     """
 
-    def __init__(self, decls: "CDeclarations", ixval: IT.IndexedTableValue):
-        CInitInfo.__init__(self, decls, ixval)
+    def __new__(cls, decls: "CDeclarations", ixval: IT.IndexedTableValue) -> "CSingleInitInfo":
+        return super().__new__(cls, decls, ixval)
 
     @property
     def exp(self) -> "CExp":
@@ -83,8 +83,8 @@ class CCompoundInitInfo(CInitInfo):
     - args[0]: index of type of initializer in cdictionary
     """
 
-    def __init__(self, decls: "CDeclarations", ixval: IT.IndexedTableValue):
-        CInitInfo.__init__(self, decls, ixval)
+    def __new__(cls, decls: "CDeclarations", ixval: IT.IndexedTableValue) -> "CCompoundInitInfo":
+        return super().__new__(cls, decls, ixval)
 
     @property
     def typ(self) -> "CTyp":
@@ -109,8 +109,8 @@ class COffsetInitInfo(CDeclarationsRecord):
     - args[1]: index of initinfo in cdeclarations
     """
 
-    def __init__(self, decls: "CDeclarations", ixval: IT.IndexedTableValue):
-        CDeclarationsRecord.__init__(self, decls, ixval)
+    def __new__(cls, decls: "CDeclarations", ixval: IT.IndexedTableValue) -> "COffsetInitInfo":
+        return super().__new__(cls, decls, ixval)
 
     @property
     def offset(self) -> "COffset":

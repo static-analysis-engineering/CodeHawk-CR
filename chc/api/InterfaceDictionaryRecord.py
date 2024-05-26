@@ -42,13 +42,14 @@ if TYPE_CHECKING:
 class InterfaceDictionaryRecord(IT.IndexedTableValue):
     """Base class for all objects kept in the InterfaceDictionary."""
 
-    def __init__(
-        self,
+    def __new__(
+        cls,
         dictionary: "InterfaceDictionary",
         ixval: IT.IndexedTableValue,
-    ) -> None:
-        IT.IndexedTableValue.__init__(self, ixval.index, ixval.tags, ixval.args)
+    ) -> "InterfaceDictionaryRecord":
+        self = super().__new__(cls, ixval.index, ixval.tags, ixval.args)
         self._ifd = dictionary
+        return self
 
     @property
     def ifd(self) -> "InterfaceDictionary":

@@ -49,8 +49,8 @@ class CLocation(CDeclarationsRecord):
     - args[2]: line number
     """
 
-    def __init__(self, decls: "CDeclarations", ixval: IT.IndexedTableValue):
-        CDeclarationsRecord.__init__(self, decls, ixval)
+    def __new__(cls, decls: "CDeclarations", ixval: IT.IndexedTableValue):
+        return super().__new__(cls, decls, ixval)
 
     @property
     def byte(self) -> int:

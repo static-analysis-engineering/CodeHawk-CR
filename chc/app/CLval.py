@@ -47,8 +47,8 @@ class CLval(CDictionaryRecord):
     * args[1]: index of offset in cdictionary
     """
 
-    def __init__(self, cd: "CDictionary", ixval: IT.IndexedTableValue) -> None:
-        CDictionaryRecord.__init__(self, cd, ixval)
+    def __new__(cls, cd: "CDictionary", ixval: IT.IndexedTableValue) -> "CLval":
+        return super().__new__(cls, cd, ixval)
 
     @property
     def lhost(self) -> "CLHost":

@@ -47,10 +47,10 @@ if TYPE_CHECKING:
 class CFileAssignment(AssignDictionaryRecord):
     """Base class for all assignment objects."""
 
-    def __init__(
-            self, ad: "CFileAssignmentDictionary", ixval: IT.IndexedTableValue
-    ) -> None:
-        AssignDictionaryRecord.__init__(self, ad, ixval)
+    def __new__(
+            cls, ad: "CFileAssignmentDictionary", ixval: IT.IndexedTableValue
+    ) -> "CFileAssignment":
+        return super().__new__(cls, ad, ixval)
 
     @property
     def is_init_assignment(self) -> bool:
@@ -83,10 +83,10 @@ class CFileAssignment(AssignDictionaryRecord):
 
 class GlobalAssignmentFunctionName(AssignDictionaryRecord):
 
-    def __init__(
-            self, ad: "CFileAssignmentDictionary", ixval: IT.IndexedTableValue
-    ) -> None:
-        AssignDictionaryRecord.__init__(self, ad, ixval)
+    def __new__(
+            cls, ad: "CFileAssignmentDictionary", ixval: IT.IndexedTableValue
+    ) -> "GlobalAssignmentFunctionName":
+        return super().__new__(cls, ad, ixval)
 
     @property
     def name(self) -> str:
@@ -105,10 +105,10 @@ class InitAssignment(CFileAssignment):
     - args[1]: index of init_info in cdeclarations dictionary
     """
 
-    def __init__(
-            self, ad: "CFileAssignmentDictionary", ixval: IT.IndexedTableValue
-    ) -> None:
-        CFileAssignment.__init__(self, ad, ixval)
+    def __new__(
+            cls, ad: "CFileAssignmentDictionary", ixval: IT.IndexedTableValue
+    ) -> "InitAssignment":
+        return super().__new__(cls, ad, ixval)
 
     @property
     def is_init_assignment(self) -> bool:
@@ -148,10 +148,10 @@ class GlobalAssignment(CFileAssignment):
     - args[4]: index of context in context table
     """
 
-    def __init__(
-            self, ad: "CFileAssignmentDictionary", ixval: IT.IndexedTableValue
-    ) -> None:
-        CFileAssignment.__init__(self, ad, ixval)
+    def __new__(
+            cls, ad: "CFileAssignmentDictionary", ixval: IT.IndexedTableValue
+    ) -> "GlobalAssignment":
+        return super().__new__(cls, ad, ixval)
 
     @property
     def is_global_assignment(self) -> bool:
@@ -194,10 +194,10 @@ class GlobalIndexAssignment(CFileAssignment):
     - args[5]: index of context in context table
     """
 
-    def __init__(
-            self, ad: "CFileAssignmentDictionary", ixval: IT.IndexedTableValue
-    ) -> None:
-        CFileAssignment.__init__(self, ad, ixval)
+    def __new__(
+            cls, ad: "CFileAssignmentDictionary", ixval: IT.IndexedTableValue
+    ) -> "GlobalIndexAssignment":
+        return super().__new__(cls, ad, ixval)
 
     @property
     def is_global_index_assignment(self) -> bool:
@@ -247,10 +247,10 @@ class StaticAssignment(CFileAssignment):
     - args[4]: index of context in context table
     """
 
-    def __init__(
-            self, ad: "CFileAssignmentDictionary", ixval: IT.IndexedTableValue
-    ) -> None:
-        CFileAssignment.__init__(self, ad, ixval)
+    def __new__(
+            cls, ad: "CFileAssignmentDictionary", ixval: IT.IndexedTableValue
+    ) -> "StaticAssignment":
+        return super().__new__(cls, ad, ixval)
 
     @property
     def vname(self) -> str:
@@ -293,10 +293,10 @@ class StaticIndexAssignment(CFileAssignment):
     - args[5]: index of context in context table
     """
 
-    def __init__(
-            self, ad: "CFileAssignmentDictionary", ixval: IT.IndexedTableValue
-    ) -> None:
-        CFileAssignment.__init__(self, ad, ixval)
+    def __new__(
+            cls, ad: "CFileAssignmentDictionary", ixval: IT.IndexedTableValue
+    ) -> "StaticIndexAssignment":
+        return super().__new__(cls, ad, ixval)
 
     @property
     def is_static_index_assignment(self) -> bool:
@@ -351,10 +351,10 @@ class FieldAssignment(CFileAssignment):
     - args[5]: index of context in context table
     """
 
-    def __init__(
-            self, ad: "CFileAssignmentDictionary", ixval: IT.IndexedTableValue
-    ) -> None:
-        CFileAssignment.__init__(self, ad, ixval)
+    def __new__(
+            cls, ad: "CFileAssignmentDictionary", ixval: IT.IndexedTableValue
+    ) -> "FieldAssignment":
+        return super().__new__(cls, ad, ixval)
 
     @property
     def is_field_assignment(self) -> bool:
@@ -391,10 +391,10 @@ class UnknownAssignment(CFileAssignment):
     - args[4]: index of context in context table
     """
 
-    def __init__(
-            self, ad: "CFileAssignmentDictionary", ixval: IT.IndexedTableValue
-    ) -> None:
-        CFileAssignment.__init__(self, ad, ixval)
+    def __new__(
+            cls, ad: "CFileAssignmentDictionary", ixval: IT.IndexedTableValue
+    ) -> "UnknownAssignment":
+        return super().__new__(cls, ad, ixval)
 
     @property
     def is_unknown_assignment(self) -> bool:

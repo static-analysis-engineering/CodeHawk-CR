@@ -61,10 +61,10 @@ def get_printop(s: str) -> str:
 class XPredicate(InterfaceDictionaryRecord):
     """Base class of external predicate."""
 
-    def __init__(
-            self, ifd: "InterfaceDictionary", ixval: IT.IndexedTableValue
-    ) -> None:
-        InterfaceDictionaryRecord.__init__(self, ifd, ixval)
+    def __new__(
+            cls, ifd: "InterfaceDictionary", ixval: IT.IndexedTableValue
+    ) -> "XPredicate":
+        return super().__new__(cls, ifd, ixval)
 
     def get_iterm(self, argix: int) -> "STerm":
         if len(self.args) >= argix:
@@ -241,10 +241,10 @@ class XAllocationBase(XPredicate):
 
     * args[0]: index of term in interface dictionary
     """
-    def __init__(
-            self, ifd: "InterfaceDictionary", ixval: IT.IndexedTableValue
-    ) -> None:
-        XPredicate.__init__(self, ifd, ixval)
+    def __new__(
+            cls, ifd: "InterfaceDictionary", ixval: IT.IndexedTableValue
+    ) -> "XAllocationBase":
+        return super().__new__(cls, ifd, ixval)
 
     @property
     def term(self) -> "STerm":
@@ -266,10 +266,10 @@ class XBlockWrite(XPredicate):
     * args[1]: index of length term in interface dictionary
     """
 
-    def __init__(
-            self, ifd: "InterfaceDictionary", ixval: IT.IndexedTableValue
-    ) -> None:
-        XPredicate.__init__(self, ifd, ixval)
+    def __new__(
+            cls, ifd: "InterfaceDictionary", ixval: IT.IndexedTableValue
+    ) -> "XBlockWrite":
+        return super().__new__(cls, ifd, ixval)
 
     @property
     def term(self) -> "STerm":
@@ -295,10 +295,10 @@ class XBuffer(XPredicate):
     * args[1]: index of size term in interface dictionary
     """
 
-    def __init__(
-            self, ifd: "InterfaceDictionary", ixval: IT.IndexedTableValue
-    ) -> None:
-        XPredicate.__init__(self, ifd, ixval)
+    def __new__(
+            cls, ifd: "InterfaceDictionary", ixval: IT.IndexedTableValue
+    ) -> "XBuffer":
+        return super().__new__(cls, ifd, ixval)
 
     @property
     def buffer(self) -> "STerm":
@@ -324,10 +324,10 @@ class XRevBuffer(XPredicate):
     args[1]: index of length term in interface dictionary
     """
 
-    def __init__(
-            self, ifd: "InterfaceDictionary", ixval: IT.IndexedTableValue
-    ) -> None:
-        XPredicate.__init__(self, ifd, ixval)
+    def __new__(
+            cls, ifd: "InterfaceDictionary", ixval: IT.IndexedTableValue
+    ) -> "XRevBuffer":
+        return super().__new__(cls, ifd, ixval)
 
     @property
     def buffer(self) -> "STerm":
@@ -355,10 +355,10 @@ class XControlledResource(XPredicate):
     * args[0]: index of term in interface dictionary
     """
 
-    def __init__(
-            self, ifd: "InterfaceDictionary", ixval: IT.IndexedTableValue
-    ) -> None:
-        XPredicate.__init__(self, ifd, ixval)
+    def __new__(
+            cls, ifd: "InterfaceDictionary", ixval: IT.IndexedTableValue
+    ) -> "XControlledResource":
+        return super().__new__(cls, ifd, ixval)
 
     @property
     def size(self) -> "STerm":
@@ -389,10 +389,10 @@ class XConfined(XPredicate):
     args[0]: index of pointer term in interface dictionary
     """
 
-    def __init__(
-            self, ifd: "InterfaceDictionary", ixval: IT.IndexedTableValue
-    ) -> None:
-        XPredicate.__init__(self, ifd, ixval)
+    def __new__(
+            cls, ifd: "InterfaceDictionary", ixval: IT.IndexedTableValue
+    ) -> "XConfined":
+        return super().__new__(cls, ifd, ixval)
 
     @property
     def term(self) -> "STerm":
@@ -413,10 +413,10 @@ class XConstTerm(XPredicate):
     args[0]: index of pointed-to term in interface dictionary
     """
 
-    def __init__(
-            self, ifd: "InterfaceDictionary", ixval: IT.IndexedTableValue
-    ) -> None:
-        XPredicate.__init__(self, ifd, ixval)
+    def __new__(
+            cls, ifd: "InterfaceDictionary", ixval: IT.IndexedTableValue
+    ) -> "XConstTerm":
+        return super().__new__(cls, ifd, ixval)
 
     @property
     def term(self) -> "STerm":
@@ -434,10 +434,10 @@ class XConstTerm(XPredicate):
 class XFalse(XPredicate):
     """Property is always false."""
 
-    def __init__(
-            self, ifd: "InterfaceDictionary", ixval: IT.IndexedTableValue
-    ) -> None:
-        XPredicate.__init__(self, ifd, ixval)
+    def __new__(
+            cls, ifd: "InterfaceDictionary", ixval: IT.IndexedTableValue
+    ) -> "XFalse":
+        return super().__new__(cls, ifd, ixval)
 
     @property
     def is_false(self) -> bool:
@@ -460,10 +460,10 @@ class XFormattedInput(XPredicate):
     * args[0]: index of term in interface dictionary
     """
 
-    def __init__(
-            self, ifd: "InterfaceDictionary", ixval: IT.IndexedTableValue
-    ) -> None:
-        XPredicate.__init__(self, ifd, ixval)
+    def __new__(
+            cls, ifd: "InterfaceDictionary", ixval: IT.IndexedTableValue
+    ) -> "XPredicate":
+        return super().__new__(cls, ifd, ixval)
 
     @property
     def term(self) -> "STerm":
@@ -483,10 +483,10 @@ class XFreed(XPredicate):
 
     * args[0]: index of term in interface dictionary.
     """
-    def __init__(
-            self, ifd: "InterfaceDictionary", ixval: IT.IndexedTableValue
-    ) -> None:
-        XPredicate.__init__(self, ifd, ixval)
+    def __new__(
+            cls, ifd: "InterfaceDictionary", ixval: IT.IndexedTableValue
+    ) -> "XFreed":
+        return super().__new__(cls, ifd, ixval)
 
     @property
     def term(self) -> "STerm":
@@ -504,10 +504,10 @@ class XFreed(XPredicate):
 class XFunctional(XPredicate):
     """Function has no observable side-effects."""
 
-    def __init__(
-            self, ifd: "InterfaceDictionary", ixval: IT.IndexedTableValue
-    ) -> None:
-        XPredicate.__init__(self, ifd, ixval)
+    def __new__(
+            cls, ifd: "InterfaceDictionary", ixval: IT.IndexedTableValue
+    ) -> "XFunctional":
+        return super().__new__(cls, ifd, ixval)
 
     @property
     def is_functional(self) -> bool:
@@ -524,10 +524,10 @@ class XInitialized(XPredicate):
     args[0]: index of lval term in interface dictionary
     """
 
-    def __init__(
-            self, ifd: "InterfaceDictionary", ixval: IT.IndexedTableValue
-    ) -> None:
-        XPredicate.__init__(self, ifd, ixval)
+    def __new__(
+            cls, ifd: "InterfaceDictionary", ixval: IT.IndexedTableValue
+    ) -> "XInitialized":
+        return super().__new__(cls, ifd, ixval)
 
     @property
     def term(self) -> "STerm":
@@ -556,10 +556,10 @@ class XInitializedRange(XPredicate):
     * args[1]: index of length term in interface dictionary
     """
 
-    def __init__(
-            self, ifd: "InterfaceDictionary", ixval: IT.IndexedTableValue
-    ) -> None:
-        XPredicate.__init__(self, ifd, ixval)
+    def __new__(
+            cls, ifd: "InterfaceDictionary", ixval: IT.IndexedTableValue
+    ) -> "XInitializedRange":
+        return super().__new__(cls, ifd, ixval)
 
     @property
     def buffer(self) -> "STerm":
@@ -586,10 +586,10 @@ class XInputFormatString(XPredicate):
     * args[0]: index of format-string term in interface dictionary.
     """
 
-    def __init__(
-            self, ifd: "InterfaceDictionary", ixval: IT.IndexedTableValue
-    ) -> None:
-        XPredicate.__init__(self, ifd, ixval)
+    def __new__(
+            cls, ifd: "InterfaceDictionary", ixval: IT.IndexedTableValue
+    ) -> "XInputFormatString":
+        return super().__new__(cls, ifd, ixval)
 
     @property
     def term(self) -> "STerm":
@@ -610,10 +610,10 @@ class XInvalidated(XPredicate):
     * args[0]: index of pointed-to term in interface dictionary
     """
 
-    def __init__(
-            self, ifd: "InterfaceDictionary", ixval: IT.IndexedTableValue
-    ) -> None:
-        XPredicate.__init__(self, ifd, ixval)
+    def __new__(
+            cls, ifd: "InterfaceDictionary", ixval: IT.IndexedTableValue
+    ) -> "XInvalidated":
+        return super().__new__(cls, ifd, ixval)
 
     @property
     def term(self) -> "STerm":
@@ -636,10 +636,10 @@ class XNewMemory(XPredicate):
     * args[0]: index of term pointing to new memory in interface dictionary
     """
 
-    def __init__(
-            self, ifd: "InterfaceDictionary", ixval: IT.IndexedTableValue
-    ) -> None:
-        XPredicate.__init__(self, ifd, ixval)
+    def __new__(
+            cls, ifd: "InterfaceDictionary", ixval: IT.IndexedTableValue
+    ) -> "XNewMemory":
+        return super().__new__(cls, ifd, ixval)
 
     @property
     def term(self) -> "STerm":
@@ -660,10 +660,10 @@ class XGlobalAddress(XPredicate):
     * args[0]: index of term in interface dictionary
     """
 
-    def __init__(
-            self, ifd: "InterfaceDictionary", ixval: IT.IndexedTableValue
-    ) -> None:
-        XPredicate.__init__(self, ifd, ixval)
+    def __new__(
+            cls, ifd: "InterfaceDictionary", ixval: IT.IndexedTableValue
+    ) -> "XGlobalAddress":
+        return super().__new__(cls, ifd, ixval)
 
     @property
     def term(self) -> "STerm":
@@ -684,10 +684,10 @@ class XHeapAddress(XPredicate):
     * args[0]: index of term in interface dictionary
     """
 
-    def __init__(
-            self, ifd: "InterfaceDictionary", ixval: IT.IndexedTableValue
-    ) -> None:
-        XPredicate.__init__(self, ifd, ixval)
+    def __new__(
+            cls, ifd: "InterfaceDictionary", ixval: IT.IndexedTableValue
+    ) -> "XHeapAddress":
+        return super().__new__(cls, ifd, ixval)
 
     @property
     def term(self) -> "STerm":
@@ -708,10 +708,10 @@ class XStackAddress(XPredicate):
     args[0]: index of term in interface dictionary
     """
 
-    def __init__(
-            self, ifd: "InterfaceDictionary", ixval: IT.IndexedTableValue
-    ) -> None:
-        XPredicate.__init__(self, ifd, ixval)
+    def __new__(
+            cls, ifd: "InterfaceDictionary", ixval: IT.IndexedTableValue
+    ) -> "XStackAddress":
+        return super().__new__(cls, ifd, ixval)
 
     @property
     def term(self) -> "STerm":
@@ -733,10 +733,10 @@ class XNoOverlap(XPredicate):
     args[1]: index of second term in interface dictionary
     """
 
-    def __init__(
-            self, ifd: "InterfaceDictionary", ixval: IT.IndexedTableValue
-    ) -> None:
-        XPredicate.__init__(self, ifd, ixval)
+    def __new__(
+            cls, ifd: "InterfaceDictionary", ixval: IT.IndexedTableValue
+    ) -> "XNoOverlap":
+        return super().__new__(cls, ifd, ixval)
 
     @property
     def term1(self) -> "STerm":
@@ -761,10 +761,10 @@ class XNotNull(XPredicate):
     * args[0]: index of term in interface dictionary
     """
 
-    def __init__(
-            self, ifd: "InterfaceDictionary", ixval: IT.IndexedTableValue
-    ) -> None:
-        XPredicate.__init__(self, ifd, ixval)
+    def __new__(
+            cls, ifd: "InterfaceDictionary", ixval: IT.IndexedTableValue
+    ) -> "XNotNull":
+        return super().__new__(cls, ifd, ixval)
 
     @property
     def term(self) -> "STerm":
@@ -792,10 +792,10 @@ class XNonNegative(XPredicate):
     * args[0]: index of term in interface dictionary
     """
 
-    def __init__(
-            self, ifd: "InterfaceDictionary", ixval: IT.IndexedTableValue
-    ) -> None:
-        XPredicate.__init__(self, ifd, ixval)
+    def __new__(
+            cls, ifd: "InterfaceDictionary", ixval: IT.IndexedTableValue
+    ) -> "XNonNegative":
+        return super().__new__(cls, ifd, ixval)
 
     @property
     def term(self) -> "STerm":
@@ -823,10 +823,10 @@ class XNotZero(XPredicate):
     * args[0]: index of term in interface dictionary
     """
 
-    def __init__(
-            self, ifd: "InterfaceDictionary", ixval: IT.IndexedTableValue
-    ) -> None:
-        XPredicate.__init__(self, ifd, ixval)
+    def __new__(
+            cls, ifd: "InterfaceDictionary", ixval: IT.IndexedTableValue
+    ) -> "XNotZero":
+        return super().__new__(cls, ifd, ixval)
 
     @property
     def term(self) -> "STerm":
@@ -854,10 +854,10 @@ class XNull(XPredicate):
     args[0]: index of term in interface dictionary
     """
 
-    def __init__(
-            self, ifd: "InterfaceDictionary", ixval: IT.IndexedTableValue
-    ) -> None:
-        XPredicate.__init__(self, ifd, ixval)
+    def __new__(
+            cls, ifd: "InterfaceDictionary", ixval: IT.IndexedTableValue
+    ) -> "XNull":
+        return super().__new__(cls, ifd, ixval)
 
     @property
     def term(self) -> "STerm":
@@ -878,10 +878,10 @@ class XNullTerminated(XPredicate):
     * args[0]: index of interface dictionary
     """
 
-    def __init__(
-            self, ifd: "InterfaceDictionary", ixval: IT.IndexedTableValue
-    ) -> None:
-        XPredicate.__init__(self, ifd, ixval)
+    def __new__(
+            cls, ifd: "InterfaceDictionary", ixval: IT.IndexedTableValue
+    ) -> "XNullTerminated":
+        return super().__new__(cls, ifd, ixval)
 
     @property
     def term(self) -> "STerm":
@@ -902,10 +902,10 @@ class XOutputFormatString(XPredicate):
     * args[0]: index of term in interface dictionary
     """
 
-    def __init__(
-            self, ifd: "InterfaceDictionary", ixval: IT.IndexedTableValue
-    ) -> None:
-        XPredicate.__init__(self, ifd, ixval)
+    def __new__(
+            cls, ifd: "InterfaceDictionary", ixval: IT.IndexedTableValue
+    ) -> "XOutputFormatString":
+        return super().__new__(cls, ifd, ixval)
 
     @property
     def term(self) -> "STerm":
@@ -923,10 +923,10 @@ class XOutputFormatString(XPredicate):
 class XPreservesAllMemory(XPredicate):
     """Function does not free any external memory."""
 
-    def __init__(
-            self, ifd: "InterfaceDictionary", ixval: IT.IndexedTableValue
-    ) -> None:
-        XPredicate.__init__(self, ifd, ixval)
+    def __new__(
+            cls, ifd: "InterfaceDictionary", ixval: IT.IndexedTableValue
+    ) -> "XPreservesAllMemory":
+        return super().__new__(cls, ifd, ixval)
 
     @property
     def is_preserves_all_memory(self) -> bool:
@@ -943,10 +943,10 @@ class XPreservesAllMemoryX(XPredicate):
     * args[0..]: indices of terms in interface dictionary
     """
 
-    def __init__(
-            self, ifd: "InterfaceDictionary", ixval: IT.IndexedTableValue
-    ) -> None:
-        XPredicate.__init__(self, ifd, ixval)
+    def __new__(
+            cls, ifd: "InterfaceDictionary", ixval: IT.IndexedTableValue
+    ) -> "XPreservesAllMemoryX":
+        return super().__new__(cls, ifd, ixval)
 
     @property
     def is_preserves_all_memory_x(self) -> bool:
@@ -971,10 +971,10 @@ class XPreservesMemory(XPredicate):
     * args[0]: index of term in interface dictionary
     """
 
-    def __init__(
-            self, ifd: "InterfaceDictionary", ixval: IT.IndexedTableValue
-    ) -> None:
-        XPredicate.__init__(self, ifd, ixval)
+    def __new__(
+            cls, ifd: "InterfaceDictionary", ixval: IT.IndexedTableValue
+    ) -> "XPreservesMemory":
+        return super().__new__(cls, ifd, ixval)
 
     @property
     def term(self) -> "STerm":
@@ -995,10 +995,10 @@ class XPreservesNullTermination(XPredicate):
     * args[0]: index of term in interface dictionary
     """
 
-    def __init__(
-            self, ifd: "InterfaceDictionary", ixval: IT.IndexedTableValue
-    ) -> None:
-        XPredicate.__init__(self, ifd, ixval)
+    def __new__(
+            cls, ifd: "InterfaceDictionary", ixval: IT.IndexedTableValue
+    ) -> "XPreservesNullTermination":
+        return super().__new__(cls, ifd, ixval)
 
     @property
     def term(self) -> "STerm":
@@ -1019,10 +1019,10 @@ class XPreservesValidity(XPredicate):
     * args[0]: index of term in interface dictionary
     """
 
-    def __init__(
-            self, ifd: "InterfaceDictionary", ixval: IT.IndexedTableValue
-    ) -> None:
-        XPredicate.__init__(self, ifd, ixval)
+    def __new__(
+            cls, ifd: "InterfaceDictionary", ixval: IT.IndexedTableValue
+    ) -> "XPreservesValidity":
+        return super().__new__(cls, ifd, ixval)
 
     @property
     def term(self) -> "STerm":
@@ -1043,10 +1043,10 @@ class XPreservesValue(XPredicate):
     * args[0]: index of term in interface dictionary
     """
 
-    def __init__(
-            self, ifd: "InterfaceDictionary", ixval: IT.IndexedTableValue
-    ) -> None:
-        XPredicate.__init__(self, ifd, ixval)
+    def __new__(
+            cls, ifd: "InterfaceDictionary", ixval: IT.IndexedTableValue
+    ) -> "XPreservesValue":
+        return super().__new__(cls, ifd, ixval)
 
     @property
     def term(self) -> "STerm":
@@ -1069,10 +1069,10 @@ class XRelationalExpr(XPredicate):
     * args[1]: index of second term in interface dictionary
     """
 
-    def __init__(
-            self, ifd: "InterfaceDictionary", ixval: IT.IndexedTableValue
-    ) -> None:
-        XPredicate.__init__(self, ifd, ixval)
+    def __new__(
+            cls, ifd: "InterfaceDictionary", ixval: IT.IndexedTableValue
+    ) -> "XRelationalExpr":
+        return super().__new__(cls, ifd, ixval)
 
     @property
     def op(self) -> str:
@@ -1126,10 +1126,10 @@ class XRepositioned(XPredicate):
     * args[0]: index of term in interface dictionary
     """
 
-    def __init__(
-            self, ifd: "InterfaceDictionary", ixval: IT.IndexedTableValue
-    ) -> None:
-        XPredicate.__init__(self, ifd, ixval)
+    def __new__(
+            cls, ifd: "InterfaceDictionary", ixval: IT.IndexedTableValue
+    ) -> "XRepositioned":
+        return super().__new__(cls, ifd, ixval)
 
     @property
     def term(self) -> "STerm":
@@ -1152,10 +1152,10 @@ class XTainted(XPredicate):
     * args[2]: index of upper bound in interface dictionary (optional)
     """
 
-    def __init__(
-            self, ifd: "InterfaceDictionary", ixval: IT.IndexedTableValue
-    ) -> None:
-        XPredicate.__init__(self, ifd, ixval)
+    def __new__(
+            cls, ifd: "InterfaceDictionary", ixval: IT.IndexedTableValue
+    ) -> "XTainted":
+        return super().__new__(cls, ifd, ixval)
 
     @property
     def term(self) -> "STerm":
@@ -1192,10 +1192,10 @@ class XUniquePointer(XPredicate):
     * args[0]: index of term in interface dictionary
     """
 
-    def __init__(
-            self, ifd: "InterfaceDictionary", ixval: IT.IndexedTableValue
-    ) -> None:
-        XPredicate.__init__(self, ifd, ixval)
+    def __new__(
+            cls, ifd: "InterfaceDictionary", ixval: IT.IndexedTableValue
+    ) -> "XUniquePointer":
+        return super().__new__(cls, ifd, ixval)
 
     @property
     def term(self) -> "STerm":
@@ -1216,10 +1216,10 @@ class XValidMem(XPredicate):
     * args[0]: index of term in interface dictionary
     """
 
-    def __init__(
-            self, ifd: "InterfaceDictionary", ixval: IT.IndexedTableValue
-    ) -> None:
-        XPredicate.__init__(self, ifd, ixval)
+    def __new__(
+            cls, ifd: "InterfaceDictionary", ixval: IT.IndexedTableValue
+    ) -> "XValidMem":
+        return super().__new__(cls, ifd, ixval)
 
     @property
     def term(self) -> "STerm":

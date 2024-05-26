@@ -44,9 +44,9 @@ if TYPE_CHECKING:
 
 class CVMemoryBase(CFunVarDictionaryRecord):
 
-    def __init__(
-            self, vd: "CFunVarDictionary", ixval: IndexedTableValue) -> None:
-        CFunVarDictionaryRecord.__init__(self, vd, ixval)
+    def __new__(
+            cls, vd: "CFunVarDictionary", ixval: IndexedTableValue) -> "CVMemoryBase":
+        return super().__new__(cls, vd, ixval)
 
     @property
     def is_null(self) -> bool:
@@ -91,9 +91,9 @@ class CVMemoryBase(CFunVarDictionaryRecord):
 @varregistry.register_tag("null", CVMemoryBase)
 class CVMemoryBaseNull(CVMemoryBase):
 
-    def __init__(
-            self, vd: "CFunVarDictionary", ixval: IndexedTableValue) -> None:
-        CVMemoryBase.__init__(self, vd, ixval)
+    def __new__(
+            cls, vd: "CFunVarDictionary", ixval: IndexedTableValue) -> "CVMemoryBaseNull":
+        return super().__new__(cls, vd, ixval)
 
     @property
     def is_null(self) -> bool:
@@ -120,9 +120,9 @@ class CVMemoryBaseNull(CVMemoryBase):
 @varregistry.register_tag("sa", CVMemoryBase)
 class CVMemoryBaseStackAddress(CVMemoryBase):
 
-    def __init__(
-            self, vd: "CFunVarDictionary", ixval: IndexedTableValue) -> None:
-        CVMemoryBase.__init__(self, vd, ixval)
+    def __new__(
+            cls, vd: "CFunVarDictionary", ixval: IndexedTableValue) -> "CVMemoryBaseStackAddress":
+        return super().__new__(cls, vd, ixval)
 
     @property
     def is_stack_address(self) -> bool:
@@ -139,9 +139,9 @@ class CVMemoryBaseStackAddress(CVMemoryBase):
 @varregistry.register_tag("ga", CVMemoryBase)
 class CVMemoryBaseGlobalAddress(CVMemoryBase):
 
-    def __init__(
-            self, vd: "CFunVarDictionary", ixval: IndexedTableValue) -> None:
-        CVMemoryBase.__init__(self, vd, ixval)
+    def __new__(
+            cls, vd: "CFunVarDictionary", ixval: IndexedTableValue) -> "CVMemoryBaseGlobalAddress":
+        return super().__new__(cls, vd, ixval)
 
     @property
     def is_global_address(self) -> bool:
@@ -158,9 +158,9 @@ class CVMemoryBaseGlobalAddress(CVMemoryBase):
 @varregistry.register_tag("saa", CVMemoryBase)
 class CVMemoryBaseAllocStackAddress(CVMemoryBase):
 
-    def __init__(
-            self, vd: "CFunVarDictionary", ixval: IndexedTableValue) -> None:
-        CVMemoryBase.__init__(self, vd, ixval)
+    def __new__(
+            cls, vd: "CFunVarDictionary", ixval: IndexedTableValue) -> "CVMemoryBaseAllocStackAddress":
+        return super().__new__(cls, vd, ixval)
 
     @property
     def is_alloc_stackaddress(self) -> bool:
@@ -177,9 +177,9 @@ class CVMemoryBaseAllocStackAddress(CVMemoryBase):
 @varregistry.register_tag("ha", CVMemoryBase)
 class CVMemoryBaseHeapAddress(CVMemoryBase):
 
-    def __init__(
-            self, vd: "CFunVarDictionary", ixval: IndexedTableValue) -> None:
-        CVMemoryBase.__init__(self, vd, ixval)
+    def __new__(
+            cls, vd: "CFunVarDictionary", ixval: IndexedTableValue) -> "CVMemoryBaseHeapAddress":
+        return super().__new__(cls, vd, ixval)
 
     @property
     def is_heap_address(self) -> bool:
@@ -200,9 +200,9 @@ class CVMemoryBaseHeapAddress(CVMemoryBase):
 @varregistry.register_tag("bv", CVMemoryBase)
 class CVMemoryBaseBaseVar(CVMemoryBase):
 
-    def __init__(
-            self, vd: "CFunVarDictionary", ixval: IndexedTableValue) -> None:
-        CVMemoryBase.__init__(self, vd, ixval)
+    def __new__(
+            cls, vd: "CFunVarDictionary", ixval: IndexedTableValue) -> "CVMemoryBaseBaseVar":
+        return super().__new__(cls, vd, ixval)
 
     @property
     def is_basevar(self) -> bool:
@@ -219,9 +219,9 @@ class CVMemoryBaseBaseVar(CVMemoryBase):
 @varregistry.register_tag("str", CVMemoryBase)
 class CVMemoryBaseStringLiteral(CVMemoryBase):
 
-    def __init__(
-            self, vd: "CFunVarDictionary", ixval: IndexedTableValue) -> None:
-        CVMemoryBase.__init__(self, vd, ixval)
+    def __new__(
+            cls, vd: "CFunVarDictionary", ixval: IndexedTableValue) -> "CVMemoryBaseStringLiteral":
+        return super().__new__(cls, vd, ixval)
 
     @property
     def is_string_literal(self) -> bool:
@@ -238,9 +238,9 @@ class CVMemoryBaseStringLiteral(CVMemoryBase):
 @varregistry.register_tag("ui", CVMemoryBase)
 class CVMemoryBaseUninterpreted(CVMemoryBase):
 
-    def __init__(
-            self, vd: "CFunVarDictionary", ixval: IndexedTableValue) -> None:
-        CVMemoryBase.__init__(self, vd, ixval)
+    def __new__(
+            cls, vd: "CFunVarDictionary", ixval: IndexedTableValue) -> "CVMemoryBaseUninterpreted":
+        return super().__new__(cls, vd, ixval)
 
     @property
     def is_uninterpreted(self) -> bool:
@@ -257,9 +257,9 @@ class CVMemoryBaseUninterpreted(CVMemoryBase):
 @varregistry.register_tag("fr", CVMemoryBase)
 class CVMemoryBaseFreed(CVMemoryBase):
 
-    def __init__(
-            self, vd: "CFunVarDictionary", ixval: IndexedTableValue) -> None:
-        CVMemoryBase.__init__(self, vd, ixval)
+    def __new__(
+            cls, vd: "CFunVarDictionary", ixval: IndexedTableValue) -> "CVMemoryBaseFreed":
+        return super().__new__(cls, vd, ixval)
 
     @property
     def is_freed(self) -> bool:

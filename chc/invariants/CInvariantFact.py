@@ -46,9 +46,9 @@ if TYPE_CHECKING:
 
 class CInvariantFact(CFunInvDictionaryRecord):
 
-    def __init__(
-            self, invd: "CFunInvDictionary", ixval: IndexedTableValue) -> None:
-        CFunInvDictionaryRecord.__init__(self, invd, ixval)
+    def __new__(
+            cls, invd: "CFunInvDictionary", ixval: IndexedTableValue) -> "CInvariantFact":
+        return super().__new__(cls, invd, ixval)
 
     @property
     def is_nrv_fact(self) -> bool:
@@ -66,9 +66,9 @@ class CInvariantFact(CFunInvDictionaryRecord):
 class CInvariantNRVFact(CInvariantFact):
     """Non-relational-value fact (relation with symbolic constants)."""
 
-    def __init__(
-            self, invd: "CFunInvDictionary", ixval: IndexedTableValue) -> None:
-        CInvariantFact.__init__(self, invd, ixval)
+    def __new__(
+            cls, invd: "CFunInvDictionary", ixval: IndexedTableValue) -> None:
+        return super().__new__(cls, invd, ixval)
 
     @property
     def is_nrv_fact(self) -> bool:
@@ -92,9 +92,9 @@ class CInvariantNRVFact(CInvariantFact):
 @invregistry.register_tag("pc", CInvariantFact)
 class CParameterConstraint(CInvariantFact):
 
-    def __init__(
-            self, invd: "CFunInvDictionary", ixval: IndexedTableValue) -> None:
-        CInvariantFact.__init__(self, invd, ixval)
+    def __new__(
+            cls, invd: "CFunInvDictionary", ixval: IndexedTableValue) -> "CParameterConstraint":
+        return super().__new__(cls, invd, ixval)
 
     @property
     def xpr(self) -> "CXXpr":
@@ -108,9 +108,9 @@ class CParameterConstraint(CInvariantFact):
 class CUnreachableFact(CInvariantFact):
     """Domain that signals unreachability."""
 
-    def __init__(
-            self, invd: "CFunInvDictionary", ixval: IndexedTableValue) -> None:
-        CInvariantFact.__init__(self, invd, ixval)
+    def __new__(
+            cls, invd: "CFunInvDictionary", ixval: IndexedTableValue) -> "CUnreachableFact":
+        return super().__new__(cls, invd, ixval)
 
     @property
     def is_unreachable_fact(self) -> bool:

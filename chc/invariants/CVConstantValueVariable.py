@@ -50,9 +50,9 @@ if TYPE_CHECKING:
 
 class CVConstantValueVariable(CFunVarDictionaryRecord):
 
-    def __init__(
-            self, vd: "CFunVarDictionary", ixval: IndexedTableValue) -> None:
-        CFunVarDictionaryRecord.__init__(self, vd, ixval)
+    def __new__(
+            cls, vd: "CFunVarDictionary", ixval: IndexedTableValue) -> "CVConstantValueVariable":
+        return super().__new__(cls, vd, ixval)
 
     @property
     def is_initial_value(self) -> bool:
@@ -98,9 +98,9 @@ class CVVInitialValue(CVConstantValueVariable):
     - args[1]: index of variable type in cdictionary
     """
 
-    def __init__(
-            self, vd: "CFunVarDictionary", ixval: IndexedTableValue) -> None:
-        CVConstantValueVariable.__init__(self, vd, ixval)
+    def __new__(
+            cls, vd: "CFunVarDictionary", ixval: IndexedTableValue) -> "CVVInitialValue":
+        return super().__new__(cls, vd, ixval)
 
     @property
     def is_initial_value(self) -> bool:
@@ -128,9 +128,9 @@ class CVVFunctionReturnValue(CVConstantValueVariable):
     - args[3..]: indices of argument expressions to the call in the xprdictionary
     """
 
-    def __init__(
-            self, vd: "CFunVarDictionary", ixval: IndexedTableValue) -> None:
-        CVConstantValueVariable.__init__(self, vd, ixval)
+    def __new__(
+            cls, vd: "CFunVarDictionary", ixval: IndexedTableValue) -> "CVVFunctionReturnValue":
+        return super().__new__(cls, vd, ixval)
 
     @property
     def is_function_return_value(self) -> bool:
@@ -173,9 +173,9 @@ class CVVExpFunctionReturnValue(CVConstantValueVariable):
     - args[4..]: indices of argument expressions to the call in the xprdictionary
     """
 
-    def __init__(
-            self, vd: "CFunVarDictionary", ixval: IndexedTableValue) -> None:
-        CVConstantValueVariable.__init__(self, vd, ixval)
+    def __new__(
+            cls, vd: "CFunVarDictionary", ixval: IndexedTableValue) -> "CVVExpFunctionReturnValue":
+        return super().__new__(cls, vd, ixval)
 
     @property
     def is_exp_function_return_value(self) -> bool:
@@ -219,9 +219,9 @@ class CVVSideEffectValue(CVConstantValueVariable):
     - args[5..]: indices of the arguments passed to the call in xprdictionary
     """
 
-    def __init__(
-            self, vd: "CFunVarDictionary", ixval: IndexedTableValue) -> None:
-        CVConstantValueVariable.__init__(self, vd, ixval)
+    def __new__(
+            cls, vd: "CFunVarDictionary", ixval: IndexedTableValue) -> "CVVSideEffectValue":
+        return super().__new__(cls, vd, ixval)
 
     @property
     def is_side_effect_value(self) -> bool:
@@ -273,9 +273,9 @@ class CVVExpSideEffectValue(CVConstantValueVariable):
     - args[5..]: indices of the arguments passed to the call in xprdictionary
     """
 
-    def __init__(
-            self, vd: "CFunVarDictionary", ixval: IndexedTableValue) -> None:
-        CVConstantValueVariable.__init__(self, vd, ixval)
+    def __new__(
+            cls, vd: "CFunVarDictionary", ixval: IndexedTableValue) -> "CVVExpSideEffectValue":
+        return super().__new__(cls, vd, ixval)
 
     @property
     def is_exp_side_effect_value(self) -> bool:
@@ -323,9 +323,9 @@ class CVVSymbolicValue(CVConstantValueVariable):
     - args[1]: index of the type of the expression in the cdictionary
     """
 
-    def __init__(
-            self, vd: "CFunVarDictionary", ixval: IndexedTableValue) -> None:
-        CVConstantValueVariable.__init__(self, vd, ixval)
+    def __new__(
+            cls, vd: "CFunVarDictionary", ixval: IndexedTableValue) -> "CVVSymbolicValue":
+        return super().__new__(cls, vd, ixval)
 
     @property
     def is_symbolic_value(self) -> bool:
@@ -353,9 +353,9 @@ class CVVTaintedValue(CVConstantValueVariable):
     - args[3]: index of the type of the variable in the cdictionary
     """
 
-    def __init__(
-            self, vd: "CFunVarDictionary", ixval: IndexedTableValue) -> None:
-        CVConstantValueVariable.__init__(self, vd, ixval)
+    def __new__(
+            cls, vd: "CFunVarDictionary", ixval: IndexedTableValue) -> "CVVTaintedValue":
+        return super().__new__(cls, vd, ixval)
 
     @property
     def is_tainted_value(self) -> bool:
@@ -396,9 +396,9 @@ class CVVTaintedValue(CVConstantValueVariable):
 @varregistry.register_tag("bs", CVConstantValueVariable)
 class CVVByteSequence(CVConstantValueVariable):
 
-    def __init__(
-            self, vd: "CFunVarDictionary", ixval: IndexedTableValue) -> None:
-        CVConstantValueVariable.__init__(self, vd, ixval)
+    def __new__(
+            cls, vd: "CFunVarDictionary", ixval: IndexedTableValue) -> "CVVByteSequence":
+        return super().__new__(cls, vd, ixval)
 
     @property
     def is_byte_sequence(self) -> bool:
@@ -430,9 +430,9 @@ class CVVMemoryAddress(CVConstantValueVariable):
     - args[1]: index of the offset in the cdictionary
     """
 
-    def __init__(
-            self, vd: "CFunVarDictionary", ixval: IndexedTableValue) -> None:
-        CVConstantValueVariable.__init__(self, vd, ixval)
+    def __new__(
+            cls, vd: "CFunVarDictionary", ixval: IndexedTableValue) -> "CVVMemoryAddress":
+        return super().__new__(cls, vd, ixval)
 
     @property
     def is_memory_address(self) -> bool:

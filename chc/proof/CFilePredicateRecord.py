@@ -43,13 +43,14 @@ if TYPE_CHECKING:
 class CFilePredicateRecord(IT.IndexedTableValue):
     """Base class for all objects in the the CFilePredicateDictionary."""
 
-    def __init__(
-            self,
+    def __new__(
+            cls,
             pd: "CFilePredicateDictionary",
             ixval: IT.IndexedTableValue,
-    ) -> None:
-        IT.IndexedTableValue.__init__(self, ixval.index, ixval.tags, ixval.args)
+    ) -> "CFilePredicateRecord":
+        self = super().__new__(cls, ixval.index, ixval.tags, ixval.args)
         self._pd = pd
+        return self
 
     @property
     def pd(self) -> "CFilePredicateDictionary":

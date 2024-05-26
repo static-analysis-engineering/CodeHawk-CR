@@ -42,8 +42,8 @@ if TYPE_CHECKING:
 class CConst(CDictionaryRecord):
     """Constant expression."""
 
-    def __init__(self, cd: "CDictionary", ixval: IT.IndexedTableValue) -> None:
-        CDictionaryRecord.__init__(self, cd, ixval)
+    def __new__(cls, cd: "CDictionary", ixval: IT.IndexedTableValue) -> "CConst":
+        return super().__new__(cls, cd, ixval)
 
     def get_exp(self, ix: int) -> "CExp":
         return self.cd.get_exp(ix)
@@ -88,8 +88,8 @@ class CConstInt(CConst):
     - tags[2]: ikind
     """
 
-    def __init__(self, cd: "CDictionary", ixval: IT.IndexedTableValue) -> None:
-        CConst.__init__(self, cd, ixval)
+    def __new__(cls, cd: "CDictionary", ixval: IT.IndexedTableValue) -> "CConstInt":
+        return super().__new__(cls, cd, ixval)
 
     @property
     def intvalue(self) -> int:
@@ -115,8 +115,8 @@ class CConstStr(CConst):
     - args[0]: string index
     """
 
-    def __init__(self, cd: "CDictionary", ixval: IT.IndexedTableValue) -> None:
-        CConst.__init__(self, cd, ixval)
+    def __new__(cls, cd: "CDictionary", ixval: IT.IndexedTableValue) -> "CConstStr":
+        return super().__new__(cls, cd, ixval)
 
     @property
     def stringvalue(self) -> str:
@@ -144,8 +144,8 @@ class CConstWStr(CConst):
     - tags[1..]: string representation of int64 integers
     """
 
-    def __init__(self, cd: "CDictionary", ixval: IT.IndexedTableValue) -> None:
-        CConst.__init__(self, cd, ixval)
+    def __new__(cls, cd: "CDictionary", ixval: IT.IndexedTableValue) -> "CConstWStr":
+        return super().__new__(cls, cd, ixval)
 
     @property
     def is_wstr(self) -> bool:
@@ -167,8 +167,8 @@ class CConstChr(CConst):
     - args[0]: char code
     """
 
-    def __init__(self, cd: "CDictionary", ixval: IT.IndexedTableValue) -> None:
-        CConst.__init__(self, cd, ixval)
+    def __new__(cls, cd: "CDictionary", ixval: IT.IndexedTableValue) -> "CConstChr":
+        return super().__new__(cls, cd, ixval)
 
     @property
     def chrvalue(self) -> str:
@@ -191,8 +191,8 @@ class CConstReal(CConst):
     - tags[2]: fkind
     """
 
-    def __init__(self, cd: "CDictionary", ixval: IT.IndexedTableValue) -> None:
-        CConst.__init__(self, cd, ixval)
+    def __new__(cls, cd: "CDictionary", ixval: IT.IndexedTableValue) -> "CConstReal":
+        return super().__new__(cls, cd, ixval)
 
     @property
     def realvalue(self) -> float:
@@ -221,8 +221,8 @@ class CConstEnum(CConst):
     - args[0]: exp
     """
 
-    def __init__(self, cd: "CDictionary", ixval: IT.IndexedTableValue) -> None:
-        CConst.__init__(self, cd, ixval)
+    def __new__(cls, cd: "CDictionary", ixval: IT.IndexedTableValue) -> "CConstEnum":
+        return super().__new__(cls, cd, ixval)
 
     @property
     def enum_name(self) -> str:
@@ -253,8 +253,8 @@ class CStringConstant(CDictionaryRecord):
     - args[0] length of original string
     """
 
-    def __init__(self, cd: "CDictionary", ixval: IT.IndexedTableValue) -> None:
-        CDictionaryRecord.__init__(self, cd, ixval)
+    def __new__(cls, cd: "CDictionary", ixval: IT.IndexedTableValue) -> "CstringConstant":
+        return super().__new__(cls, cd, ixval)
 
     @property
     def stringvalue(self) -> str:

@@ -47,9 +47,10 @@ if TYPE_CHECKING:
 
 class CFunPODictionaryRecord(IndexedTableValue):
 
-    def __init__(self, pod: "CFunPODictionary", ixval: IndexedTableValue) -> None:
-        IndexedTableValue.__init__(self, ixval.index, ixval.tags, ixval.args)
+    def __new__(cls, pod: "CFunPODictionary", ixval: IndexedTableValue) -> "CFunPODictionaryRecord":
+        self = super().__new__(cls, ixval.index, ixval.tags, ixval.args)
         self._pod = pod
+        return self
 
     @property
     def pod(self) -> "CFunPODictionary":
@@ -89,8 +90,8 @@ class CFunPODictionaryRecord(IndexedTableValue):
 
 class CFunPOType(CFunPODictionaryRecord):
 
-    def __init__(self, pod: "CFunPODictionary", ixval: IndexedTableValue) -> None:
-        CFunPODictionaryRecord.__init__(self, pod, ixval)
+    def __new__(cls, pod: "CFunPODictionary", ixval: IndexedTableValue) -> "CFunPOType":
+        return super().__new__(cls, pod, ixval)
 
     @property
     def location(self) -> "CLocation":

@@ -50,9 +50,9 @@ if TYPE_CHECKING:
 
 class CVariableDenotation(CFunVarDictionaryRecord):
 
-    def __init__(
-            self, vd: "CFunVarDictionary", ixval: IndexedTableValue) -> None:
-        CFunVarDictionaryRecord.__init__(self, vd, ixval)
+    def __new__(
+            cls, vd: "CFunVarDictionary", ixval: IndexedTableValue) -> "CVariableDenotation":
+        return super().__new__(cls, vd, ixval)
 
     @property
     def is_library_variable(self) -> bool:
@@ -97,9 +97,9 @@ class CVariableDenotation(CFunVarDictionaryRecord):
 @varregistry.register_tag("lv", CVariableDenotation)
 class CVLocalVariable(CVariableDenotation):
 
-    def __init__(
-            self, vd: "CFunVarDictionary", ixval: IndexedTableValue) -> None:
-        CVariableDenotation.__init__(self, vd, ixval)
+    def __new__(
+            cls, vd: "CFunVarDictionary", ixval: IndexedTableValue) -> "CVLocalVariable":
+        return super().__new__(cls, vd, ixval)
 
     @property
     def is_local_variable(self) -> bool:
@@ -120,9 +120,9 @@ class CVLocalVariable(CVariableDenotation):
 @varregistry.register_tag("gv", CVariableDenotation)
 class CVGlobalVariable(CVariableDenotation):
 
-    def __init__(
-            self, vd: "CFunVarDictionary", ixval: IndexedTableValue) -> None:
-        CVariableDenotation.__init__(self, vd, ixval)
+    def __new__(
+            cls, vd: "CFunVarDictionary", ixval: IndexedTableValue) -> "CVGlobalVariable":
+        return super().__new__(cls, vd, ixval)
 
     @property
     def is_global_variable(self) -> bool:
@@ -139,9 +139,9 @@ class CVGlobalVariable(CVariableDenotation):
 @varregistry.register_tag("mv", CVariableDenotation)
 class CVMemoryVariable(CVariableDenotation):
 
-    def __init__(
-            self, vd: "CFunVarDictionary", ixval: IndexedTableValue) -> None:
-        CVariableDenotation.__init__(self, vd, ixval)
+    def __new__(
+            cls, vd: "CFunVarDictionary", ixval: IndexedTableValue) -> "CVMemoryVariable":
+        return super().__new__(cls, vd, ixval)
 
     @property
     def is_memory_variable(self) -> bool:
@@ -175,9 +175,9 @@ class CVMemoryVariable(CVariableDenotation):
 @varregistry.register_tag("mrv", CVariableDenotation)
 class CVMemoryRegionVariable(CVariableDenotation):
 
-    def __init__(
-            self, vd: "CFunVarDictionary", ixval: IndexedTableValue) -> None:
-        CVariableDenotation.__init__(self, vd, ixval)
+    def __new__(
+            cls, vd: "CFunVarDictionary", ixval: IndexedTableValue) -> "CVMemoryRegionVariable":
+        return super().__new__(cls, vd, ixval)
 
     @property
     def is_memory_region_variable(self) -> bool:
@@ -203,9 +203,9 @@ class CVMemoryRegionVariable(CVariableDenotation):
 @varregistry.register_tag("rv", CVariableDenotation)
 class CVReturnVariable(CVariableDenotation):
 
-    def __init__(
-            self, vd: "CFunVarDictionary", ixval: IndexedTableValue) -> None:
-        CVariableDenotation.__init__(self, vd, ixval)
+    def __new__(
+            cls, vd: "CFunVarDictionary", ixval: IndexedTableValue) -> "CVReturnVariable":
+        return super().__new__(cls, vd, ixval)
 
     @property
     def is_return_variable(self) -> bool:
@@ -222,9 +222,9 @@ class CVReturnVariable(CVariableDenotation):
 @varregistry.register_tag("fv", CVariableDenotation)
 class CVFieldVariable(CVariableDenotation):
 
-    def __init__(
-            self, vd: "CFunVarDictionary", ixval: IndexedTableValue) -> None:
-        CVariableDenotation.__init__(self, vd, ixval)
+    def __new__(
+            cls, vd: "CFunVarDictionary", ixval: IndexedTableValue) -> "CVFieldVariable":
+        return super().__new__(cls, vd, ixval)
 
     @property
     def is_field_variable(self) -> bool:
@@ -245,9 +245,9 @@ class CVFieldVariable(CVariableDenotation):
 @varregistry.register_tag("cv", CVariableDenotation)
 class CVCheckVariable(CVariableDenotation):
 
-    def __init__(
-            self, vd: "CFunVarDictionary", ixval: IndexedTableValue) -> None:
-        CVariableDenotation.__init__(self, vd, ixval)
+    def __new__(
+            cls, vd: "CFunVarDictionary", ixval: IndexedTableValue) -> "CVCheckVariable":
+        return super().__new__(cls, vd, ixval)
 
     @property
     def is_check_variable(selkf) -> bool:
@@ -280,9 +280,9 @@ class CVCheckVariable(CVariableDenotation):
 @varregistry.register_tag("xv", CVariableDenotation)
 class CVAugmentationVariable(CVariableDenotation):
 
-    def __init__(
-            self, vd: "CFunVarDictionary", ixval: IndexedTableValue) -> None:
-        CVariableDenotation.__init__(self, vd, ixval)
+    def __new__(
+            cls, vd: "CFunVarDictionary", ixval: IndexedTableValue) -> "CVAugmentationVariable":
+        return super().__new__(cls, vd, ixval)
 
     @property
     def is_augmentation_variable(self) -> bool:
@@ -299,9 +299,9 @@ class CVAugmentationVariable(CVariableDenotation):
 @varregistry.register_tag("av", CVariableDenotation)
 class CVAuxiliaryVariable(CVariableDenotation):
 
-    def __init__(
-            self, vd: "CFunVarDictionary", ixval: IndexedTableValue) -> None:
-        CVariableDenotation.__init__(self, vd, ixval)
+    def __new__(
+            cls, vd: "CFunVarDictionary", ixval: IndexedTableValue) -> "CVAuxiliaryVariable":
+        return super().__new__(cls, vd, ixval)
 
     @property
     def is_auxiliary_variable(self) -> bool:

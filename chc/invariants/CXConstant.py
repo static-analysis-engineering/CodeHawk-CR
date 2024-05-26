@@ -45,9 +45,9 @@ if TYPE_CHECKING:
 
 class CXConstant(CFunXprDictionaryRecord):
 
-    def __init__(
-            self, xd: "CFunXprDictionary", ixval: IndexedTableValue) -> None:
-        CFunXprDictionaryRecord.__init__(self, xd, ixval)
+    def __new__(
+            cls, xd: "CFunXprDictionary", ixval: IndexedTableValue) -> "CXConstant":
+        return super().__new__(cls, xd, ixval)
 
     @property
     def is_symset(self) -> bool:
@@ -80,9 +80,9 @@ class CXConstant(CFunXprDictionaryRecord):
 @xprregistry.register_tag("ss", CXConstant)
 class CXSymSet(CXConstant):
 
-    def __init__(
-            self, xd: "CFunXprDictionary", ixval: IndexedTableValue) -> None:
-        CXConstant.__init__(self, xd, ixval)
+    def __new__(
+            cls, xd: "CFunXprDictionary", ixval: IndexedTableValue) -> "CXSymSet":
+        return super().__new__(cls, xd, ixval)
 
     @property
     def is_symset(self) -> bool:
@@ -99,9 +99,9 @@ class CXSymSet(CXConstant):
 @xprregistry.register_tag("ic", CXConstant)
 class CXIntConst(CXConstant):
 
-    def __init__(
-            self, xd: "CFunXprDictionary", ixval: IndexedTableValue) -> None:
-        CFunXprDictionaryRecord.__init__(self, xd, ixval)
+    def __new__(
+            cls, xd: "CFunXprDictionary", ixval: IndexedTableValue) -> "CXIntConst":
+        return super().__new__(cls, xd, ixval)
 
     @property
     def is_intconst(self) -> bool:
@@ -118,9 +118,9 @@ class CXIntConst(CXConstant):
 @xprregistry.register_tag("bc", CXConstant)
 class CXBoolConst(CXConstant):
 
-    def __init__(
-            self, xd: "CFunXprDictionary", ixval: IndexedTableValue) -> None:
-        CFunXprDictionaryRecord.__init__(self, xd, ixval)
+    def __new__(
+            cls, xd: "CFunXprDictionary", ixval: IndexedTableValue) -> "CXBoolConst":
+        return super().__new__(cls, xd, ixval)
 
     @property
     def is_boolconst(self) -> bool:
@@ -141,9 +141,9 @@ class CXBoolConst(CXConstant):
 @xprregistry.register_tag("r", CXConstant)
 class CXRandom(CXConstant):
 
-    def __init__(
-            self, xd: "CFunXprDictionary", ixval: IndexedTableValue) -> None:
-        CFunXprDictionaryRecord.__init__(self, xd, ixval)
+    def __new__(
+            cls, xd: "CFunXprDictionary", ixval: IndexedTableValue) -> "CXRandom":
+        return super().__new__(cls, xd, ixval)
 
     @property
     def is_random(self) -> bool:
@@ -156,9 +156,9 @@ class CXRandom(CXConstant):
 @xprregistry.register_tag("ui", CXConstant)
 class CXUnknownInt(CXConstant):
 
-    def __init__(
-            self, xd: "CFunXprDictionary", ixval: IndexedTableValue) -> None:
-        CFunXprDictionaryRecord.__init__(self, xd, ixval)
+    def __new__(
+            cls, xd: "CFunXprDictionary", ixval: IndexedTableValue) -> "CXUnknownInt":
+        return super().__new__(cls, xd, ixval)
 
     @property
     def is_unknown_int(self) -> bool:
@@ -171,9 +171,9 @@ class CXUnknownInt(CXConstant):
 @xprregistry.register_tag("us", CXConstant)
 class CXUnknownSet(CXConstant):
 
-    def __init__(
-            self, xd: "CFunXprDictionary", ixval: IndexedTableValue) -> None:
-        CFunXprDictionaryRecord.__init__(self, xd, ixval)
+    def __new__(
+            cls, xd: "CFunXprDictionary", ixval: IndexedTableValue) -> "CXUnknownSet":
+        return super().__new__(cls, xd, ixval)
 
     @property
     def is_unknown_set(self) -> bool:

@@ -53,9 +53,9 @@ if TYPE_CHECKING:
 class CNonRelationalValue(CFunInvDictionaryRecord):
     """Base class for all non-relational values."""
 
-    def __init__(
-            self, invd: "CFunInvDictionary", ixval: IndexedTableValue) -> None:
-        CFunInvDictionaryRecord.__init__(self, invd, ixval)
+    def __new__(
+            cls, invd: "CFunInvDictionary", ixval: IndexedTableValue) -> "CNonRelationalValue":
+        return super().__new__(cls, invd, ixval)
 
     @property
     def is_symbolic_expr(self) -> bool:
@@ -93,9 +93,9 @@ class CNonRelationalValue(CFunInvDictionaryRecord):
 class CNRVSymbolicExpr(CNonRelationalValue):
     """Symbolic expression (consisting of symbolic constants)."""
 
-    def __init__(
-            self, invd: "CFunInvDictionary", ixval: IndexedTableValue) -> None:
-        CNonRelationalValue.__init__(self, invd, ixval)
+    def __new__(
+            cls, invd: "CFunInvDictionary", ixval: IndexedTableValue) -> "CNRVSymbolicExpr":
+        return super().__new__(cls, invd, ixval)
 
     @property
     def is_symbolic_expr(self) -> bool:
@@ -113,9 +113,9 @@ class CNRVSymbolicExpr(CNonRelationalValue):
 class CNRVSymbolicBound(CNonRelationalValue):
     """Bound expressed by symbolic values."""
 
-    def __init__(
-            self, invd: "CFunInvDictionary", ixval: IndexedTableValue) -> None:
-        CNonRelationalValue.__init__(self, invd, ixval)
+    def __new__(
+            cls, invd: "CFunInvDictionary", ixval: IndexedTableValue) -> "CNRVSymbolicBound":
+        return super().__new__(cls, invd, ixval)
 
     @property
     def is_symbolic_bound(self) -> bool:
@@ -137,9 +137,9 @@ class CNRVSymbolicBound(CNonRelationalValue):
 class CNRVIntervalValue(CNonRelationalValue):
     """Numerical interval value."""
 
-    def __init__(
-            self, invd: "CFunInvDictionary", ixval: IndexedTableValue) -> None:
-        CNonRelationalValue.__init__(self, invd, ixval)
+    def __new__(
+            cls, invd: "CFunInvDictionary", ixval: IndexedTableValue) -> "CNRVIntervalValue":
+        return super().__new__(cls, invd, ixval)
 
     @property
     def is_interval_value(self) -> bool:
@@ -191,9 +191,9 @@ class CNRVIntervalValue(CNonRelationalValue):
 class CNRVBaseOffsetValue(CNonRelationalValue):
     """Symbolic base with numerical offset (interval) value."""
 
-    def __init__(
-            self, invd: "CFunInvDictionary", ixval: IndexedTableValue) -> None:
-        CNonRelationalValue.__init__(self, invd, ixval)
+    def __new__(
+            cls, invd: "CFunInvDictionary", ixval: IndexedTableValue) -> "CNRVBaseOffsetValue":
+        return super().__new__(cls, invd, ixval)
 
     @property
     def is_base_offset_value(self) -> bool:
@@ -261,9 +261,9 @@ class CNRVBaseOffsetValue(CNonRelationalValue):
 class CNRVRegionSet(CNonRelationalValue):
     """Set of symbolic memory regions."""
 
-    def __init__(
-            self, invd: "CFunInvDictionary", ixval: IndexedTableValue) -> None:
-        CNonRelationalValue.__init__(self, invd, ixval)
+    def __new__(
+            cls, invd: "CFunInvDictionary", ixval: IndexedTableValue) -> "CNRVRegionSet":
+        return super().__new__(cls, invd, ixval)
 
     @property
     def is_region_set(self) -> bool:
@@ -285,9 +285,9 @@ class CNRVRegionSet(CNonRelationalValue):
 class CNRVInitializedSet(CNonRelationalValue):
     """Set of initialized variables."""
 
-    def __init__(
-            self, invd: "CFunInvDictionary", ixval: IndexedTableValue) -> None:
-        CNonRelationalValue.__init__(self, invd, ixval)
+    def __new__(
+            cls, invd: "CFunInvDictionary", ixval: IndexedTableValue) -> "CNRVInitializedSet":
+        return super().__new__(cls, invd, ixval)
 
     @property
     def is_initialized_set(self) -> bool:
@@ -305,9 +305,9 @@ class CNRVInitializedSet(CNonRelationalValue):
 class CNRVPolicyStateSet(CNonRelationalValue):
     """State machine (currently not used)."""
 
-    def __init__(
-            self, invd: "CFunInvDictionary", ixval: IndexedTableValue) -> None:
-        CNonRelationalValue.__init__(self, invd, ixval)
+    def __new__(
+            cls, invd: "CFunInvDictionary", ixval: IndexedTableValue) -> "CNRVPolicyStateSet":
+        return super().__new__(cls, invd, ixval)
 
     @property
     def is_policy_state_set(self) -> bool:

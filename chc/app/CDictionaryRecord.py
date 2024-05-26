@@ -44,13 +44,14 @@ if TYPE_CHECKING:
 class CDictionaryRecord(IT.IndexedTableValue):
     """Base class for all objects kept in the CDictionary."""
 
-    def __init__(
-        self,
+    def __new__(
+        cls,
         cd: "CDictionary",
         ixval: IT.IndexedTableValue,
-    ) -> None:
-        IT.IndexedTableValue.__init__(self, ixval.index, ixval.tags, ixval.args)
+    ) -> "CDictionaryRecord":
+        self = super().__new__(cls, ixval.index, ixval.tags, ixval.args)
         self._cd = cd
+        return self;
 
     @property
     def cd(self) -> "CDictionary":
@@ -64,13 +65,14 @@ class CDictionaryRecord(IT.IndexedTableValue):
 class CDeclarationsRecord(IT.IndexedTableValue):
     """Base class for all objects kept in the CFileDeclarations."""
 
-    def __init__(
-        self,
+    def __new__(
+        cls,
         decls: "CDeclarations",
         ixval: IT.IndexedTableValue
-    ) -> None:
-        IT.IndexedTableValue.__init__(self, ixval.index, ixval.tags, ixval.args)
+    ) -> "CDeclarationsRecord":
+        self = super().__new__(cls, ixval.index, ixval.tags, ixval.args)
         self._decls = decls
+        return self
 
     @property
     def decls(self) -> "CDeclarations":

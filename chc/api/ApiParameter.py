@@ -48,10 +48,10 @@ class ApiParameter(InterfaceDictionaryRecord):
         ixval (IndexedTableValue): The backing record of the value
     """
 
-    def __init__(
-        self, cd: "InterfaceDictionary", ixval: IT.IndexedTableValue
-    ) -> None:
-        InterfaceDictionaryRecord.__init__(self, cd, ixval)
+    def __new__(
+        cls, cd: "InterfaceDictionary", ixval: IT.IndexedTableValue
+    ) -> "ApiParameter":
+        return super().__new__(cls, cd, ixval)
 
     @property
     def is_formal(self) -> bool:
@@ -72,10 +72,10 @@ class APFormal(ApiParameter):
     * args[0]: parameter index (starting at 1)
     """
 
-    def __init__(
-        self, cd: "InterfaceDictionary", ixval: IT.IndexedTableValue
-    ) -> None:
-        ApiParameter.__init__(self, cd, ixval)
+    def __new__(
+        cls, cd: "InterfaceDictionary", ixval: IT.IndexedTableValue
+    ) -> "APFormal":
+        return super().__new__(cls, cd, ixval)
 
     @property
     def index(self) -> int:
@@ -93,10 +93,10 @@ class APFormal(ApiParameter):
 class APGlobal(ApiParameter):
     """Global variable used in a function; treated as a formal parameter."""
 
-    def __init__(
-        self, cd: "InterfaceDictionary", ixval: IT.IndexedTableValue
-    ) -> None:
-        ApiParameter.__init__(self, cd, ixval)
+    def __new__(
+        cls, cd: "InterfaceDictionary", ixval: IT.IndexedTableValue
+    ) -> "APGlobal":
+        return super().__new__(cls, cd, ixval)
 
     @property
     def name(self) -> str:

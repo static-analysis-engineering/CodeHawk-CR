@@ -54,9 +54,9 @@ class CFieldInfo(CDeclarationsRecord):
     * args[4]: floc        (-1 for global structs)
     """
 
-    def __init__(
-            self, cdecls: "CDeclarations", ixval: IT.IndexedTableValue) -> None:
-        CDeclarationsRecord.__init__(self, cdecls, ixval)
+    def __new__(
+            cls, cdecls: "CDeclarations", ixval: IT.IndexedTableValue) -> "CFieldInfo":
+        return super().__new__(cls, cdecls, ixval)
 
     @property
     def fname(self) -> str:

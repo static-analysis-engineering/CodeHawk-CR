@@ -47,10 +47,10 @@ class PostAssume(InterfaceDictionaryRecord):
     * args[1]: index of predicate in interface dictionary
     """
 
-    def __init__(
-            self, ifd: "InterfaceDictionary", ixval: IT.IndexedTableValue
-    ) -> None:
-        InterfaceDictionaryRecord.__init__(self, ifd, ixval)
+    def __new__(
+            cls, ifd: "InterfaceDictionary", ixval: IT.IndexedTableValue
+    ) -> "PostAssume":
+        return super().__new__(cls, ifd, ixval)
 
     @property
     def callee(self) -> "CVarInfo":

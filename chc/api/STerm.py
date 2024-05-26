@@ -70,10 +70,10 @@ def get_printop(s: str) -> str:
 
 
 class STerm(InterfaceDictionaryRecord):
-    def __init__(
-        self, ifd: "InterfaceDictionary", ixval: IT.IndexedTableValue
-    ) -> None:
-        InterfaceDictionaryRecord.__init__(self, ifd, ixval)
+    def __new__(
+        cls, ifd: "InterfaceDictionary", ixval: IT.IndexedTableValue
+    ) -> "STerm":
+        return super().__new__(cls, ifd, ixval)
 
     def get_iterm(self, argix: int) -> "STerm":
         return self.ifd.get_s_term(int(self.args[argix]))
@@ -161,10 +161,10 @@ class STArgValue(STerm):
     * args[1]: index of s_term offset in interface dictionary
     """
 
-    def __init__(
-        self, cd: "InterfaceDictionary", ixval: IT.IndexedTableValue
-    ) -> None:
-        STerm.__init__(self, cd, ixval)
+    def __new__(
+        cls, cd: "InterfaceDictionary", ixval: IT.IndexedTableValue
+    ) -> "STArgValue":
+        return super().__new__(cls, cd, ixval)
 
     @property
     def parameter(self) -> "ApiParameter":
@@ -193,10 +193,10 @@ class STLocalVariable(STerm):
     * tags[1]: name
 """
 
-    def __init__(
-        self, ifd: "InterfaceDictionary", ixval: IT.IndexedTableValue
-    ) -> None:
-        STerm.__init__(self, ifd, ixval)
+    def __new__(
+        cls, ifd: "InterfaceDictionary", ixval: IT.IndexedTableValue
+    ) -> "STLocalVariable":
+        return super().__new__(cls, ifd, ixval)
 
     @property
     def is_local_var(self) -> bool:
@@ -214,10 +214,10 @@ class STLocalVariable(STerm):
 class STReturnValue(STerm):
     """Return value, as used in post conditions."""
 
-    def __init__(
-        self, ifd: "InterfaceDictionary", ixval: IT.IndexedTableValue
-    ) -> None:
-        STerm.__init__(self, ifd, ixval)
+    def __new__(
+        cls, ifd: "InterfaceDictionary", ixval: IT.IndexedTableValue
+    ) -> "STReturnValue":
+        return super().__new__(cls, ifd, ixval)
 
     @property
     def is_return_value(self) -> bool:
@@ -237,10 +237,10 @@ class STNamedConstant(STerm):
     * tags[1]: name
     """
 
-    def __init__(
-        self, ifd: "InterfaceDictionary", ixval: IT.IndexedTableValue
-    ) -> None:
-        STerm.__init__(self, ifd, ixval)
+    def __new__(
+        cls, ifd: "InterfaceDictionary", ixval: IT.IndexedTableValue
+    ) -> "STNamedConstant":
+        return super().__new__(cls, ifd, ixval)
 
     @property
     def name(self) -> str:
@@ -263,10 +263,10 @@ class STNamedConstant(STerm):
 class STNumConstant(STerm):
     """Constant with given numerical value."""
 
-    def __init__(
-        self, ifd: "InterfaceDictionary", ixval: IT.IndexedTableValue
-    ) -> None:
-        STerm.__init__(self, ifd, ixval)
+    def __new__(
+        cls, ifd: "InterfaceDictionary", ixval: IT.IndexedTableValue
+    ) -> "STNumConstant":
+        return super().__new__(cls, ifd, ixval)
 
     @property
     def constantvalue(self) -> int:
@@ -300,10 +300,10 @@ class STIndexSize(STerm):
     * args[0]: index of term in interface dictionary
     """
 
-    def __init__(
-        self, ifd: "InterfaceDictionary", ixval: IT.IndexedTableValue
-    ) -> None:
-        STerm.__init__(self, ifd, ixval)
+    def __new__(
+        cls, ifd: "InterfaceDictionary", ixval: IT.IndexedTableValue
+    ) -> "STIndexSize":
+        return super().__new__(cls, ifd, ixval)
 
     @property
     def term(self) -> STerm:
@@ -331,10 +331,10 @@ class STByteSize(STerm):
     * args[0]: index of term in interface dictionary
     """
 
-    def __init__(
-        self, ifd: "InterfaceDictionary", ixval: IT.IndexedTableValue
-    ) -> None:
-        STerm.__init__(self, ifd, ixval)
+    def __new__(
+        cls, ifd: "InterfaceDictionary", ixval: IT.IndexedTableValue
+    ) -> "STByteSize":
+        return super().__new__(cls, ifd, ixval)
 
     @property
     def term(self) -> STerm:
@@ -389,10 +389,10 @@ class STArgAddressedValue(STerm):
     * args[1]: index of term offset in interface dictionary
     """
 
-    def __init__(
-        self, ifd: "InterfaceDictionary", ixval: IT.IndexedTableValue
-    ) -> None:
-        STerm.__init__(self, ifd, ixval)
+    def __new__(
+        cls, ifd: "InterfaceDictionary", ixval: IT.IndexedTableValue
+    ) -> "STArgAddressedValue":
+        return super().__new__(cls, ifd, ixval)
 
     @property
     def term(self) -> STerm:
@@ -432,10 +432,10 @@ class STArgNullTerminatorPos(STerm):
     * args[0]: index of term in interface dictionary
     """
 
-    def __init__(
-        self, ifd: "InterfaceDictionary", ixval: IT.IndexedTableValue
-    ) -> None:
-        STerm.__init__(self, ifd, ixval)
+    def __new__(
+        cls, ifd: "InterfaceDictionary", ixval: IT.IndexedTableValue
+    ) -> "STArgNullTerminatorPos":
+        return super().__new__(cls, ifd, ixval)
 
     @property
     def term(self) -> STerm:
@@ -463,10 +463,10 @@ class STArgSizeOfType(STerm):
     * args[0]: index of term in interface dictionary
     """
 
-    def __init__(
-        self, ifd: "InterfaceDictionary", ixval: IT.IndexedTableValue
-    ) -> None:
-        STerm.__init__(self, ifd, ixval)
+    def __new__(
+        cls, ifd: "InterfaceDictionary", ixval: IT.IndexedTableValue
+    ) -> "STArgSizeOfType":
+        return super().__new__(cls, ifd, ixval)
 
     @property
     def term(self) -> STerm:
@@ -496,10 +496,10 @@ class STArithmeticExpr(STerm):
     * args[1]: index of second term in interface dictionary
     """
 
-    def __init__(
-        self, ifd: "InterfaceDictionary", ixval: IT.IndexedTableValue
-    ) -> None:
-        STerm.__init__(self, ifd, ixval)
+    def __new__(
+        cls, ifd: "InterfaceDictionary", ixval: IT.IndexedTableValue
+    ) -> "STArithmeticExpr":
+        return super().__new__(cls, ifd, ixval)
 
     @property
     def op(self) -> str:
@@ -555,10 +555,10 @@ class STFormattedOutputSize(STerm):
     * args[0]: index of term in interface dictionary
     """
 
-    def __init__(
-        self, ifd: "InterfaceDictionary", ixval: IT.IndexedTableValue
-    ) -> None:
-        STerm.__init__(self, ifd, ixval)
+    def __new__(
+        cls, ifd: "InterfaceDictionary", ixval: IT.IndexedTableValue
+    ) -> "STFormattedOutputSize":
+        return super().__new__(cls, ifd, ixval)
 
     @property
     def term(self) -> STerm:
@@ -586,10 +586,10 @@ class STRegion(STerm):
     * args[0]: index of term in interface dictionary
     """
 
-    def __init__(
-        self, ifd: "InterfaceDictionary", ixval: IT.IndexedTableValue
-    ) -> None:
-        STerm.__init__(self, ifd, ixval)
+    def __new__(
+        cls, ifd: "InterfaceDictionary", ixval: IT.IndexedTableValue
+    ) -> "STRegion":
+        return super().__new__(cls, ifd, ixval)
 
     @property
     def term(self) -> STerm:
@@ -614,10 +614,10 @@ class STRegion(STerm):
 class STRuntimeValue(STerm):
     """A value that is determined at runtime."""
 
-    def __init__(
-        self, ifd: "InterfaceDictionary", ixval: IT.IndexedTableValue
-    ) -> None:
-        STerm.__init__(self, ifd, ixval)
+    def __new__(
+        cls, ifd: "InterfaceDictionary", ixval: IT.IndexedTableValue
+    ) -> "STRuntimeValue":
+        return super().__new__(cls, ifd, ixval)
 
     @property
     def is_runtime_value(self) -> bool:
@@ -638,10 +638,10 @@ class STChoiceValue(STerm):
     * args[1]: index of optional upper bound in interface dictionary
     """
 
-    def __init__(
-        self, ifd: "InterfaceDictionary", ixval: IT.IndexedTableValue
-    ) -> None:
-        STerm.__init__(self, ifd, ixval)
+    def __new__(
+        cls, ifd: "InterfaceDictionary", ixval: IT.IndexedTableValue
+    ) -> "STChoiceValue":
+        return super().__new__(cls, ifd, ixval)
 
     @property
     def termlb(self) -> Optional[STerm]:

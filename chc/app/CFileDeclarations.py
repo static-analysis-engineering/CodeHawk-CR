@@ -94,8 +94,8 @@ def xget_int_attr(p: ET.Element, tag: str) -> int:
 
 class CFilename(CDeclarationsRecord):
 
-    def __init__(self, decls: CDeclarations, ixval: IndexedTableValue):
-        CDeclarationsRecord.__init__(self, decls, ixval)
+    def __new__(cls, decls: CDeclarations, ixval: IndexedTableValue):
+        return super().__new__(cls, decls, ixval)
 
     def get_filename(self) -> str:
         return self.tags[0]

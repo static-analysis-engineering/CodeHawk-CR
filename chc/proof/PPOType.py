@@ -47,10 +47,10 @@ if TYPE_CHECKING:
 class PPOType(CFunPOType):
     """Base class for primary proof obligation types."""
 
-    def __init__(
-            self, pod: "CFunPODictionary", ixval: IndexedTableValue
-    ) -> None:
-        CFunPOType.__init__(self, pod, ixval)
+    def __new__(
+            cls, pod: "CFunPODictionary", ixval: IndexedTableValue
+    ) -> "PPOType":
+        return super().__new__(cls, pod, ixval)
 
     @property
     def is_program_ppo(self) -> bool:
@@ -73,10 +73,10 @@ class ProgramPPOType(PPOType):
     * args[2]: index of predicate in predicate dictionary
     """
 
-    def __init__(
-            self, pod: "CFunPODictionary", ixval: IndexedTableValue
-    ) -> None:
-        PPOType.__init__(self, pod, ixval)
+    def __new__(
+            cls, pod: "CFunPODictionary", ixval: IndexedTableValue
+    ) -> "ProgramPPOType":
+        return super().__new__(cls, pod, ixval)
 
     @property
     def is_program_ppo(self) -> bool:
@@ -116,10 +116,10 @@ class LibPPOType(PPOType):
     * args[3]: index of xpredicate in interface dictionary
     """
 
-    def __init__(
-            self, pod: "CFunPODictionary", ixval: IndexedTableValue
-    ) -> None:
-        PPOType.__init__(self, pod, ixval)
+    def __new__(
+            cls, pod: "CFunPODictionary", ixval: IndexedTableValue
+    ) -> "LibPPOType":
+        return super().__new__(cls, pod, ixval)
 
     @property
     def is_lib_ppo(self) -> bool:

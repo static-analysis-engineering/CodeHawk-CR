@@ -45,8 +45,8 @@ if TYPE_CHECKING:
 class CAttr(CDictionaryRecord):
     """Attribute that comes with a C type."""
 
-    def __init__(self, cd: "CDictionary", ixval: IT.IndexedTableValue) -> None:
-        CDictionaryRecord.__init__(self, cd, ixval)
+    def __new__(cls, cd: "CDictionary", ixval: IT.IndexedTableValue) -> "CAttr":
+        return super().__new__(cls, cd, ixval)
 
     @property
     def is_int(self) -> bool:
@@ -123,8 +123,8 @@ class CAttrInt(CAttr):
     args[0]: integer value
     """
 
-    def __init__(self, cd: "CDictionary", ixval: IT.IndexedTableValue) -> None:
-        CAttr.__init__(self, cd, ixval)
+    def __new__(cls, cd: "CDictionary", ixval: IT.IndexedTableValue) -> "CAttrInt":
+        return super().__new__(cls, cd, ixval)
 
     @property
     def intvalue(self) -> int:
@@ -145,8 +145,8 @@ class CAttrStr(CAttr):
     * args[0]: index in string table of string attribute
     """
 
-    def __init__(self, cd: "CDictionary", ixval: IT.IndexedTableValue) -> None:
-        CAttr.__init__(self, cd, ixval)
+    def __new__(cls, cd: "CDictionary", ixval: IT.IndexedTableValue) -> "CAttrStr":
+        return super().__new__(cls, cd, ixval)
 
     @property
     def stringvalue(self) -> str:
@@ -168,8 +168,8 @@ class CAttrCons(CAttr):
     * args[0..]: indices of attribute parameters in cdictionary.
     """
 
-    def __init__(self, cd: "CDictionary", ixval: IT.IndexedTableValue) -> None:
-        CAttr.__init__(self, cd, ixval)
+    def __new__(cls, cd: "CDictionary", ixval: IT.IndexedTableValue) -> "CAttrCons":
+        return super().__new__(cls, cd, ixval)
 
     @property
     def name(self) -> str:
@@ -194,8 +194,8 @@ class CAttrSizeOf(CAttr):
     * args[0]: index of target type in cdictionary
     """
 
-    def __init__(self, cd: "CDictionary", ixval: IT.IndexedTableValue) -> None:
-        CAttr.__init__(self, cd, ixval)
+    def __new__(cls, cd: "CDictionary", ixval: IT.IndexedTableValue) -> "CAttrSizeOf":
+        return super().__new__(cls, cd, ixval)
 
     @property
     def typ(self) -> "CTyp":
@@ -216,8 +216,8 @@ class CAttrSizeOfE(CAttr):
     * args[0]: index of argument parameter in cdictionary
     """
 
-    def __init__(self, cd: "CDictionary", ixval: IT.IndexedTableValue) -> None:
-        CAttr.__init__(self, cd, ixval)
+    def __new__(cls, cd: "CDictionary", ixval: IT.IndexedTableValue) -> "CAttrSizeOfE":
+        return super().__new__(cls, cd, ixval)
 
     @property
     def param(self) -> CAttr:
@@ -238,8 +238,8 @@ class CAttrSizeOfS(CAttr):
     * args[0]: index of target typsig in cdictionary
     """
 
-    def __init__(self, cd: "CDictionary", ixval: IT.IndexedTableValue) -> None:
-        CAttr.__init__(self, cd, ixval)
+    def __new__(cls, cd: "CDictionary", ixval: IT.IndexedTableValue) -> "CAttrSizeOfS":
+        return super().__new__(cls, cd, ixval)
 
     @property
     def typsig(self) -> "CTypsig":
@@ -260,8 +260,8 @@ class CAttrAlignOf(CAttr):
     * args[0]: index of target type in cdictionary
     """
 
-    def __init__(self, cd: "CDictionary", ixval: IT.IndexedTableValue) -> None:
-        CAttr.__init__(self, cd, ixval)
+    def __new__(cls, cd: "CDictionary", ixval: IT.IndexedTableValue) -> "CAttrAlignOf":
+        return super().__new__(cls, cd, ixval)
 
     @property
     def typ(self) -> "CTyp":
@@ -282,8 +282,8 @@ class CAttrAlignOfE(CAttr):
     * args[0]: index of attribute parameter in cdictionary
     """
 
-    def __init__(self, cd: "CDictionary", ixval: IT.IndexedTableValue) -> None:
-        CAttr.__init__(self, cd, ixval)
+    def __new__(cls, cd: "CDictionary", ixval: IT.IndexedTableValue) -> "CAttrAlignOfE":
+        return super().__new__(cls, cd, ixval)
 
     @property
     def param(self) -> CAttr:
@@ -304,8 +304,8 @@ class CAttrAlignOfS(CAttr):
     * args[0]: target type signature
     """
 
-    def __init__(self, cd: "CDictionary", ixval: IT.IndexedTableValue) -> None:
-        CAttr.__init__(self, cd, ixval)
+    def __new__(cls, cd: "CDictionary", ixval: IT.IndexedTableValue) -> "CAttrAlignOfS":
+        return super().__new__(cls, cd, ixval)
 
     @property
     def typsig(self) -> "CTypsig":
@@ -327,8 +327,8 @@ class CAttrUnOp(CAttr):
     * args[0]: index of attribute parameter in cdictionary
     """
 
-    def __init__(self, cd: "CDictionary", ixval: IT.IndexedTableValue) -> None:
-        CAttr.__init__(self, cd, ixval)
+    def __new__(cls, cd: "CDictionary", ixval: IT.IndexedTableValue) -> "CAttrUnOp":
+        return super().__new__(cls, cd, ixval)
 
     @property
     def op(self) -> str:
@@ -355,8 +355,8 @@ class CAttrBinOp(CAttr):
     * args[1]: index of second attribute parameter in cdictionary
     """
 
-    def __init__(self, cd: "CDictionary", ixval: IT.IndexedTableValue) -> None:
-        CAttr.__init__(self, cd, ixval)
+    def __new__(cls, cd: "CDictionary", ixval: IT.IndexedTableValue) -> "CAttrBinOp":
+        return super().__new__(cls, cd, ixval)
 
     @property
     def op(self) -> str:
@@ -394,8 +394,8 @@ class CAttrDot(CAttr):
     * args[0]: index of attribute parameter in cdictionary
     """
 
-    def __init__(self, cd: "CDictionary", ixval: IT.IndexedTableValue) -> None:
-        CAttr.__init__(self, cd, ixval)
+    def __new__(cls, cd: "CDictionary", ixval: IT.IndexedTableValue) -> "CAttrDot":
+        return super().__new__(cls, cd, ixval)
 
     @property
     def suffix(self) -> str:
@@ -420,8 +420,8 @@ class CAttrStar(CAttr):
     * args[0]: index of attribute parameter in cdictionary
     """
 
-    def __init__(self, cd: "CDictionary", ixval: IT.IndexedTableValue) -> None:
-        CAttr.__init__(self, cd, ixval)
+    def __new__(cls, cd: "CDictionary", ixval: IT.IndexedTableValue) -> "CAttrStar":
+        return super().__new__(cls, cd, ixval)
 
     @property
     def param(self) -> CAttr:
@@ -449,8 +449,8 @@ class CAttrAddrOf(CAttr):
     * args[0]: index of attribute parameter in cdictionary
     """
 
-    def __init__(self, cd: "CDictionary", ixval: IT.IndexedTableValue) -> None:
-        CAttr.__init__(self, cd, ixval)
+    def __new__(cls, cd: "CDictionary", ixval: IT.IndexedTableValue) -> "CAttrAddrOf":
+        return super().__new__(cls, cd, ixval)
 
     @property
     def param(self) -> CAttr:
@@ -472,8 +472,8 @@ class CAttrIndex(CAttr):
     * args[1]: index of second attribute parameter in cdictionary
     """
 
-    def __init__(self, cd: "CDictionary", ixval: IT.IndexedTableValue) -> None:
-        CAttr.__init__(self, cd, ixval)
+    def __new__(cls, cd: "CDictionary", ixval: IT.IndexedTableValue) -> "CAttrIndex":
+        return super().__new__(cls, cd, ixval)
 
     @property
     def param1(self) -> CAttr:
@@ -500,8 +500,8 @@ class CAttrQuestion(CAttr):
     * args[2]: index of third attribute parameter in cdictionary
     """
 
-    def __init__(self, cd: "CDictionary", ixval: IT.IndexedTableValue) -> None:
-        CAttr.__init__(self, cd, ixval)
+    def __new__(cls, cd: "CDictionary", ixval: IT.IndexedTableValue) -> "CAttrQuestion":
+        return super().__new__(cls, cd, ixval)
 
     @property
     def param1(self) -> CAttr:
@@ -529,8 +529,8 @@ class CAttrQuestion(CAttr):
 
 class CAttribute(CDictionaryRecord):
 
-    def __init__(self, cd: "CDictionary", ixval: IT.IndexedTableValue) -> None:
-        CDictionaryRecord.__init__(self, cd, ixval)
+    def __new__(cls, cd: "CDictionary", ixval: IT.IndexedTableValue) -> "CAttribute":
+        return super().__new__(cls, cd, ixval)
 
     @property
     def name(self) -> str:
@@ -546,8 +546,8 @@ class CAttribute(CDictionaryRecord):
 
 class CAttributes(CDictionaryRecord):
 
-    def __init__(self, cd: "CDictionary", ixval: IT.IndexedTableValue) -> None:
-        CDictionaryRecord.__init__(self, cd, ixval)
+    def __new__(cls, cd: "CDictionary", ixval: IT.IndexedTableValue) -> "CAttributes":
+        return super().__new__(cls, cd, ixval)
 
     @property
     def attributes(self) -> List[CAttribute]:

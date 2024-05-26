@@ -42,8 +42,8 @@ if TYPE_CHECKING:
 class CLHost(CDictionaryRecord):
     """Base class for variable and dereference."""
 
-    def __init__(self, cd: "CDictionary", ixval: IT.IndexedTableValue) -> None:
-        CDictionaryRecord.__init__(self, cd, ixval)
+    def __new__(cls, cd: "CDictionary", ixval: IT.IndexedTableValue) -> "CLHost":
+        return super().__new__(cls, cd, ixval)
 
     @property
     def is_var(self) -> bool:
@@ -87,8 +87,8 @@ class CLHostVar(CLHost):
     - args[0]: vid (variable id)
     """
 
-    def __init__(self, cd: "CDictionary", ixval: IT.IndexedTableValue) -> None:
-        CLHost.__init__(self, cd, ixval)
+    def __new__(cls, cd: "CDictionary", ixval: IT.IndexedTableValue) -> "CLHostVar":
+        return super().__new__(cls, cd, ixval)
 
     @property
     def name(self) -> str:
@@ -126,8 +126,8 @@ class CLHostMem(CLHost):
     - args[0]: index of address expression in cdictionary
     """
 
-    def __init__(self, cd: "CDictionary", ixval: IT.IndexedTableValue) -> None:
-        CLHost.__init__(self, cd, ixval)
+    def __new__(cls, cd: "CDictionary", ixval: IT.IndexedTableValue) -> "CLHostMem":
+        return super().__new__(cls, cd, ixval)
 
     @property
     def exp(self) -> "CExp":

@@ -30,6 +30,7 @@
 
 import xml.etree.ElementTree as ET
 
+import traceback
 from typing import Callable, Dict, List, Optional, TYPE_CHECKING
 
 import chc.util.xmlutil as UX
