@@ -198,14 +198,6 @@ class IndexedTable(IndexedTableSuperclass):
     def __new__(cls, name: str) -> "IndexedTable":
         return super().__new__(cls, name)
 
-    def set_checkpoint(self) -> int:
-        if self.checkpoint is None:
-            self.checkpoint = self.next
-            return self.next
-        raise IndexedTableError(
-            "Checkpoint has already been set at " + str(self.checkpoint)
-        )
-
     def iter(self, f: Callable[[int, IndexedTableValue], None]) -> None:
         for (i, v) in self.items():
             f(i, v)

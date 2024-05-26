@@ -3,6 +3,15 @@ use pyo3::{
     types::{PyDict, PyList, PyString},
 };
 
+fn indexed_table_error(py: Python, message: String) -> PyResult<PyErr> {
+    let module = PyModule::import_bound(py, "chc.util.IndexedTable")?;
+    let message_pystr = PyString::new_bound(py, &message);
+    let value = module
+        .getattr("IndexedTableError")?
+        .call1((message_pystr,))?;
+    Ok(PyErr::from_value_bound(value))
+}
+
 #[derive(Clone)]
 #[pyclass(subclass)]
 pub struct IndexedTableSuperclass {
@@ -16,7 +25,7 @@ pub struct IndexedTableSuperclass {
     next: usize,
     #[pyo3(get)]
     reserved: Py<PyList>,
-    #[pyo3(get, set)]
+    #[pyo3(get)]
     checkpoint: Option<usize>,
 }
 
@@ -34,8 +43,8 @@ impl IndexedTableSuperclass {
         }
     }
 
-    fn size(&self) -> PyResult<usize> {
-        Ok(self.next - 1)
+    fn size(&self) -> usize {
+        self.next - 1
     }
 
     fn reset(&mut self, py: Python) -> PyResult<()> {
@@ -45,5 +54,15 @@ impl IndexedTableSuperclass {
         self.reserved.bind_borrowed(py).call_method0("clear")?;
         self.checkpoint = None;
         Ok(())
+    }
+
+    fn set_checkpoint(&mut self, py: Python) -> PyResult<usize> {
+        if let Some(n) = self.checkpoint {
+            let message = format!("Checkpoint has already been set at {n}");
+            Err(indexed_table_error(py, message)?)
+        } else {
+            self.checkpoint = Some(self.next);
+            Ok(self.next)
+        }
     }
 }
