@@ -236,12 +236,6 @@ class IndexedTable(IndexedTableSuperclass):
         self.next += 1
         return index
 
-    def values(self) -> List[IndexedTableValue]:
-        result: List[IndexedTableValue] = []
-        for i in sorted(self.indextable):
-            result.append(self.indextable[i])
-        return result
-
     def items(self) -> List[Tuple[int, IndexedTableValue]]:
         result: List[Tuple[int, IndexedTableValue]] = []
         for i in sorted(self.indextable):

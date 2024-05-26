@@ -108,6 +108,16 @@ impl IndexedTableSuperclass {
         }
     }
 
+    fn values<'a, 'py>(&'a self, py: Python<'py>) -> PyResult<Vec<Bound<'py, PyAny>>> {
+        let indextable = self.indextable.bind_borrowed(py);
+        let mut indexes: Vec<isize> = indextable.keys().extract()?;
+        indexes.sort();
+        indexes
+            .into_iter()
+            .map(|k| indextable.get_item(k).map(|v| v.unwrap()))
+            .collect()
+    }
+
     fn retrieve<'a, 'py>(&'a self, py: Python<'py>, index: isize) -> PyResult<Bound<'py, PyAny>> {
         if let Some(item) = self.indextable.bind_borrowed(py).get_item(index)? {
             Ok(item)
