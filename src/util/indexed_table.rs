@@ -1,4 +1,5 @@
 use pyo3::{
+    intern,
     prelude::*,
     types::{PyDict, PyList, PyString},
 };
@@ -51,7 +52,9 @@ impl IndexedTableSuperclass {
         self.keytable.bind_borrowed(py).clear();
         self.indextable.bind_borrowed(py).clear();
         self.next = 1;
-        self.reserved.bind_borrowed(py).call_method0("clear")?;
+        self.reserved
+            .bind_borrowed(py)
+            .call_method0(intern!(py, "clear"))?;
         self.checkpoint = None;
         Ok(())
     }
