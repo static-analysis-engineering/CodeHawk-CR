@@ -45,6 +45,11 @@ impl IndexedTableValueSuperclass {
     fn new(index: isize, tags: Vec<String>, args: Vec<isize>) -> IndexedTableValueSuperclass {
         IndexedTableValueSuperclass { index, tags, args }
     }
+
+    #[getter]
+    fn key(&self) -> (String, String) {
+        get_key(self.tags.clone(), self.args.clone())
+    }
 }
 
 fn element_tree_element<'a, 'py>(py: Python<'py>, tag: &'a str) -> PyResult<Bound<'py, PyAny>> {

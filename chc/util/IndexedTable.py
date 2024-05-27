@@ -131,10 +131,6 @@ class IndexedTableValue(chc_rust.util.IndexedTable.IndexedTableValueSuperclass):
             args: List[int]) -> "IndexedTableValue":
         return super().__new__(cls, index, tags, args)
 
-    @property
-    def key(self) -> Tuple[str, str]:
-        return (",".join(self.tags), ",".join([str(x) for x in self.args]))
-
     def check_key(self, reqtagcount: int, reqargcount: int, name: str) -> None:
         """Check if the constructed value has the expected tags and args."""
         acttagcount = len(self.tags)
