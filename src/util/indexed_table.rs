@@ -8,7 +8,7 @@ use pyo3::{
 pub fn module(py: Python) -> PyResult<Bound<PyModule>> {
     let module = PyModule::new_bound(py, "IndexedTable")?;
     module.add_class::<IndexedTableSuperclass>()?;
-    module.add_class::<IndexedTableValueSuperclass>()?;
+    module.add_class::<IndexedTableValue>()?;
     module.add_function(wrap_pyfunction!(get_key, &module)?)?;
     Ok(module)
 }
@@ -30,7 +30,7 @@ fn get_key(tags: Vec<String>, args: Vec<isize>) -> (String, String) {
 
 #[derive(Clone)]
 #[pyclass(subclass)]
-struct IndexedTableValueSuperclass {
+struct IndexedTableValue {
     #[pyo3(get)]
     index: isize,
     #[pyo3(get)]
@@ -40,10 +40,10 @@ struct IndexedTableValueSuperclass {
 }
 
 #[pymethods]
-impl IndexedTableValueSuperclass {
+impl IndexedTableValue {
     #[new]
-    fn new(index: isize, tags: Vec<String>, args: Vec<isize>) -> IndexedTableValueSuperclass {
-        IndexedTableValueSuperclass { index, tags, args }
+    fn new(index: isize, tags: Vec<String>, args: Vec<isize>) -> IndexedTableValue {
+        IndexedTableValue { index, tags, args }
     }
 
     #[getter]

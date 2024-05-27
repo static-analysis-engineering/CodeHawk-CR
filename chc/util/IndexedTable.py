@@ -122,14 +122,7 @@ def get_rep(node: ET.Element) -> Tuple[int, List[str], List[int]]:
         raise
 
 
-class IndexedTableValue(chc_rust.util.IndexedTable.IndexedTableValueSuperclass):
-
-    def __new__(
-            cls,
-            index: int,
-            tags: List[str],
-            args: List[int]) -> "IndexedTableValue":
-        return super().__new__(cls, index, tags, args)
+IndexedTableValue = chc_rust.util.IndexedTable.IndexedTableValue
 
 
 def get_value(node: ET.Element) -> IndexedTableValue:
