@@ -8,14 +8,9 @@ use pyo3::{
 pub fn module(py: Python) -> PyResult<Bound<PyModule>> {
     let module = PyModule::new_bound(py, "IndexedTable")?;
     module.add_class::<IndexedTableSuperclass>()?;
+    module.add_class::<IndexedTableValueSuperclass>()?;
     module.add_function(wrap_pyfunction!(get_key, &module)?)?;
     Ok(module)
-}
-
-// TODO: use python types to avoid allocating a String for every tag
-#[pyfunction]
-fn get_key(tags: Vec<String>, args: Vec<isize>) -> (String, String) {
-    (tags.iter().join(","), args.iter().join(","))
 }
 
 fn indexed_table_error(py: Python, message: String) -> PyResult<PyErr> {
@@ -25,6 +20,31 @@ fn indexed_table_error(py: Python, message: String) -> PyResult<PyErr> {
         .getattr("IndexedTableError")?
         .call1((message_pystr,))?;
     Ok(PyErr::from_value_bound(value))
+}
+
+// TODO: use python types to avoid allocating a String for every tag
+#[pyfunction]
+fn get_key(tags: Vec<String>, args: Vec<isize>) -> (String, String) {
+    (tags.iter().join(","), args.iter().join(","))
+}
+
+#[derive(Clone)]
+#[pyclass(subclass)]
+struct IndexedTableValueSuperclass {
+    #[pyo3(get)]
+    index: isize,
+    #[pyo3(get)]
+    tags: Vec<String>,
+    #[pyo3(get)]
+    args: Vec<isize>,
+}
+
+#[pymethods]
+impl IndexedTableValueSuperclass {
+    #[new]
+    fn new(index: isize, tags: Vec<String>, args: Vec<isize>) -> IndexedTableValueSuperclass {
+        IndexedTableValueSuperclass { index, tags, args }
+    }
 }
 
 fn element_tree_element<'a, 'py>(py: Python<'py>, tag: &'a str) -> PyResult<Bound<'py, PyAny>> {
