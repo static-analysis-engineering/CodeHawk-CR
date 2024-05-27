@@ -131,15 +131,6 @@ class IndexedTableValue(chc_rust.util.IndexedTable.IndexedTableValueSuperclass):
             args: List[int]) -> "IndexedTableValue":
         return super().__new__(cls, index, tags, args)
 
-    def check_key(self, reqtagcount: int, reqargcount: int, name: str) -> None:
-        """Check if the constructed value has the expected tags and args."""
-        acttagcount = len(self.tags)
-        actargcount = len(self.args)
-        if acttagcount == reqtagcount and actargcount == reqargcount:
-            return
-        raise IndexedTableValueMismatchError(
-            self.tags[0], reqtagcount, reqargcount, acttagcount, actargcount, name)
-
     def write_xml(self, node: ET.Element) -> None:
         (tagstr, argstr) = self.key
         if len(tagstr) > 0:

@@ -50,6 +50,29 @@ impl IndexedTableValueSuperclass {
     fn key(&self) -> (String, String) {
         get_key(self.tags.clone(), self.args.clone())
     }
+
+    fn check_key(
+        &self,
+        py: Python,
+        reqtagcount: usize,
+        reqargcount: usize,
+        name: String,
+    ) -> PyResult<()> {
+        if self.tags.len() == reqtagcount && self.args.len() == reqargcount {
+            Ok(())
+        } else {
+            let module = PyModule::import_bound(py, "chc.util.IndexedTable")?;
+            let value = module.getattr("IndexedTableValueMismatchError")?.call1((
+                &self.tags[0],
+                reqtagcount,
+                reqargcount,
+                self.tags.len(),
+                self.args.len(),
+                name,
+            ))?;
+            Err(PyErr::from_value_bound(value))
+        }
+    }
 }
 
 fn element_tree_element<'a, 'py>(py: Python<'py>, tag: &'a str) -> PyResult<Bound<'py, PyAny>> {
