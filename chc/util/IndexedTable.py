@@ -131,15 +131,6 @@ class IndexedTableValue(chc_rust.util.IndexedTable.IndexedTableValueSuperclass):
             args: List[int]) -> "IndexedTableValue":
         return super().__new__(cls, index, tags, args)
 
-    def __str__(self) -> str:
-        lines: List[str] = []
-        lines.append("\nIndex table value\n--------------------------")
-        lines.append("index: " + str(self.index))
-        lines.append("tags : [" + ", ".join(self.tags) + "]")
-        lines.append("args : [" + ", ".join(str(x) for x in self.args) + "]")
-        lines.append("")
-        return "\n".join(lines)
-
 
 def get_value(node: ET.Element) -> IndexedTableValue:
     rep = get_rep(node)

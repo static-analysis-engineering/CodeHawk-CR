@@ -86,6 +86,21 @@ impl IndexedTableValueSuperclass {
         set.call1((intern!(py, "ix"), self.index.to_string()))?;
         Ok(())
     }
+
+    #[pyo3(name = "__str__")]
+    fn str(&self) -> String {
+        format!(
+            concat!(
+                "\nIndex table value\n--------------------------\n",
+                "index: {}\n",
+                "tags: [{}]\n",
+                "args: [{}]\n\n"
+            ),
+            self.index,
+            self.tags.join(","),
+            self.args.iter().join(",")
+        )
+    }
 }
 
 fn element_tree_element<'a, 'py>(py: Python<'py>, tag: &'a str) -> PyResult<Bound<'py, PyAny>> {
