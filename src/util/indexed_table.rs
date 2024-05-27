@@ -73,6 +73,19 @@ impl IndexedTableValueSuperclass {
             Err(PyErr::from_value_bound(value))
         }
     }
+
+    fn write_xml(&self, py: Python, node: &Bound<PyAny>) -> PyResult<()> {
+        let (tagstr, argstr) = self.key();
+        let set = node.getattr(intern!(py, "set"))?;
+        if tagstr.len() > 0 {
+            set.call1((intern!(py, "t"), tagstr))?;
+        }
+        if argstr.len() > 0 {
+            set.call1((intern!(py, "a"), argstr))?;
+        }
+        set.call1((intern!(py, "ix"), self.index.to_string()))?;
+        Ok(())
+    }
 }
 
 fn element_tree_element<'a, 'py>(py: Python<'py>, tag: &'a str) -> PyResult<Bound<'py, PyAny>> {

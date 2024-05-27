@@ -131,14 +131,6 @@ class IndexedTableValue(chc_rust.util.IndexedTable.IndexedTableValueSuperclass):
             args: List[int]) -> "IndexedTableValue":
         return super().__new__(cls, index, tags, args)
 
-    def write_xml(self, node: ET.Element) -> None:
-        (tagstr, argstr) = self.key
-        if len(tagstr) > 0:
-            node.set("t", tagstr)
-        if len(argstr) > 0:
-            node.set("a", argstr)
-        node.set("ix", str(self.index))
-
     def __str__(self) -> str:
         lines: List[str] = []
         lines.append("\nIndex table value\n--------------------------")
