@@ -23,7 +23,7 @@ fn get_key(tags: Vec<String>, args: Vec<isize>) -> (String, String) {
 }
 
 #[derive(Clone)]
-#[pyclass(subclass)]
+#[pyclass(frozen, subclass)]
 pub struct IndexedTableValue {
     #[pyo3(get)]
     index: isize,

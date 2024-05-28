@@ -11,7 +11,7 @@ pub fn module(py: Python) -> PyResult<Bound<PyModule>> {
 
 /// Base class for all objects kept in the CDictionary
 #[derive(Clone)]
-#[pyclass(extends = IndexedTableValue, subclass)]
+#[pyclass(extends = IndexedTableValue, frozen, subclass)]
 struct CDictionaryRecord {
     #[pyo3(get)]
     cd: Py<PyAny>,
@@ -32,7 +32,7 @@ impl CDictionaryRecord {
 
 /// Base class for all objects kept in the CFileDeclarations.
 #[derive(Clone)]
-#[pyclass(extends = IndexedTableValue, subclass)]
+#[pyclass(extends = IndexedTableValue, frozen, subclass)]
 struct CDeclarationsRecord {
     #[pyo3(get)]
     decls: Py<PyAny>,
