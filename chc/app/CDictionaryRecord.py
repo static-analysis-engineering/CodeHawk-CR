@@ -45,25 +45,7 @@ if TYPE_CHECKING:
 CDictionaryRecord = chc_rust.app.c_dictionary_record.CDictionaryRecord
 
 
-class CDeclarationsRecord(IT.IndexedTableValue):
-    """Base class for all objects kept in the CFileDeclarations."""
-
-    def __new__(
-        cls,
-        decls: "CDeclarations",
-        ixval: IT.IndexedTableValue
-    ) -> "CDeclarationsRecord":
-        self = super().__new__(cls, ixval.index, ixval.tags, ixval.args)
-        self._decls = decls
-        return self
-
-    @property
-    def decls(self) -> "CDeclarations":
-        return self._decls
-
-    @property
-    def dictionary(self) -> "CDictionary":
-        return self.decls.dictionary
+CDeclarationsRecord = chc_rust.app.c_dictionary_record.CDeclarationsRecord
 
 
 # __c_dictionary_record_types: Dict[Tuple[type, str], Type[CDictionaryRecord]] = {}
