@@ -13,14 +13,8 @@ pub fn module(py: Python) -> PyResult<Bound<PyModule>> {
     Ok(module)
 }
 
-fn indexed_table_error(py: Python, message: String) -> PyResult<PyErr> {
-    let module = PyModule::import_bound(py, "chc.util.IndexedTable")?;
-    let message_pystr = PyString::new_bound(py, &message);
-    let value = module
-        .getattr("IndexedTableError")?
-        .call1((message_pystr,))?;
-    Ok(PyErr::from_value_bound(value))
-}
+pyo3::import_exception!(chc.util.IndexedTable, IndexedTableError);
+pyo3::import_exception!(chc.util.IndexedTable, IndexedTableValueMismatchError);
 
 // TODO: use python types to avoid allocating a String for every tag
 #[pyfunction]
@@ -53,7 +47,6 @@ impl IndexedTableValue {
 
     fn check_key(
         &self,
-        py: Python,
         reqtagcount: usize,
         reqargcount: usize,
         name: String,
@@ -61,16 +54,15 @@ impl IndexedTableValue {
         if self.tags.len() == reqtagcount && self.args.len() == reqargcount {
             Ok(())
         } else {
-            let module = PyModule::import_bound(py, "chc.util.IndexedTable")?;
-            let value = module.getattr("IndexedTableValueMismatchError")?.call1((
-                &self.tags[0],
+            let args = (
+                self.tags[0].clone(),
                 reqtagcount,
                 reqargcount,
                 self.tags.len(),
                 self.args.len(),
                 name,
-            ))?;
-            Err(PyErr::from_value_bound(value))
+            );
+            Err(IndexedTableValueMismatchError::new_err(args))
         }
     }
 
@@ -155,10 +147,10 @@ impl IndexedTableSuperclass {
         Ok(())
     }
 
-    fn set_checkpoint(&mut self, py: Python) -> PyResult<isize> {
+    fn set_checkpoint(&mut self) -> PyResult<isize> {
         if let Some(n) = self.checkpoint {
             let message = format!("Checkpoint has already been set at {n}");
-            Err(indexed_table_error(py, message)?)
+            Err(IndexedTableError::new_err(message))
         } else {
             self.checkpoint = Some(self.next);
             Ok(self.next)
@@ -210,7 +202,7 @@ impl IndexedTableSuperclass {
                 self.name,
                 self.size()
             );
-            Err(indexed_table_error(py, message)?)
+            Err(IndexedTableError::new_err(message))
         }
     }
 
