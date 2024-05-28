@@ -32,6 +32,7 @@ import xml.etree.ElementTree as ET
 
 from typing import cast, Callable, Dict, List, Tuple, Type, TypeVar, TYPE_CHECKING
 
+import chc_rust
 import chc.util.fileutil as UF
 import chc.util.IndexedTable as IT
 from chc.util.loggingutil import chklogger
@@ -41,25 +42,7 @@ if TYPE_CHECKING:
     from chc.app.CDictionary import CDictionary
 
 
-class CDictionaryRecord(IT.IndexedTableValue):
-    """Base class for all objects kept in the CDictionary."""
-
-    def __new__(
-        cls,
-        cd: "CDictionary",
-        ixval: IT.IndexedTableValue,
-    ) -> "CDictionaryRecord":
-        self = super().__new__(cls, ixval.index, ixval.tags, ixval.args)
-        self._cd = cd
-        return self;
-
-    @property
-    def cd(self) -> "CDictionary":
-        return self._cd
-
-    @property
-    def decls(self) -> "CDeclarations":
-        return self.cd.decls
+CDictionaryRecord = chc_rust.app.c_dictionary_record.CDictionaryRecord
 
 
 class CDeclarationsRecord(IT.IndexedTableValue):

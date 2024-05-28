@@ -24,7 +24,7 @@ fn get_key(tags: Vec<String>, args: Vec<isize>) -> (String, String) {
 
 #[derive(Clone)]
 #[pyclass(subclass)]
-struct IndexedTableValue {
+pub struct IndexedTableValue {
     #[pyo3(get)]
     index: isize,
     #[pyo3(get)]
@@ -45,12 +45,7 @@ impl IndexedTableValue {
         get_key(self.tags.clone(), self.args.clone())
     }
 
-    fn check_key(
-        &self,
-        reqtagcount: usize,
-        reqargcount: usize,
-        name: String,
-    ) -> PyResult<()> {
+    fn check_key(&self, reqtagcount: usize, reqargcount: usize, name: String) -> PyResult<()> {
         if self.tags.len() == reqtagcount && self.args.len() == reqargcount {
             Ok(())
         } else {
