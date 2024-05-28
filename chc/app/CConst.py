@@ -46,33 +46,7 @@ CConst = chc_rust.app.c_const.CConst
 CConstInt = cdregistry.register_tag("int", CConst)(chc_rust.app.c_const.CConstInt)
 
 
-@cdregistry.register_tag("str", CConst)
-class CConstStr(CConst):
-    """
-    Constant string.
-
-    - args[0]: string index
-    """
-
-    def __new__(cls, cd: "CDictionary", ixval: IT.IndexedTableValue) -> "CConstStr":
-        return super().__new__(cls, cd, ixval)
-
-    @property
-    def stringvalue(self) -> str:
-        return self.cd.get_string(self.args[0])
-
-    def get_strings(self) -> List[str]:
-        return [self.stringvalue]
-
-    @property
-    def is_str(self) -> bool:
-        return True
-
-    def __str__(self) -> str:
-        strg = str(self.stringvalue)
-        if len(strg) > 25:
-            strg = str(len(strg)) + "-char string"
-        return "str(" + strg + ")"
+CConstStr = cdregistry.register_tag("str", CConst)(chc_rust.app.c_const.CConstStr)
 
 
 @cdregistry.register_tag("wstr", CConst)

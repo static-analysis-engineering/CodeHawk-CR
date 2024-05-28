@@ -1,4 +1,4 @@
-use pyo3::prelude::*;
+use pyo3::{intern, prelude::*};
 
 use crate::app::c_dictionary_record::CDictionaryRecord;
 use crate::util::indexed_table::IndexedTableValue;
@@ -7,6 +7,7 @@ pub fn module(py: Python) -> PyResult<Bound<PyModule>> {
     let module = PyModule::new_bound(py, "c_const")?;
     module.add_class::<CConst>()?;
     module.add_class::<CConstInt>()?;
+    module.add_class::<CConstStr>()?;
     Ok(module)
 }
 
@@ -96,5 +97,49 @@ impl CConstInt {
     fn str(slf: PyRef<Self>) -> PyResult<String> {
         // TODO reference the value directly
         Ok(format!("{}", CConstInt::intvalue(slf)?))
+    }
+}
+
+/// Constant string
+///
+/// - args[0]: string index
+#[derive(Clone)]
+#[pyclass(extends = CConst, frozen, subclass)]
+struct CConstStr {}
+
+#[pymethods]
+impl CConstStr {
+    #[new]
+    fn new(cd: Py<PyAny>, ixval: IndexedTableValue) -> PyClassInitializer<Self> {
+        PyClassInitializer::from(CConst::new(cd, ixval)).add_subclass(CConstStr {})
+    }
+
+    #[getter]
+    fn stringvalue(slf: PyRef<Self>, py: Python) -> PyResult<String> {
+        let dict_record = slf.into_super().into_super();
+        let decls = dict_record.cd();
+        let arg0 = dict_record.into_super().args()[0];
+        decls
+            .call_method1(py, intern!(py, "get_string"), (arg0,))?
+            .extract(py)
+    }
+
+    fn get_strings(slf: PyRef<Self>, py: Python) -> PyResult<Vec<String>> {
+        Ok(vec![CConstStr::stringvalue(slf, py)?])
+    }
+
+    #[getter]
+    fn is_str(&self) -> bool {
+        true
+    }
+
+    #[pyo3(name = "__str__")]
+    fn str(slf: PyRef<Self>, py: Python) -> PyResult<String> {
+        let strg = CConstStr::stringvalue(slf, py)?;
+        if strg.len() > 25 {
+            Ok(format!("{}-char string", strg.len()))
+        } else {
+            Ok(format!("str({})", strg))
+        }
     }
 }

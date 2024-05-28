@@ -94,6 +94,10 @@ impl IndexedTableValue {
     pub fn tags(&self) -> &[String] {
         &self.tags[..]
     }
+
+    pub fn args(&self) -> &[isize] {
+        &self.args[..]
+    }
 }
 
 fn element_tree_element<'a, 'py>(py: Python<'py>, tag: &'a str) -> PyResult<Bound<'py, PyAny>> {

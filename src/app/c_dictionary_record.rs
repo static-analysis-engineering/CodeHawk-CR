@@ -25,8 +25,14 @@ impl CDictionaryRecord {
     }
 
     #[getter]
-    fn decls(&self, py: Python) -> PyResult<Py<PyAny>> {
+    pub fn decls(&self, py: Python) -> PyResult<Py<PyAny>> {
         self.cd.getattr(py, intern!(py, "decls"))
+    }
+}
+
+impl CDictionaryRecord {
+    pub fn cd(&self) -> Py<PyAny> {
+        self.cd.clone()
     }
 }
 
