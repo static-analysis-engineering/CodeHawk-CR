@@ -90,6 +90,12 @@ impl IndexedTableValue {
     }
 }
 
+impl IndexedTableValue {
+    pub fn tags(&self) -> &[String] {
+        &self.tags[..]
+    }
+}
+
 fn element_tree_element<'a, 'py>(py: Python<'py>, tag: &'a str) -> PyResult<Bound<'py, PyAny>> {
     let module = PyModule::import_bound(py, "xml.etree.ElementTree")?;
     let tag_pystr = PyString::new_bound(py, tag);

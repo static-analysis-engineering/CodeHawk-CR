@@ -32,6 +32,7 @@ from typing import List, Tuple, TYPE_CHECKING
 
 from chc.app.CDictionaryRecord import CDictionaryRecord, cdregistry
 
+import chc_rust
 import chc.util.IndexedTable as IT
 
 if TYPE_CHECKING:
@@ -39,72 +40,10 @@ if TYPE_CHECKING:
     from chc.app.CExp import CExp
 
 
-class CConst(CDictionaryRecord):
-    """Constant expression."""
-
-    def __new__(cls, cd: "CDictionary", ixval: IT.IndexedTableValue) -> "CConst":
-        return super().__new__(cls, cd, ixval)
-
-    def get_exp(self, ix: int) -> "CExp":
-        return self.cd.get_exp(ix)
-
-    def get_strings(self) -> List[str]:
-        return []
-
-    @property
-    def is_int(self) -> bool:
-        return False
-
-    @property
-    def is_str(self) -> bool:
-        return False
-
-    @property
-    def is_wstr(self) -> bool:
-        return False
-
-    @property
-    def is_chr(self) -> bool:
-        return False
-
-    @property
-    def is_real(self) -> bool:
-        return False
-
-    @property
-    def is_enum(self) -> bool:
-        return False
-
-    def __str__(self) -> str:
-        return "constantbase:" + self.tags[0]
+CConst = chc_rust.app.c_const.CConst
 
 
-@cdregistry.register_tag("int", CConst)
-class CConstInt(CConst):
-    """
-    Constant integer.
-
-    - tags[1]: string representation of value
-    - tags[2]: ikind
-    """
-
-    def __new__(cls, cd: "CDictionary", ixval: IT.IndexedTableValue) -> "CConstInt":
-        return super().__new__(cls, cd, ixval)
-
-    @property
-    def intvalue(self) -> int:
-        return int(self.tags[1])
-
-    @property
-    def ikind(self) -> str:
-        return self.tags[2]
-
-    @property
-    def is_int(self) -> bool:
-        return True
-
-    def __str__(self) -> str:
-        return str(self.intvalue)
+CConstInt = cdregistry.register_tag("int", CConst)(chc_rust.app.c_const.CConstInt)
 
 
 @cdregistry.register_tag("str", CConst)

@@ -12,7 +12,7 @@ pub fn module(py: Python) -> PyResult<Bound<PyModule>> {
 /// Base class for all objects kept in the CDictionary
 #[derive(Clone)]
 #[pyclass(extends = IndexedTableValue, frozen, subclass)]
-struct CDictionaryRecord {
+pub struct CDictionaryRecord {
     #[pyo3(get)]
     cd: Py<PyAny>,
 }
@@ -20,7 +20,7 @@ struct CDictionaryRecord {
 #[pymethods]
 impl CDictionaryRecord {
     #[new]
-    fn new(cd: Py<PyAny>, ixval: IndexedTableValue) -> (CDictionaryRecord, IndexedTableValue) {
+    pub fn new(cd: Py<PyAny>, ixval: IndexedTableValue) -> (CDictionaryRecord, IndexedTableValue) {
         (CDictionaryRecord { cd }, ixval)
     }
 
