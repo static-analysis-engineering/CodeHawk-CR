@@ -12,6 +12,7 @@ pub fn module(py: Python) -> PyResult<Bound<PyModule>> {
     module.add_class::<CConstWStr>()?;
     module.add_class::<CConstChr>()?;
     module.add_class::<CConstReal>()?;
+    module.add_class::<CConstEnum>()?;
     Ok(module)
 }
 
@@ -206,7 +207,7 @@ impl CConstChr {
     }
 
     #[getter]
-    fn is_char(&self) -> bool {
+    fn is_chr(&self) -> bool {
         true
     }
 

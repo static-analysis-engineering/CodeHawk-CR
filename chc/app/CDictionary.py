@@ -451,7 +451,7 @@ class CDictionary(ABC):
             return self.mk_constant_index(c.tags, args)
 
         else:
-            raise Exception("Unknown constant type")
+            raise Exception("Unknown constant type: " + str(c))
 
     def mk_exp_index(self, tags: List[str], args: List[int]) -> int:
 
