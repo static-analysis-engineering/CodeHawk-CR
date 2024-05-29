@@ -58,38 +58,7 @@ CConstChr = cdregistry.register_tag("chr", CConst)(chc_rust.app.c_const.CConstCh
 CConstReal = cdregistry.register_tag("real", CConst)(chc_rust.app.c_const.CConstReal)
 
 
-@cdregistry.register_tag("enum", CConst)
-class CConstEnum(CConst):
-    """
-    Constant enumeration value.
-
-    - tags[1]: enum name
-    - tags[1]: enum item name
-
-    - args[0]: exp
-    """
-
-    def __new__(cls, cd: "CDictionary", ixval: IT.IndexedTableValue) -> "CConstEnum":
-        return super().__new__(cls, cd, ixval)
-
-    @property
-    def enum_name(self) -> str:
-        return self.tags[1]
-
-    @property
-    def item_name(self) -> str:
-        return self.tags[2]
-
-    @property
-    def exp(self) -> "CExp":
-        return CConst.get_exp(self, self.args[0])
-
-    @property
-    def is_enum(self) -> bool:
-        return True
-
-    def __str__(self) -> str:
-        return f"{self.enum_name}: {self.item_name}({self.exp})"
+CConstReal = cdregistry.register_tag("enum", CConst)(chc_rust.app.c_const.CConstEnum)
 
 
 class CStringConstant(CDictionaryRecord):

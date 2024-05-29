@@ -27,6 +27,12 @@ impl CConst {
         PyClassInitializer::from(CDictionaryRecord::new(cd, ixval)).add_subclass(CConst {})
     }
 
+    fn get_exp(slf: PyRef<Self>, py: Python, ix: isize) -> PyResult<Py<PyAny>> {
+        slf.into_super()
+            .cd()
+            .call_method1(py, intern!(py, "get_exp"), (ix,))
+    }
+
     fn get_strings(&self) -> Vec<String> {
         vec![]
     }
@@ -226,13 +232,13 @@ impl CConstReal {
     }
 
     #[getter]
-    fn realvalue(slf: PyRef<Self>) -> PyResult<isize> {
+    fn realvalue(slf: PyRef<Self>) -> PyResult<f64> {
         Ok(slf.into_super().into_super().into_super().tags()[1].parse()?)
     }
 
     #[getter]
     fn fkind(slf: PyRef<Self>) -> String {
-        slf.into_super().into_super().into_super().tags()[1].clone()
+        slf.into_super().into_super().into_super().tags()[2].clone()
     }
 
     #[getter]
@@ -243,5 +249,53 @@ impl CConstReal {
     #[pyo3(name = "__str__")]
     fn str(slf: PyRef<Self>) -> PyResult<String> {
         Ok(format!("{}", CConstReal::realvalue(slf)?))
+    }
+}
+
+/// Constant enumeration value.
+///
+/// - tags[1]: enum name
+/// - tags[2]: enum item name
+///
+/// - args[0]: exp
+#[derive(Clone)]
+#[pyclass(extends = CConst, frozen, subclass)]
+struct CConstEnum {}
+
+#[pymethods]
+impl CConstEnum {
+    #[new]
+    fn new(cd: Py<PyAny>, ixval: IndexedTableValue) -> PyClassInitializer<Self> {
+        PyClassInitializer::from(CConst::new(cd, ixval)).add_subclass(CConstEnum {})
+    }
+
+    #[getter]
+    fn enum_name(slf: PyRef<Self>) -> String {
+        slf.into_super().into_super().into_super().tags()[1].clone()
+    }
+
+    #[getter]
+    fn item_name(slf: PyRef<Self>) -> String {
+        slf.into_super().into_super().into_super().tags()[2].clone()
+    }
+
+    #[getter]
+    fn exp(slf: Py<Self>, py: Python) -> PyResult<Py<PyAny>> {
+        let c_const_ref = slf.borrow(py).into_super();
+        let arg0 = slf.borrow(py).into_super().into_super().into_super().args()[0];
+        CConst::get_exp(c_const_ref, py, arg0)
+    }
+
+    #[getter]
+    fn is_enum(&self) -> bool {
+        true
+    }
+
+    #[pyo3(name = "__str__")]
+    fn str(slf: Py<Self>, py: Python) -> PyResult<String> {
+        let enum_name = CConstEnum::enum_name(slf.borrow(py));
+        let item_name = CConstEnum::item_name(slf.borrow(py));
+        let exp = CConstEnum::exp(slf, py)?;
+        Ok(format!("{}: {}({})", enum_name, item_name, exp))
     }
 }
