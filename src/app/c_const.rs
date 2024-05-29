@@ -10,6 +10,7 @@ pub fn module(py: Python) -> PyResult<Bound<PyModule>> {
     module.add_class::<CConstInt>()?;
     module.add_class::<CConstStr>()?;
     module.add_class::<CConstWStr>()?;
+    module.add_class::<CConstChr>()?;
     Ok(module)
 }
 
@@ -175,5 +176,35 @@ impl CConstWStr {
     #[pyo3(name = "__str__")]
     fn str(slf: PyRef<Self>) -> PyResult<String> {
         Ok(format!("wstr({})", CConstWStr::stringvalue(slf)?))
+    }
+}
+
+/// Constant character.
+///
+/// - args[0]: char code
+#[derive(Clone)]
+#[pyclass(extends = CConst, frozen, subclass)]
+struct CConstChr {}
+
+#[pymethods]
+impl CConstChr {
+    #[new]
+    fn new(cd: Py<PyAny>, ixval: IndexedTableValue) -> PyClassInitializer<Self> {
+        PyClassInitializer::from(CConst::new(cd, ixval)).add_subclass(CConstChr {})
+    }
+
+    #[getter]
+    fn chrvalue(slf: PyRef<Self>) -> PyResult<isize> {
+        Ok(slf.into_super().into_super().into_super().args()[0])
+    }
+
+    #[getter]
+    fn is_char(&self) -> bool {
+        true
+    }
+
+    #[pyo3(name = "__str__")]
+    fn str(slf: PyRef<Self>) -> PyResult<String> {
+        Ok(format!("wstr({})", CConstChr::chrvalue(slf)?))
     }
 }

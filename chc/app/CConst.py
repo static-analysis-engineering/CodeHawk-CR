@@ -52,27 +52,7 @@ CConstStr = cdregistry.register_tag("str", CConst)(chc_rust.app.c_const.CConstSt
 CConstWStr = cdregistry.register_tag("wstr", CConst)(chc_rust.app.c_const.CConstWStr)
 
 
-@cdregistry.register_tag("chr", CConst)
-class CConstChr(CConst):
-    """
-    Constant character.
-
-    - args[0]: char code
-    """
-
-    def __new__(cls, cd: "CDictionary", ixval: IT.IndexedTableValue) -> "CConstChr":
-        return super().__new__(cls, cd, ixval)
-
-    @property
-    def chrvalue(self) -> str:
-        return "'" + str(chr(self.args[0])) + "'"
-
-    @property
-    def is_chr(self) -> bool:
-        return True
-
-    def __str__(self) -> str:
-        return "chr(" + self.chrvalue + ")"
+CConstChr = cdregistry.register_tag("chr", CConst)(chc_rust.app.c_const.CConstChr)
 
 
 @cdregistry.register_tag("real", CConst)
