@@ -55,32 +55,7 @@ CConstWStr = cdregistry.register_tag("wstr", CConst)(chc_rust.app.c_const.CConst
 CConstChr = cdregistry.register_tag("chr", CConst)(chc_rust.app.c_const.CConstChr)
 
 
-@cdregistry.register_tag("real", CConst)
-class CConstReal(CConst):
-    """
-    Constant real number.
-
-    - tags[1]: string representation of real
-    - tags[2]: fkind
-    """
-
-    def __new__(cls, cd: "CDictionary", ixval: IT.IndexedTableValue) -> "CConstReal":
-        return super().__new__(cls, cd, ixval)
-
-    @property
-    def realvalue(self) -> float:
-        return float(self.tags[1])
-
-    @property
-    def fkind(self) -> str:
-        return self.tags[2]
-
-    @property
-    def is_real(self) -> bool:
-        return True
-
-    def __str__(self) -> str:
-        return str(self.realvalue)
+CConstReal = cdregistry.register_tag("real", CConst)(chc_rust.app.c_const.CConstReal)
 
 
 @cdregistry.register_tag("enum", CConst)

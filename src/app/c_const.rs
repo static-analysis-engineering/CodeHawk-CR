@@ -11,6 +11,7 @@ pub fn module(py: Python) -> PyResult<Bound<PyModule>> {
     module.add_class::<CConstStr>()?;
     module.add_class::<CConstWStr>()?;
     module.add_class::<CConstChr>()?;
+    module.add_class::<CConstReal>()?;
     Ok(module)
 }
 
@@ -162,10 +163,10 @@ impl CConstWStr {
     }
 
     #[getter]
-    fn stringvalue(slf: PyRef<Self>) -> PyResult<String> {
-        Ok(slf.into_super().into_super().into_super().tags()[1..]
+    fn stringvalue(slf: PyRef<Self>) -> String {
+        slf.into_super().into_super().into_super().tags()[1..]
             .iter()
-            .join("-"))
+            .join("-")
     }
 
     #[getter]
@@ -174,8 +175,8 @@ impl CConstWStr {
     }
 
     #[pyo3(name = "__str__")]
-    fn str(slf: PyRef<Self>) -> PyResult<String> {
-        Ok(format!("wstr({})", CConstWStr::stringvalue(slf)?))
+    fn str(slf: PyRef<Self>) -> String {
+        format!("wstr({})", CConstWStr::stringvalue(slf))
     }
 }
 
@@ -194,8 +195,8 @@ impl CConstChr {
     }
 
     #[getter]
-    fn chrvalue(slf: PyRef<Self>) -> PyResult<isize> {
-        Ok(slf.into_super().into_super().into_super().args()[0])
+    fn chrvalue(slf: PyRef<Self>) -> isize {
+        slf.into_super().into_super().into_super().args()[0]
     }
 
     #[getter]
@@ -204,7 +205,43 @@ impl CConstChr {
     }
 
     #[pyo3(name = "__str__")]
+    fn str(slf: PyRef<Self>) -> String {
+        format!("chr({})", CConstChr::chrvalue(slf))
+    }
+}
+
+/// Constant real number.
+///
+/// - tags[1]: string representation of real
+/// - tags[2]: fkind
+#[derive(Clone)]
+#[pyclass(extends = CConst, frozen, subclass)]
+struct CConstReal {}
+
+#[pymethods]
+impl CConstReal {
+    #[new]
+    fn new(cd: Py<PyAny>, ixval: IndexedTableValue) -> PyClassInitializer<Self> {
+        PyClassInitializer::from(CConst::new(cd, ixval)).add_subclass(CConstReal {})
+    }
+
+    #[getter]
+    fn realvalue(slf: PyRef<Self>) -> PyResult<isize> {
+        Ok(slf.into_super().into_super().into_super().tags()[1].parse()?)
+    }
+
+    #[getter]
+    fn fkind(slf: PyRef<Self>) -> String {
+        slf.into_super().into_super().into_super().tags()[1].clone()
+    }
+
+    #[getter]
+    fn is_real(&self) -> bool {
+        true
+    }
+
+    #[pyo3(name = "__str__")]
     fn str(slf: PyRef<Self>) -> PyResult<String> {
-        Ok(format!("wstr({})", CConstChr::chrvalue(slf)?))
+        Ok(format!("{}", CConstReal::realvalue(slf)?))
     }
 }
