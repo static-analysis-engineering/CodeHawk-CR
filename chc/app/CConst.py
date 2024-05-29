@@ -49,27 +49,7 @@ CConstInt = cdregistry.register_tag("int", CConst)(chc_rust.app.c_const.CConstIn
 CConstStr = cdregistry.register_tag("str", CConst)(chc_rust.app.c_const.CConstStr)
 
 
-@cdregistry.register_tag("wstr", CConst)
-class CConstWStr(CConst):
-    """
-    Constant wide string (represented as a sequence of int64 integers)
-
-    - tags[1..]: string representation of int64 integers
-    """
-
-    def __new__(cls, cd: "CDictionary", ixval: IT.IndexedTableValue) -> "CConstWStr":
-        return super().__new__(cls, cd, ixval)
-
-    @property
-    def is_wstr(self) -> bool:
-        return True
-
-    @property
-    def stringvalue(self) -> str:
-        return "-".join(self.tags[1:])
-
-    def __str__(self) -> str:
-        return "wstr(" + self.stringvalue + ")"
+CConstWStr = cdregistry.register_tag("wstr", CConst)(chc_rust.app.c_const.CConstWStr)
 
 
 @cdregistry.register_tag("chr", CConst)

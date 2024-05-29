@@ -1,3 +1,4 @@
+use itertools::Itertools;
 use pyo3::{intern, prelude::*};
 
 use crate::app::c_dictionary_record::CDictionaryRecord;
@@ -8,6 +9,7 @@ pub fn module(py: Python) -> PyResult<Bound<PyModule>> {
     module.add_class::<CConst>()?;
     module.add_class::<CConstInt>()?;
     module.add_class::<CConstStr>()?;
+    module.add_class::<CConstWStr>()?;
     Ok(module)
 }
 
@@ -141,5 +143,37 @@ impl CConstStr {
         } else {
             Ok(format!("str({})", strg))
         }
+    }
+}
+
+/// Constant wide string (represented as a sequence of int64 integers)
+///
+/// - tags[1..]: string representation of int64 integers
+#[derive(Clone)]
+#[pyclass(extends = CConst, frozen, subclass)]
+struct CConstWStr {}
+
+#[pymethods]
+impl CConstWStr {
+    #[new]
+    fn new(cd: Py<PyAny>, ixval: IndexedTableValue) -> PyClassInitializer<Self> {
+        PyClassInitializer::from(CConst::new(cd, ixval)).add_subclass(CConstWStr {})
+    }
+
+    #[getter]
+    fn stringvalue(slf: PyRef<Self>) -> PyResult<String> {
+        Ok(slf.into_super().into_super().into_super().tags()[1..]
+            .iter()
+            .join("-"))
+    }
+
+    #[getter]
+    fn is_wstr(&self) -> bool {
+        true
+    }
+
+    #[pyo3(name = "__str__")]
+    fn str(slf: PyRef<Self>) -> PyResult<String> {
+        Ok(format!("wstr({})", CConstWStr::stringvalue(slf)?))
     }
 }
