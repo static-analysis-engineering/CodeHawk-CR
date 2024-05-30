@@ -44,37 +44,7 @@ if TYPE_CHECKING:
 CContextDictionaryRecord = chc_rust.app.c_context.CContextDictionaryRecord
 
 
-class CContextNode(CContextDictionaryRecord):
-    """Node in an expression or control-flow-graph context.
-
-    - tags[0]: name of the node
-    - tags[1..]: additional info on the node, e.g. field name in struct expression
-    - args[0]: stmt.id for statements, instr sequence number for instructions
-    """
-
-    def __new__(
-            cls, cxd: "CContextDictionary", ixval: IndexedTableValue
-    ) -> "CContextNode":
-        return super().__new__(cls, cxd, ixval)
-
-    @property
-    def name(self) -> str:
-        return self.tags[0]
-
-    @property
-    def data_id(self) -> int:
-        if len(self.args) > 0:
-            return self.args[0]
-        else:
-            raise UF.CHCError(
-                "Context node " + self.name + " does not have a data-id")
-
-    def __str__(self) -> str:
-        if len(self.args) == 0:
-            return "_".join(self.tags)
-        else:
-            return (
-                "_".join(self.tags) + ":" + "_".join(str(x) for x in self.args))
+CContextNode = chc_rust.app.c_context.CContextNode
 
 
 class CfgContext(CContextDictionaryRecord):

@@ -1,12 +1,16 @@
-use pyo3::{intern, prelude::*};
+use itertools::Itertools;
+use pyo3::{exceptions::PyException, intern, prelude::*};
 
 use crate::util::indexed_table::IndexedTableValue;
 
 pub fn module(py: Python) -> PyResult<Bound<PyModule>> {
     let module = PyModule::new_bound(py, "c_context")?;
     module.add_class::<CContextDictionaryRecord>()?;
+    module.add_class::<CContextNode>()?;
     Ok(module)
 }
+
+pyo3::import_exception!(chcc.util.fileutil, CHCError);
 
 #[derive(Clone)]
 #[pyclass(extends = IndexedTableValue, frozen, subclass)]
@@ -31,5 +35,58 @@ impl CContextDictionaryRecord {
             "context-record: {}",
             slf.getattr(py, intern!(py, "key"))?
         ))
+    }
+}
+
+/// Node in an expression or control-flow-graph context.
+///
+/// - tags[0]: name of the node
+/// - tags[1..]: additional info on the node, e.g. field name in struct expression
+/// - args[0]: stmt.id for statements, instr sequence number for instructions
+#[derive(Clone)]
+#[pyclass(extends = CContextDictionaryRecord, frozen, subclass)]
+pub struct CContextNode {}
+
+#[pymethods]
+impl CContextNode {
+    #[new]
+    pub fn new(cxd: Py<PyAny>, ixval: IndexedTableValue) -> PyClassInitializer<Self> {
+        PyClassInitializer::from(CContextDictionaryRecord::new(cxd, ixval))
+            .add_subclass(CContextNode {})
+    }
+
+    #[getter]
+    fn name(slf: PyRef<Self>) -> PyResult<String> {
+        slf.into_super()
+            .into_super()
+            .tags()
+            .iter()
+            .next()
+            .cloned()
+            .ok_or_else(|| PyException::new_err("missing"))
+    }
+
+    #[getter]
+    fn data_id(slf: Py<Self>, py: Python) -> PyResult<isize> {
+        let binding = slf.borrow(py).into_super().into_super();
+        if let Some(arg0) = binding.args().iter().next() {
+            Ok(*arg0)
+        } else {
+            let name = CContextNode::name(slf.borrow(py))?;
+            Err(CHCError::new_err(format!(
+                "Context node {name} does not have a data-id"
+            )))
+        }
+    }
+
+    #[pyo3(name = "__str__")]
+    pub fn str(slf: PyRef<Self>) -> String {
+        let it = slf.into_super().into_super();
+        let tags = it.tags().join("_");
+        if it.args().is_empty() {
+            tags
+        } else {
+            format!("{tags}:{}", it.args().iter().join("_"))
+        }
     }
 }
