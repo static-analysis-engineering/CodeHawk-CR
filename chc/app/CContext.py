@@ -34,27 +34,14 @@
 from typing import List, TYPE_CHECKING
 
 import chc.util.fileutil as UF
+import chc_rust
 from chc.util.IndexedTable import IndexedTableValue
 
 if TYPE_CHECKING:
     from chc.app.CContextDictionary import CContextDictionary
 
 
-class CContextDictionaryRecord(IndexedTableValue):
-
-    def __new__(
-            cls, cxd: "CContextDictionary", ixval: IndexedTableValue
-    ) -> "CContextDictionaryRecord":
-        self = super().__new__(cls, ixval.index, ixval.tags, ixval.args)
-        self._cxd = cxd
-        return self
-
-    @property
-    def cxd(self) -> "CContextDictionary":
-        return self._cxd
-
-    def __str__(self) -> str:
-        return "context-record:" + str(self.key)
+CContextDictionaryRecord = chc_rust.app.c_context.CContextDictionaryRecord
 
 
 class CContextNode(CContextDictionaryRecord):
