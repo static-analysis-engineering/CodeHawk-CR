@@ -7,6 +7,7 @@ pub fn module(py: Python) -> PyResult<Bound<PyModule>> {
     let module = PyModule::new_bound(py, "c_context")?;
     module.add_class::<CContextDictionaryRecord>()?;
     module.add_class::<CContextNode>()?;
+    module.add_class::<CfgContext>()?;
     Ok(module)
 }
 
@@ -35,6 +36,12 @@ impl CContextDictionaryRecord {
             "context-record: {}",
             slf.getattr(py, intern!(py, "key"))?
         ))
+    }
+}
+
+impl CContextDictionaryRecord {
+    fn cxd(&self) -> Py<PyAny> {
+        self.cxd.clone()
     }
 }
 
@@ -88,5 +95,43 @@ impl CContextNode {
         } else {
             format!("{tags}:{}", it.args().iter().join("_"))
         }
+    }
+}
+
+/// Control-flow-graph context expressed by a list of context nodes.
+///
+/// args[0..]: indices of context nodes in the context dictionary, inner context last
+#[derive(Clone)]
+#[pyclass(extends = CContextDictionaryRecord, frozen, subclass)]
+pub struct CfgContext {}
+
+#[pymethods]
+impl CfgContext {
+    #[new]
+    pub fn new(cxd: Py<PyAny>, ixval: IndexedTableValue) -> PyClassInitializer<Self> {
+        PyClassInitializer::from(CContextDictionaryRecord::new(cxd, ixval))
+            .add_subclass(CfgContext {})
+    }
+
+    #[getter]
+    fn nodes(slf: PyRef<Self>, py: Python) -> PyResult<Vec<PyObject>> {
+        let py_super = slf.into_super();
+        let cxd = py_super.cxd();
+        py_super
+            .into_super()
+            .args()
+            .into_iter()
+            .map(|arg| cxd.call_method1(py, intern!(py, "get_node"), (*arg,)))
+            .collect()
+    }
+
+    #[getter]
+    fn reverse_repr(slf: PyRef<Self>, py: Python) -> PyResult<String> {
+        Ok(CfgContext::nodes(slf, py)?.into_iter().rev().join("_"))
+    }
+
+    #[pyo3(name = "__str__")]
+    fn str(slf: PyRef<Self>, py: Python) -> PyResult<String> {
+        Ok(CfgContext::nodes(slf, py)?.into_iter().join("_"))
     }
 }
