@@ -50,24 +50,7 @@ CContextNode = chc_rust.app.c_context.CContextNode
 CfgContext = chc_rust.app.c_context.CfgContext
 
 
-class ExpContext(CContextDictionaryRecord):
-    """Expression nesting context expressed by a list of context nodes.
-
-    - args[0..]: indices of context nodes in the context dictionary, inner
-      context last
-    """
-
-    def __new__(
-            cls, cxd: "CContextDictionary", ixval: IndexedTableValue
-    ) -> "ExpContext":
-        return super().__new__(cls, cxd, ixval)
-
-    @property
-    def nodes(self) -> List[CContextNode]:
-        return [self.cxd.get_node(x) for x in self.args]
-
-    def __str__(self) -> str:
-        return "_".join(str(x) for x in self.nodes)
+ExpContext = chc_rust.app.c_context.ExpContext
 
 
 class ProgramContext(CContextDictionaryRecord):

@@ -8,6 +8,7 @@ pub fn module(py: Python) -> PyResult<Bound<PyModule>> {
     module.add_class::<CContextDictionaryRecord>()?;
     module.add_class::<CContextNode>()?;
     module.add_class::<CfgContext>()?;
+    module.add_class::<ExpContext>()?;
     Ok(module)
 }
 
@@ -133,5 +134,38 @@ impl CfgContext {
     #[pyo3(name = "__str__")]
     fn str(slf: PyRef<Self>, py: Python) -> PyResult<String> {
         Ok(CfgContext::nodes(slf, py)?.into_iter().join("_"))
+    }
+}
+
+/// Expression nesting context expressed by a list of context nodes.
+///
+/// args[0..]: indices of context nodes in the context dictionary, inner context last
+#[derive(Clone)]
+#[pyclass(extends = CContextDictionaryRecord, frozen, subclass)]
+pub struct ExpContext {}
+
+#[pymethods]
+impl ExpContext {
+    #[new]
+    pub fn new(cxd: Py<PyAny>, ixval: IndexedTableValue) -> PyClassInitializer<Self> {
+        PyClassInitializer::from(CContextDictionaryRecord::new(cxd, ixval))
+            .add_subclass(ExpContext {})
+    }
+
+    #[getter]
+    fn nodes(slf: PyRef<Self>, py: Python) -> PyResult<Vec<PyObject>> {
+        let py_super = slf.into_super();
+        let cxd = py_super.cxd();
+        py_super
+            .into_super()
+            .args()
+            .into_iter()
+            .map(|arg| cxd.call_method1(py, intern!(py, "get_node"), (*arg,)))
+            .collect()
+    }
+
+    #[pyo3(name = "__str__")]
+    fn str(slf: PyRef<Self>, py: Python) -> PyResult<String> {
+        Ok(ExpContext::nodes(slf, py)?.into_iter().join("_"))
     }
 }
