@@ -30,15 +30,7 @@
 
 
 """
-
-from typing import List, TYPE_CHECKING
-
-import chc.util.fileutil as UF
 import chc_rust
-from chc.util.IndexedTable import IndexedTableValue
-
-if TYPE_CHECKING:
-    from chc.app.CContextDictionary import CContextDictionary
 
 
 CContextDictionaryRecord = chc_rust.app.c_context.CContextDictionaryRecord
@@ -53,25 +45,4 @@ CfgContext = chc_rust.app.c_context.CfgContext
 ExpContext = chc_rust.app.c_context.ExpContext
 
 
-class ProgramContext(CContextDictionaryRecord):
-    """Precise structural placement within a function (relative to ast, exps).
-
-    args[0]: index of cfg context in context dictionary
-    args[1]: index of exp context in context dictionary
-    """
-
-    def __new__(
-            cls, cxd: "CContextDictionary", ixval: IndexedTableValue
-    ) -> "ProgramContext":
-        return super().__new__(cls, cxd, ixval)
-
-    @property
-    def cfg_context(self) -> CfgContext:
-        return self.cxd.get_cfg_context(self.args[0])
-
-    @property
-    def exp_context(self) -> ExpContext:
-        return self.cxd.get_exp_context(self.args[1])
-
-    def __str__(self) -> str:
-        return "(" + str(self.cfg_context) + "," + str(self.exp_context) + ")"
+ProgramContext = chc_rust.app.c_context.ProgramContext

@@ -9,6 +9,7 @@ pub fn module(py: Python) -> PyResult<Bound<PyModule>> {
     module.add_class::<CContextNode>()?;
     module.add_class::<CfgContext>()?;
     module.add_class::<ExpContext>()?;
+    module.add_class::<ProgramContext>()?;
     Ok(module)
 }
 
@@ -167,5 +168,51 @@ impl ExpContext {
     #[pyo3(name = "__str__")]
     fn str(slf: PyRef<Self>, py: Python) -> PyResult<String> {
         Ok(ExpContext::nodes(slf, py)?.into_iter().join("_"))
+    }
+}
+
+/// Precise structural placement within a function (relative to ast, exps).
+///
+/// args[0]: index of cfg context in context dictionary
+/// args[1]: index of exp context in context dictionary
+#[derive(Clone)]
+#[pyclass(extends = CContextDictionaryRecord, frozen, subclass)]
+pub struct ProgramContext {}
+
+#[pymethods]
+impl ProgramContext {
+    #[new]
+    pub fn new(cxd: Py<PyAny>, ixval: IndexedTableValue) -> PyClassInitializer<Self> {
+        PyClassInitializer::from(CContextDictionaryRecord::new(cxd, ixval))
+            .add_subclass(ProgramContext {})
+    }
+
+    #[getter]
+    fn cfg_context(slf: PyRef<Self>, py: Python) -> PyResult<PyObject> {
+        let py_super = slf.into_super();
+        let cxd = py_super.cxd();
+        let base = py_super.into_super();
+        let Some(arg0) = base.args().get(0) else {
+            return Err(PyException::new_err("No element 0"));
+        };
+        cxd.call_method1(py, intern!(py, "get_cfg_context"), (*arg0,))
+    }
+
+    #[getter]
+    fn exp_context(slf: PyRef<Self>, py: Python) -> PyResult<PyObject> {
+        let py_super = slf.into_super();
+        let cxd = py_super.cxd();
+        let base = py_super.into_super();
+        let Some(arg1) = base.args().get(1) else {
+            return Err(PyException::new_err("No element 1"));
+        };
+        cxd.call_method1(py, intern!(py, "get_exp_context"), (*arg1,))
+    }
+
+    #[pyo3(name = "__str__")]
+    fn str(slf: Py<Self>, py: Python) -> PyResult<String> {
+        let cfg_context = ProgramContext::cfg_context(slf.borrow(py), py)?;
+        let exp_context = ProgramContext::exp_context(slf.borrow(py), py)?;
+        Ok(format!("({cfg_context},{exp_context})"))
     }
 }
