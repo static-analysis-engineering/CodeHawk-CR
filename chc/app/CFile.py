@@ -62,6 +62,8 @@ import chc.util.fileutil as UF
 from chc.util.loggingutil import chklogger
 import chc.util.xmlutil as UX
 
+import chc_rust
+
 
 if TYPE_CHECKING:
     from chc.app.CApplication import CApplication
@@ -94,15 +96,16 @@ class CFunctionNotFoundException(Exception):
         return "\n".join(lines)
 
 
-class CFile(object):
+class CFile(chc_rust.app.c_file.CFile):
     """C File main access point."""
 
-    def __init__(
-            self,
+    def __new__(
+            cls,
             capp: "CApplication",
             index: int,
             cfilename: str,
-            cfilepath: Optional[str]) -> None:
+            cfilepath: Optional[str]) -> "CFile":
+        self = super().__new__(cls)
         self._index = index
         self._capp = capp
         self._cfilename = cfilename
@@ -120,6 +123,7 @@ class CFile(object):
         self._contracts: Optional[CFileContracts] = None
 
         self._cfileglobals: Optional[CFileGlobals] = None
+        return self
 
     @property
     def index(self) -> int:
