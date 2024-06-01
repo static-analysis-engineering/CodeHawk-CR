@@ -74,10 +74,11 @@ class CFileDictionary(CDictionary):
     All other indexing is handled by the superclass.
     """
 
-    def __init__(self, cfile: "CFile", xnode: ET.Element) -> None:
-        CDictionary.__init__(self)
+    def __new__(cls, cfile: "CFile", xnode: ET.Element) -> "CFileDictionary":
+        self = super().__new__(cls)
         self._cfile = cfile
         self._initialize(xnode)
+        return self
 
     @property
     def is_global(self) -> bool:

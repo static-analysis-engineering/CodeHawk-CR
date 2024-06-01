@@ -34,6 +34,7 @@ from abc import ABC, abstractmethod
 from typing import (
     cast, Any, Callable, Dict, List, Mapping, Optional, Tuple, TYPE_CHECKING)
 
+import chc_rust
 from chc.app.CAttributes import CAttr, CAttribute, CAttributes
 from chc.app.CConst import CConst
 from chc.app.CDictionaryRecord import CDictionaryRecord, cdregistry
@@ -75,7 +76,7 @@ if TYPE_CHECKING:
     from chc.app.CVarInfo import CVarInfo
 
 
-class CDictionary(ABC):
+class CDictionary(chc_rust.app.c_dictionary.CDictionary):
     """Indexed types.
 
     subclassed by
@@ -84,7 +85,8 @@ class CDictionary(ABC):
     - CGlobalDictionary: constructed in the python api
     """
 
-    def __init__(self) -> None:
+    def __new__(cls) -> "CDictionary":
+        self = super().__new__(cls)
         self.attrparam_table = IndexedTable("attrparam-table")
         self.attribute_table = IndexedTable("attribute-table")
         self.attributes_table = IndexedTable("attributes-table")
@@ -129,6 +131,7 @@ class CDictionary(ABC):
             "typsig": self.get_typsig_map,
             "typsiglist": self.get_typsig_list_map}
         # self.string_table = StringIndexedTable("string-table")
+        return self
 
     @property
     @abstractmethod

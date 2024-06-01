@@ -52,10 +52,11 @@ if TYPE_CHECKING:
 
 class CGlobalDictionary(CDictionary):
 
-    def __init__(self, capp: "CApplication", xnode: Optional[ET.Element]) -> None:
-        CDictionary.__init__(self)
+    def __new__(cls, capp: "CApplication", xnode: Optional[ET.Element]) -> None:
+        self = super().__new__(cls)
         self._capp = capp
         self._initialize(xnode)
+        return self
 
     @property
     def is_global(self) -> bool:
