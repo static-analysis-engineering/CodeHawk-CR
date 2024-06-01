@@ -31,6 +31,7 @@
 from typing import Callable, cast, Dict, List, Tuple, Type, TypeVar, TYPE_CHECKING
 import xml.etree.ElementTree as ET
 
+import chc_rust
 import chc.util.fileutil as UF
 import chc.util.IndexedTable as IT
 
@@ -39,21 +40,7 @@ if TYPE_CHECKING:
     from chc.api.InterfaceDictionary import InterfaceDictionary
 
 
-class InterfaceDictionaryRecord(IT.IndexedTableValue):
-    """Base class for all objects kept in the InterfaceDictionary."""
-
-    def __new__(
-        cls,
-        dictionary: "InterfaceDictionary",
-        ixval: IT.IndexedTableValue,
-    ) -> "InterfaceDictionaryRecord":
-        self = super().__new__(cls, ixval.index, ixval.tags, ixval.args)
-        self._ifd = dictionary
-        return self
-
-    @property
-    def ifd(self) -> "InterfaceDictionary":
-        return self._ifd
+InterfaceDictionaryRecord = chc_rust.api.interface_dictionary_record.InterfaceDictionaryRecord
 
 
 IdR = TypeVar("IdR", bound=InterfaceDictionaryRecord, covariant=True)
