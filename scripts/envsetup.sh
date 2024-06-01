@@ -9,13 +9,16 @@ if [ ! -d "$PROJECT_DIR"/.venv ]; then
 fi
 source "$PROJECT_DIR"/.venv/bin/activate
 
-chc_build () {
+chc_build () {(
 	cd "$PROJECT_DIR"
 	# Filter emoji out of maturin because they mess up my gnu screen session
+	set -e
+	set -o pipefail
 	maturin develop --color=always 2>&1 | tr -cd '\000-\177'
-}
+)}
 
-chc_test () {
+chc_test () {(
+	set -e
 	chc_build
 	chkc kendra test-sets
-}
+)}
