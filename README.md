@@ -4,8 +4,8 @@ Sound Static Analysis of C for Memory Safety (Undefined Behavior)
 ### Quick start
 
 The CodeHawk-C Analyzer consists of two parts:
-- A python front end (this repository) through which all user interaction
-  is performed, and
+- A python/rust front end (this repository) through which all user interaction
+  is performed
 - An ocaml abstract-interpretation engine that powers the analysis.
 
 To use the CodeHawk-C Analyzer first clone or download the ocaml application
@@ -32,14 +32,21 @@ Alternatively, you can edit the path to these two executables directly
 in chc/util/Config.py or chc/util/ConfigLocal.py, so there is no need
 to copy them or update them with each new version of the ocaml analyzer.
 
+Install [maturin](https://www.maturin.rs/installation) for Rust code.
+
 Set the python path and path:
+```bash
+source scripts/envsetup.sh
 ```
-export PYTHONPATH=$HOME/CodeHawk-C
-export PATH=$HOME/CodeHawk-C/chc/cmdline:$PATH
+
+Compile the rust code:
+```bash
+chc_build
 ```
+
 and check whether all the components are in place with:
-```
-> chkc info
+```bash
+chkc info
 ```
 which should show something like:
 ```
@@ -57,10 +64,10 @@ Interaction with the analyzer is primarily through the command-line interpreter
 **chkc**. Two modes are available:
 1. **Single c-file:** A single c-file can be analyzed and investigated with the
    sequence of commands:
-   ```
-   > chkc c-file parse <filename>
-   > chkc c-file analyze <filename>
-   > chkc c-file report-file <filename>
+   ```bash
+   $ chkc c-file parse <filename>
+   $ chkc c-file analyze <filename>
+   $ chkc c-file report-file <filename>
    ```
    The first command preprocesses the file with gcc; the preprocessed file (.i file)
    is then parsed with **parseFile** (a wrapper for goblint-cil,
@@ -74,18 +81,18 @@ Interaction with the analyzer is primarily through the command-line interpreter
    systems these days. Alternatively, if a project comes with a Makefile only,
    the utility **bear** can be used to produce a compile_commands.json file like
    so:
-   ```
-   > bear make
+   ```bash
+   bear make
    ```
    The compile_commands.json file must be present in the top directory of
    the project.
 
    When this is in place, the project can be analyzed with the sequence of
    commands:
-   ```
-   > chkc c-project parse <projectdirectory> <projectname>
-   > chkc c-project analyze <projectdirectory> <projectname>
-   > chkc c-project report <projectdirectory> <projectname>
+   ```bash
+   chkc c-project parse <projectdirectory> <projectname>
+   chkc c-project analyze <projectdirectory> <projectname>
+   chkc c-project report <projectdirectory> <projectname>
    ```
    Other commands are available to inspect the results for individual file
    or functions.
@@ -93,8 +100,8 @@ Interaction with the analyzer is primarily through the command-line interpreter
 
 A quick test of whether the analyzer works as expected is to run the
 regression tests:
-```
-> chkc kendra test-sets
+```bash
+chc_test
 ```
 This command analyzes a subset of a larger collection of buffer-overflow
 testcases published by NIST (https://samate.nist.gov/SARD/test-suites/89),
