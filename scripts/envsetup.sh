@@ -22,3 +22,9 @@ chc_test () {(
 	chc_build
 	chkc kendra test-sets
 )}
+
+chc_test_parallel () {(
+	set -e
+	chc_build
+	chkc kendra list | grep '  id' | parallel --trim l chkc kendra test-set
+)}
