@@ -50,6 +50,8 @@ from chc.source.CSrcFile import CSrcFile
 import chc.util.fileutil as UF
 from chc.util.loggingutil import chklogger
 
+import chc_rust
+
 
 if TYPE_CHECKING:
     from chc.app.CFunction import CFunction
@@ -58,7 +60,7 @@ if TYPE_CHECKING:
     from chc.proof.CFunctionPO import CFunctionPO
 
 
-class CApplication(object):
+class CApplication(chc_rust.app.c_application.CApplication):
     """Primary access point for source code and analysis results.
 
     An application can consist of a single file, or of multiple files managed
@@ -86,14 +88,15 @@ class CApplication(object):
 
     """
 
-    def __init__(
-            self,
+    def __new__(
+            cls,
             projectpath: str,
             projectname: str,
             targetpath: str,
             contractpath: str,
             singlefile: bool = False,
-            excludefiles: List[str] = []) -> None:
+            excludefiles: List[str] = []) -> "CApplication":
+        self = super().__new__(cls)
         self._projectpath = projectpath
         self._projectname = projectname
         self._targetpath = targetpath
@@ -111,6 +114,7 @@ class CApplication(object):
         self._revcallgraph: Optional[
             Dict[Tuple[int, int],
                  List[Tuple[Tuple[int, int], "CFunctionCallsiteSPOs"]]]] = None
+        return self
 
     @property
     def projectpath(self) -> str:
