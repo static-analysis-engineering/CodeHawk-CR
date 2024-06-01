@@ -1,6 +1,6 @@
 use pyo3::{intern, prelude::*};
 
-use crate::util::indexed_table::IndexedTableValue;
+use crate::{app::c_dictionary::CDictionary, util::indexed_table::IndexedTableValue};
 
 pub fn module(py: Python) -> PyResult<Bound<PyModule>> {
     let module = PyModule::new_bound(py, "c_dictionary_record")?;
@@ -14,13 +14,16 @@ pub fn module(py: Python) -> PyResult<Bound<PyModule>> {
 #[pyclass(extends = IndexedTableValue, frozen, subclass)]
 pub struct CDictionaryRecord {
     #[pyo3(get)]
-    cd: Py<PyAny>,
+    cd: Py<CDictionary>,
 }
 
 #[pymethods]
 impl CDictionaryRecord {
     #[new]
-    pub fn new(cd: Py<PyAny>, ixval: IndexedTableValue) -> (CDictionaryRecord, IndexedTableValue) {
+    pub fn new(
+        cd: Py<CDictionary>,
+        ixval: IndexedTableValue,
+    ) -> (CDictionaryRecord, IndexedTableValue) {
         (CDictionaryRecord { cd }, ixval)
     }
 
@@ -31,7 +34,7 @@ impl CDictionaryRecord {
 }
 
 impl CDictionaryRecord {
-    pub fn cd(&self) -> Py<PyAny> {
+    pub fn cd(&self) -> Py<CDictionary> {
         self.cd.clone()
     }
 }

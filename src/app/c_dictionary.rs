@@ -14,7 +14,7 @@ pub fn module(py: Python) -> PyResult<Bound<PyModule>> {
 /// - CGlobalDictionary: constructed in the python api
 #[derive(Clone)]
 #[pyclass(subclass)]
-struct CDictionary {}
+pub struct CDictionary {}
 
 #[pymethods]
 impl CDictionary {

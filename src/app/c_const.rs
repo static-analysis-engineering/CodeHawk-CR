@@ -1,8 +1,10 @@
 use itertools::Itertools;
 use pyo3::{intern, prelude::*};
 
-use crate::app::c_dictionary_record::CDictionaryRecord;
-use crate::util::indexed_table::IndexedTableValue;
+use crate::{
+    app::{c_dictionary::CDictionary, c_dictionary_record::CDictionaryRecord},
+    util::indexed_table::IndexedTableValue,
+};
 
 pub fn module(py: Python) -> PyResult<Bound<PyModule>> {
     let module = PyModule::new_bound(py, "c_const")?;
@@ -24,7 +26,7 @@ struct CConst {}
 #[pymethods]
 impl CConst {
     #[new]
-    fn new(cd: Py<PyAny>, ixval: IndexedTableValue) -> PyClassInitializer<Self> {
+    fn new(cd: Py<CDictionary>, ixval: IndexedTableValue) -> PyClassInitializer<Self> {
         PyClassInitializer::from(CDictionaryRecord::new(cd, ixval)).add_subclass(CConst {})
     }
 
@@ -85,7 +87,7 @@ struct CConstInt {}
 #[pymethods]
 impl CConstInt {
     #[new]
-    fn new(cd: Py<PyAny>, ixval: IndexedTableValue) -> PyClassInitializer<Self> {
+    fn new(cd: Py<CDictionary>, ixval: IndexedTableValue) -> PyClassInitializer<Self> {
         PyClassInitializer::from(CConst::new(cd, ixval)).add_subclass(CConstInt {})
     }
 
@@ -121,7 +123,7 @@ struct CConstStr {}
 #[pymethods]
 impl CConstStr {
     #[new]
-    fn new(cd: Py<PyAny>, ixval: IndexedTableValue) -> PyClassInitializer<Self> {
+    fn new(cd: Py<CDictionary>, ixval: IndexedTableValue) -> PyClassInitializer<Self> {
         PyClassInitializer::from(CConst::new(cd, ixval)).add_subclass(CConstStr {})
     }
 
@@ -165,7 +167,7 @@ struct CConstWStr {}
 #[pymethods]
 impl CConstWStr {
     #[new]
-    fn new(cd: Py<PyAny>, ixval: IndexedTableValue) -> PyClassInitializer<Self> {
+    fn new(cd: Py<CDictionary>, ixval: IndexedTableValue) -> PyClassInitializer<Self> {
         PyClassInitializer::from(CConst::new(cd, ixval)).add_subclass(CConstWStr {})
     }
 
@@ -197,7 +199,7 @@ struct CConstChr {}
 #[pymethods]
 impl CConstChr {
     #[new]
-    fn new(cd: Py<PyAny>, ixval: IndexedTableValue) -> PyClassInitializer<Self> {
+    fn new(cd: Py<CDictionary>, ixval: IndexedTableValue) -> PyClassInitializer<Self> {
         PyClassInitializer::from(CConst::new(cd, ixval)).add_subclass(CConstChr {})
     }
 
@@ -228,7 +230,7 @@ struct CConstReal {}
 #[pymethods]
 impl CConstReal {
     #[new]
-    fn new(cd: Py<PyAny>, ixval: IndexedTableValue) -> PyClassInitializer<Self> {
+    fn new(cd: Py<CDictionary>, ixval: IndexedTableValue) -> PyClassInitializer<Self> {
         PyClassInitializer::from(CConst::new(cd, ixval)).add_subclass(CConstReal {})
     }
 
@@ -266,7 +268,7 @@ struct CConstEnum {}
 #[pymethods]
 impl CConstEnum {
     #[new]
-    fn new(cd: Py<PyAny>, ixval: IndexedTableValue) -> PyClassInitializer<Self> {
+    fn new(cd: Py<CDictionary>, ixval: IndexedTableValue) -> PyClassInitializer<Self> {
         PyClassInitializer::from(CConst::new(cd, ixval)).add_subclass(CConstEnum {})
     }
 
