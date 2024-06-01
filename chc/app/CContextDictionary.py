@@ -37,13 +37,16 @@ from chc.app.CContext import CContextNode, CfgContext, ExpContext, ProgramContex
 import chc.util.fileutil as UF
 from chc.util.IndexedTable import IndexedTable, IndexedTableValue
 
+import chc_rust
+
 if TYPE_CHECKING:
     from chc.app.CFile import CFile
 
 
-class CContextDictionary:
+class CContextDictionary(chc_rust.app.c_context_dictionary.CContextDictionary):
 
-    def __init__(self, cfile: "CFile", xnode: ET.Element) -> None:
+    def __new__(cls, cfile: "CFile", xnode: ET.Element) -> None:
+        self = super().__new__(cls)
         self._cfile = cfile
         self.node_table = IndexedTable("nodes")
         self.cfgcontext_table = IndexedTable("cfg-contexts")
@@ -60,6 +63,7 @@ class CContextDictionary:
             "exp": self.get_exp_context_map,
             "p": self.get_program_context_map}
         self.initialize(xnode)
+        return self
 
     @property
     def cfile(self) -> "CFile":
