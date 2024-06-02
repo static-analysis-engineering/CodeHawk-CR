@@ -32,14 +32,17 @@ from typing import Dict, Tuple, TYPE_CHECKING
 if TYPE_CHECKING:
     from chc.cmdline.kendra.TestCFunctionRef import TestCFunctionRef
 
+import chc_rust
 
-class TestSPORef:
+class TestSPORef(chc_rust.cmdline.kendra.test_spo_ref.TestSPORef):
 
-    def __init__(
-            self, testcfunctionref: "TestCFunctionRef", refd: Dict[str, str]
-    ) -> None:
+    def __new__(
+            cls, testcfunctionref: "TestCFunctionRef", refd: Dict[str, str]
+    ) -> "TestSPORef":
+        self = super().__new__(cls)
         self._testcfunctionref = testcfunctionref
         self._refd = refd
+        return self
 
     @property
     def testcfunctionref(self) -> "TestCFunctionRef":
