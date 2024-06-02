@@ -38,9 +38,12 @@ if TYPE_CHECKING:
     from chc.cmdline.kendra.TestSPORef import TestSPORef
     from chc.cmdline.kendra.TestSetRef import TestSetRef
 
+import chc_rust
 
-class TestResults(object):
-    def __init__(self, testsetref: "TestSetRef") -> None:
+
+class TestResults(chc_rust.cmdline.kendra.test_results.TestResults):
+    def __new__(cls, testsetref: "TestSetRef") -> "TestResults":
+        self = super().__new__(cls)
         self._testsetref = testsetref  # TestSetRef
         self._parseresults: Dict[str, str] = {}
         self._xfileresults: Dict[str, Dict[str, Any]] = {}
@@ -54,6 +57,7 @@ class TestResults(object):
         self._includes_spos = False
         self._includes_sevs = False
         self._initialize()
+        return self
 
     @property
     def cfiles(self) -> Iterable["TestCFileRef"]:
