@@ -30,7 +30,7 @@ SOFTWARE.
 */
 use std::collections::HashMap;
 
-use pyo3::prelude::*;
+use pyo3::{exceptions::PyException, prelude::*};
 
 use crate::cmdline::kendra::test_c_function_ref::TestCFunctionRef;
 
@@ -56,6 +56,72 @@ impl TestSPORef {
         TestSPORef {
             testcfunctionref,
             refd,
+        }
+    }
+
+    #[getter]
+    fn line(&self, py: Python) -> PyResult<isize> {
+        self.refd
+            .get("line")
+            .ok_or_else(|| PyException::new_err("'line' missing"))?
+            .extract(py)
+    }
+
+    #[getter]
+    fn context(&self, py: Python) -> PyResult<String> {
+        self.refd
+            .get("cfgctxt")
+            .ok_or_else(|| PyException::new_err("'cfgctxt' missing"))?
+            .extract(py)
+    }
+
+    #[getter]
+    fn tgt_status(&self, py: Python) -> PyResult<String> {
+        self.refd
+            .get("tgtstatus")
+            .ok_or_else(|| PyException::new_err("'tgtstatus' missing"))?
+            .extract(py)
+    }
+
+    #[getter]
+    fn status(&self, py: Python) -> PyResult<String> {
+        self.refd
+            .get("status")
+            .ok_or_else(|| PyException::new_err("'status' missing"))?
+            .extract(py)
+    }
+
+    #[getter]
+    fn predicate(&self, py: Python) -> PyResult<String> {
+        self.refd
+            .get("predicate")
+            .ok_or_else(|| PyException::new_err("'predicate' missing"))?
+            .extract(py)
+    }
+
+    // Raw identifier because of PyO3 #4225
+    #[getter]
+    fn r#type(&self, py: Python) -> PyResult<String> {
+        self.refd
+            .get("type")
+            .ok_or_else(|| PyException::new_err("'type' missing"))?
+            .extract(py)
+    }
+
+    #[getter]
+    fn argnr(&self, py: Python) -> PyResult<String> {
+        self.refd
+            .get("argnr")
+            .ok_or_else(|| PyException::new_err("'argnr' missing"))?
+            .extract(py)
+    }
+
+    #[getter]
+    fn id(&self, py: Python) -> PyResult<(String, String)> {
+        if self.r#type(py)? == "callsite" {
+            Ok((self.predicate(py)?, self.argnr(py)?))
+        } else {
+            Ok(("?".to_string(), "?".to_string()))
         }
     }
 }

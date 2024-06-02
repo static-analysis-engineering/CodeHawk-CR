@@ -27,50 +27,7 @@
 # SOFTWARE.
 # ------------------------------------------------------------------------------
 
-from typing import Dict, Tuple, TYPE_CHECKING
-
-if TYPE_CHECKING:
-    from chc.cmdline.kendra.TestCFunctionRef import TestCFunctionRef
-
 import chc_rust
 
-class TestSPORef(chc_rust.cmdline.kendra.test_spo_ref.TestSPORef):
 
-    def __new__(
-            cls, testcfunctionref: "TestCFunctionRef", refd: Dict[str, str]
-    ) -> "TestSPORef":
-        return super().__new__(cls, testcfunctionref, refd)
-
-    @property
-    def line(self) -> int:
-        return int(self.refd["line"])
-
-    @property
-    def context(self) -> str:
-        return self.refd["cfgctxt"]
-
-    @property
-    def tgt_status(self) -> str:
-        return self.refd["tgtstatus"]
-
-    @property
-    def status(self) -> str:
-        return self.refd["status"]
-
-    @property
-    def predicate(self) -> str:
-        return self.refd["predicate"]
-
-    @property
-    def type(self) -> str:
-        return self.refd["type"]
-
-    @property
-    def argnr(self) -> str:
-        return self.refd["argnr"]
-
-    @property
-    def id(self) -> Tuple[str, str]:
-        if self.type == "callsite":
-            return (self.predicate, self.argnr)
-        return ("?", "?")
+TestSPORef = chc_rust.cmdline.kendra.test_spo_ref.TestSPORef
