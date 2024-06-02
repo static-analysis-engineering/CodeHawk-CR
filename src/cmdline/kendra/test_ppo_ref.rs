@@ -28,7 +28,11 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ------------------------------------------------------------------------------
 */
+use std::collections::HashMap;
+
 use pyo3::prelude::*;
+
+use crate::cmdline::kendra::test_c_function_ref::TestCFunctionRef;
 
 pub fn module(py: Python) -> PyResult<Bound<PyModule>> {
     let module = PyModule::new_bound(py, "test_ppo_ref")?;
@@ -38,12 +42,20 @@ pub fn module(py: Python) -> PyResult<Bound<PyModule>> {
 
 #[derive(Clone)]
 #[pyclass(subclass)]
-pub struct TestPPORef {}
+pub struct TestPPORef {
+    #[pyo3(get)]
+    testcfunctionref: Py<TestCFunctionRef>,
+    #[pyo3(get)]
+    refd: HashMap<String, Py<PyAny>>, // Suppoed to be String, String?
+}
 
 #[pymethods]
 impl TestPPORef {
     #[new]
-    fn new() -> TestPPORef {
-        TestPPORef {}
+    fn new(testcfunctionref: Py<TestCFunctionRef>, refd: HashMap<String, Py<PyAny>>) -> TestPPORef {
+        TestPPORef {
+            testcfunctionref,
+            refd,
+        }
     }
 }
