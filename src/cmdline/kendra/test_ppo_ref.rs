@@ -30,7 +30,7 @@ SOFTWARE.
 */
 use std::collections::HashMap;
 
-use pyo3::prelude::*;
+use pyo3::{exceptions::PyException, prelude::*};
 
 use crate::cmdline::kendra::test_c_function_ref::TestCFunctionRef;
 
@@ -57,5 +57,67 @@ impl TestPPORef {
             testcfunctionref,
             refd,
         }
+    }
+
+    #[getter]
+    fn line(&self, py: Python) -> PyResult<isize> {
+        self.refd
+            .get("line")
+            .ok_or_else(|| PyException::new_err("'line' missing"))?
+            .extract(py)
+    }
+
+    #[getter]
+    fn cfg_context(&self, py: Python) -> PyResult<String> {
+        self.refd
+            .get("cfgctxt")
+            .ok_or_else(|| PyException::new_err("'cfgctxt' missing"))?
+            .extract(py)
+    }
+
+    #[getter]
+    fn exp_context(&self, py: Python) -> PyResult<String> {
+        self.refd
+            .get("expctxt")
+            .ok_or_else(|| PyException::new_err("'expctxt' missing"))?
+            .extract(py)
+    }
+
+    #[getter]
+    fn context(&self, py: Python) -> PyResult<(String, String)> {
+        Ok((self.cfg_context(py)?, self.exp_context(py)?))
+    }
+
+    #[getter]
+    fn context_string(&self, py: Python) -> PyResult<String> {
+        Ok(format!(
+            "({},{})",
+            self.cfg_context(py)?,
+            self.exp_context(py)?
+        ))
+    }
+
+    #[getter]
+    fn predicate(&self, py: Python) -> PyResult<String> {
+        self.refd
+            .get("predicate")
+            .ok_or_else(|| PyException::new_err("'predicate' missing"))?
+            .extract(py)
+    }
+
+    #[getter]
+    fn tgt_status(&self, py: Python) -> PyResult<String> {
+        self.refd
+            .get("tgtstatus")
+            .ok_or_else(|| PyException::new_err("'tgtstatus' missing"))?
+            .extract(py)
+    }
+
+    #[getter]
+    fn status(&self, py: Python) -> PyResult<String> {
+        self.refd
+            .get("status")
+            .ok_or_else(|| PyException::new_err("'status' missing"))?
+            .extract(py)
     }
 }

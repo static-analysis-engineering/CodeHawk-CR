@@ -27,50 +27,7 @@
 # SOFTWARE.
 # ------------------------------------------------------------------------------
 
-from typing import Any, Dict, Tuple, TYPE_CHECKING
-
-
-if TYPE_CHECKING:
-    from chc.cmdline.kendra.TestCFunctionRef import TestCFunctionRef
-
 import chc_rust
 
 
-class TestPPORef(chc_rust.cmdline.kendra.test_ppo_ref.TestPPORef):
-
-    def __new__(
-            cls, testcfunctionref: "TestCFunctionRef", refd: Dict[str, str]
-    ) -> "TestPPORef":
-        return super().__new__(cls, testcfunctionref, refd)
-
-    @property
-    def line(self) -> int:
-        return int(self.refd["line"])
-
-    @property
-    def cfg_context(self) -> str:
-        return self.refd["cfgctxt"]
-
-    @property
-    def exp_context(self) -> str:
-        return self.refd["expctxt"]
-
-    @property
-    def context(self) -> Tuple[str, str]:
-        return (self.cfg_context, self.exp_context)
-
-    @property
-    def context_string(self) -> str:
-        return "(" + str(self.cfg_context) + "," + self.exp_context + ")"
-
-    @property
-    def predicate(self) -> str:
-        return self.refd["predicate"]
-
-    @property
-    def tgt_status(self) -> str:
-        return self.refd["tgtstatus"]
-
-    @property
-    def status(self) -> str:
-        return self.refd["status"]
+TestPPORef = chc_rust.cmdline.kendra.test_ppo_ref.TestPPORef
