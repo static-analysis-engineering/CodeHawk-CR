@@ -34,16 +34,20 @@ from chc.cmdline.kendra.TestCFunctionRef import TestCFunctionRef
 if TYPE_CHECKING:
     from chc.cmdline.kendra.TestSetRef import TestSetRef
 
+import chc_rust
 
-class TestCFileRef:
 
-    def __init__(
-            self, testsetref: "TestSetRef", name: str, refd: Dict[str, Any]
-    ) -> None:
+class TestCFileRef(chc_rust.cmdline.kendra.test_c_file_ref.TestCFileRef):
+
+    def __new__(
+            cls, testsetref: "TestSetRef", name: str, refd: Dict[str, Any]
+    ) -> "TestCFileRef":
+        self = super().__new__(cls)
         self._testsetref = testsetref
         self._name = name
         self._refd = refd
         self._functions: Dict[str, TestCFunctionRef] = {}
+        return self
 
     @property
     def testsetref(self) -> "TestSetRef":
