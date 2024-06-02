@@ -39,18 +39,7 @@ class TestSPORef(chc_rust.cmdline.kendra.test_spo_ref.TestSPORef):
     def __new__(
             cls, testcfunctionref: "TestCFunctionRef", refd: Dict[str, str]
     ) -> "TestSPORef":
-        self = super().__new__(cls)
-        self._testcfunctionref = testcfunctionref
-        self._refd = refd
-        return self
-
-    @property
-    def testcfunctionref(self) -> "TestCFunctionRef":
-        return self._testcfunctionref
-
-    @property
-    def refd(self) -> Dict[str, str]:
-        return self._refd
+        return super().__new__(cls, testcfunctionref, refd)
 
     @property
     def line(self) -> int:
