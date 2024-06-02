@@ -49,6 +49,8 @@ from chc.util.Config import Config
 import chc.util.fileutil as UF
 from chc.util.loggingutil import chklogger
 
+import chc_rust
+
 
 if TYPE_CHECKING:
     from chc.app.CFunction import CFunction
@@ -109,7 +111,7 @@ class AnalyzerMissingError(Exception):
         return self.msg
 
 
-class TestManager:
+class TestManager(chc_rust.cmdline.kendra.test_manager.TestManager):
     """Provide utility functions to support regression and platform tests.
 
     Args:
@@ -120,13 +122,14 @@ class TestManager:
                  overwrites the json file with the result
     """
 
-    def __init__(
-            self,
+    def __new__(
+            cls,
             projectpath: str,
             targetpath: str,
             testname: str,
             saveref: bool = False,
-            verbose: bool = True) -> None:
+            verbose: bool = True) -> "TestManager":
+        self = super().__new__(cls)
         self._projectpath = projectpath
         self._targetpath = targetpath
         self._testname = testname
@@ -137,6 +140,7 @@ class TestManager:
         self._testsetref = TestSetRef(testfilename)
         self._testresults = TestResults(self.testsetref)
         self._parsemanager: Optional[ParseManager] = None
+        return self
 
     @property
     def projectpath(self) -> str:
