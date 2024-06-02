@@ -46,26 +46,11 @@ class TestCFunctionRef(chc_rust.cmdline.kendra.test_c_function_ref.TestCFunction
             name: str,
             refd: Dict[str, Any]
     ) -> "TestCFunctionRef":
-        self = super().__new__(cls)
-        self._testcfileref = testcfileref
-        self._name = name
-        self._refd = refd
+        self = super().__new__(cls, testcfileref, name, refd)
         self._line_ppos: Dict[int, List[TestPPORef]] = {}
         self._line_spos: Dict[int, List[TestSPORef]] = {}
         # self._initialize()
         return self
-
-    @property
-    def testcfileref(self) -> "TestCFileRef":
-        return self._testcfileref
-
-    @property
-    def name(self) -> str:
-        return self._name
-
-    @property
-    def refd(self) -> Dict[str, Any]:
-        return self._refd
 
     @property
     def line_ppos(self) -> Dict[int, List[TestPPORef]]:
