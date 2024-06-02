@@ -35,21 +35,25 @@ from chc.cmdline.kendra.TestSPORef import TestSPORef
 if TYPE_CHECKING:
     from chc.cmdline.kendra.TestCFileRef import TestCFileRef
 
+import chc_rust
 
-class TestCFunctionRef:
 
-    def __init__(
-            self,
+class TestCFunctionRef(chc_rust.cmdline.kendra.test_c_function_ref.TestCFunctionRef):
+
+    def __new__(
+            cls,
             testcfileref: "TestCFileRef",
             name: str,
             refd: Dict[str, Any]
-    ) -> None:
+    ) -> "TestCFunctionRef":
+        self = super().__new__(cls)
         self._testcfileref = testcfileref
         self._name = name
         self._refd = refd
         self._line_ppos: Dict[int, List[TestPPORef]] = {}
         self._line_spos: Dict[int, List[TestSPORef]] = {}
         # self._initialize()
+        return self
 
     @property
     def testcfileref(self) -> "TestCFileRef":
