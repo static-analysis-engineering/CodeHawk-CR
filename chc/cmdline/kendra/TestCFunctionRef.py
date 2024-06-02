@@ -46,31 +46,7 @@ class TestCFunctionRef(chc_rust.cmdline.kendra.test_c_function_ref.TestCFunction
             name: str,
             refd: Dict[str, Any]
     ) -> "TestCFunctionRef":
-        self = super().__new__(cls, testcfileref, name, refd)
-        self._line_ppos: Dict[int, List[TestPPORef]] = {}
-        self._line_spos: Dict[int, List[TestSPORef]] = {}
-        # self._initialize()
-        return self
-
-    @property
-    def line_ppos(self) -> Dict[int, List[TestPPORef]]:
-        if len(self._line_ppos) == 0:
-            if "ppos" in self.refd:
-                for p in self.refd["ppos"]:
-                    ppo = TestPPORef(self, p)
-                    self._line_ppos.setdefault(ppo.line, [])
-                    self._line_ppos[ppo.line].append(ppo)
-        return self._line_ppos
-
-    @property
-    def line_spos(self) -> Dict[int, List[TestSPORef]]:
-        if len(self._line_spos) == 0:
-            if "spos" in self.refd:
-                for p in self.refd["spos"]:
-                    spo = TestSPORef(self, p)
-                    self._line_spos.setdefault(spo.line, [])
-                    self._line_spos[spo.line].append(spo)
-        return self._line_spos
+        return super().__new__(cls, testcfileref, name, refd)
 
     @property
     def ppos(self) -> List[TestPPORef]:

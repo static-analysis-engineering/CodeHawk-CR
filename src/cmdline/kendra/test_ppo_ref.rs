@@ -52,7 +52,10 @@ pub struct TestPPORef {
 #[pymethods]
 impl TestPPORef {
     #[new]
-    fn new(testcfunctionref: Py<TestCFunctionRef>, refd: HashMap<String, Py<PyAny>>) -> TestPPORef {
+    pub fn new(
+        testcfunctionref: Py<TestCFunctionRef>,
+        refd: HashMap<String, Py<PyAny>>,
+    ) -> TestPPORef {
         TestPPORef {
             testcfunctionref,
             refd,
@@ -60,7 +63,7 @@ impl TestPPORef {
     }
 
     #[getter]
-    fn line(&self, py: Python) -> PyResult<isize> {
+    pub fn line(&self, py: Python) -> PyResult<isize> {
         self.refd
             .get("line")
             .ok_or_else(|| PyException::new_err("'line' missing"))?
