@@ -42,24 +42,9 @@ class TestCFileRef(chc_rust.cmdline.kendra.test_c_file_ref.TestCFileRef):
     def __new__(
             cls, testsetref: "TestSetRef", name: str, refd: Dict[str, Any]
     ) -> "TestCFileRef":
-        self = super().__new__(cls)
-        self._testsetref = testsetref
-        self._name = name
-        self._refd = refd
+        self = super().__new__(cls, testsetref, name, refd)
         self._functions: Dict[str, TestCFunctionRef] = {}
         return self
-
-    @property
-    def testsetref(self) -> "TestSetRef":
-        return self._testsetref
-
-    @property
-    def name(self) -> str:
-        return self._name
-
-    @property
-    def refd(self) -> Dict[str, Any]:
-        return self._refd
 
     @property
     def functions(self) -> Dict[str, TestCFunctionRef]:
