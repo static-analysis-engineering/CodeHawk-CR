@@ -33,14 +33,18 @@ from typing import Any, Dict, List, Optional, TYPE_CHECKING
 
 from chc.cmdline.kendra.TestCFileRef import TestCFileRef
 
+import chc_rust
 
-class TestSetRef:
+
+class TestSetRef(chc_rust.cmdline.kendra.test_set_ref.TestSetRef):
     """Provides access to the reference results of a set of C files."""
 
-    def __init__(self, specfilename: str) -> None:
+    def __new__(cls, specfilename: str) -> "TestSetRef":
+        self = super().__new__(cls)
         self._specfilename = specfilename
         self._cfiles: Dict[str, TestCFileRef] = {}
         self._refd: Dict[str, Any] = {}
+        return self
 
     @property
     def specfilename(self) -> str:
