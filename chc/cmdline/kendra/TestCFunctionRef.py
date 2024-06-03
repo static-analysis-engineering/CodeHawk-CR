@@ -27,45 +27,7 @@
 # SOFTWARE.
 # ------------------------------------------------------------------------------
 
-from typing import Any, Dict, List, TYPE_CHECKING
-
-from chc.cmdline.kendra.TestPPORef import TestPPORef
-from chc.cmdline.kendra.TestSPORef import TestSPORef
-
-if TYPE_CHECKING:
-    from chc.cmdline.kendra.TestCFileRef import TestCFileRef
-
 import chc_rust
 
 
-class TestCFunctionRef(chc_rust.cmdline.kendra.test_c_function_ref.TestCFunctionRef):
-
-    def __new__(
-            cls,
-            testcfileref: "TestCFileRef",
-            name: str,
-            refd: Dict[str, Any]
-    ) -> "TestCFunctionRef":
-        return super().__new__(cls, testcfileref, name, refd)
-
-    def add_ppo(self, ppo: Dict[str, Any]) -> None:
-        self._refd["ppos"].append(ppo)
-
-    def has_ppos(self) -> bool:
-        return len(self.ppos) > 0
-
-    def get_pred_ppos(self, pred: str) -> List[TestPPORef]:
-        result: List[TestPPORef] = []
-        for line in self.line_ppos:
-            for ppo in self.line_ppos[line]:
-                if ppo.predicate == pred:
-                    result.append(ppo)
-        return result
-
-    def has_spos(self) -> bool:
-        return len(self.spos) > 0
-
-    def has_multiple(self, line: int, pred: str) -> bool:
-        if line in self.line_ppos:
-            ppopreds = [p for p in self.line_ppos[line] if p.predicate == pred]
-        return len(ppopreds) > 1
+TestCFunctionRef = chc_rust.cmdline.kendra.test_c_function_ref.TestCFunctionRef

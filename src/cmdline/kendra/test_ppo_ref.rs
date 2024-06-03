@@ -41,7 +41,7 @@ pub fn module(py: Python) -> PyResult<Bound<PyModule>> {
 }
 
 #[derive(Clone)]
-#[pyclass(subclass)]
+#[pyclass(frozen)]
 pub struct TestPPORef {
     #[pyo3(get)]
     testcfunctionref: Py<TestCFunctionRef>,
@@ -101,7 +101,7 @@ impl TestPPORef {
     }
 
     #[getter]
-    fn predicate(&self, py: Python) -> PyResult<String> {
+    pub fn predicate(&self, py: Python) -> PyResult<String> {
         self.refd
             .get("predicate")
             .ok_or_else(|| PyException::new_err("'predicate' missing"))?

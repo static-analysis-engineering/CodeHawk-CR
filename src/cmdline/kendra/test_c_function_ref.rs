@@ -30,8 +30,9 @@ SOFTWARE.
 */
 use std::collections::BTreeMap;
 
+use itertools::Itertools;
 use once_cell::sync::OnceCell;
-use pyo3::prelude::*;
+use pyo3::{exceptions::PyException, prelude::*, types::PyList};
 
 use crate::cmdline::kendra::{
     test_c_file_ref::TestCFileRef, test_ppo_ref::TestPPORef, test_spo_ref::TestSPORef,
@@ -119,6 +120,39 @@ impl TestCFunctionRef {
             .collect())
     }
 
+    // Seems unused
+    fn add_ppo(py_self: Py<Self>, py: Python, ppo: Py<PyAny>) -> PyResult<()> {
+        let slf = py_self.get();
+        let set_res = slf.line_ppos.get_or_try_init(|| {
+            slf.refd
+                .get("ppos")
+                .ok_or_else(|| PyException::new_err("No ppos list"))?
+                .downcast_bound::<PyList>(py)?
+                .append(ppo)?;
+            Err(PyException::new_err("successful insert"))
+        });
+        match set_res {
+            Ok(_) => Err(PyException::new_err("line_ppos already initialized")),
+            Err(e) if e.matches(py, PyException::new_err("successful insert")) => Ok(()),
+            Err(e) => Err(e),
+        }
+    }
+
+    // Seems unused
+    fn has_ppos(py_self: Py<Self>, py: Python) -> PyResult<bool> {
+        Ok(!TestCFunctionRef::ppos(py_self, py)?.is_empty())
+    }
+
+    // Seems unused
+    fn get_pred_ppos(py_self: Py<Self>, py: Python, pred: &str) -> PyResult<Vec<Py<TestPPORef>>> {
+        TestCFunctionRef::ppos(py_self, py)?
+            .into_iter()
+            .map(|ppo| Ok((ppo.get().predicate(py)?, ppo)))
+            .filter_ok(|(ppo_pred, _)| pred == ppo_pred)
+            .map_ok(|(_, ppo)| ppo)
+            .collect()
+    }
+
     #[getter]
     fn spos(py_self: Py<Self>, py: Python) -> PyResult<Vec<Py<TestSPORef>>> {
         Ok(TestCFunctionRef::line_spos(py_self, py)?
@@ -126,5 +160,24 @@ impl TestCFunctionRef {
             .flatten()
             .cloned()
             .collect())
+    }
+
+    // Seems unused
+    fn has_spos(py_self: Py<Self>, py: Python) -> PyResult<bool> {
+        Ok(!TestCFunctionRef::spos(py_self, py)?.is_empty())
+    }
+
+    // Seems unused
+    fn has_multiple(py_self: Py<Self>, py: Python, line: isize, pred: &str) -> PyResult<bool> {
+        Ok(TestCFunctionRef::line_ppos(py_self, py)?
+            .get(&line)
+            .cloned()
+            .unwrap_or_else(|| Vec::new())
+            .into_iter()
+            .map(|ppo| ppo.get().predicate(py))
+            .filter_ok(|ppo_pred| ppo_pred == pred)
+            .collect::<PyResult<Vec<String>>>()?
+            .len()
+            > 1)
     }
 }
