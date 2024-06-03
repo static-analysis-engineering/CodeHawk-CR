@@ -30,11 +30,12 @@ SOFTWARE.
 */
 use std::collections::HashMap;
 
+use once_cell::sync::OnceCell;
 use pyo3::prelude::*;
 
-use crate::cmdline::kendra::test_c_file_ref::TestCFileRef;
-use crate::cmdline::kendra::test_ppo_ref::TestPPORef;
-use crate::cmdline::kendra::test_spo_ref::TestSPORef;
+use crate::cmdline::kendra::{
+    test_c_file_ref::TestCFileRef, test_ppo_ref::TestPPORef, test_spo_ref::TestSPORef,
+};
 
 pub fn module(py: Python) -> PyResult<Bound<PyModule>> {
     let module = PyModule::new_bound(py, "test_c_function_ref")?;
@@ -43,7 +44,7 @@ pub fn module(py: Python) -> PyResult<Bound<PyModule>> {
 }
 
 #[derive(Clone)]
-#[pyclass(subclass)]
+#[pyclass(frozen, subclass)]
 pub struct TestCFunctionRef {
     #[pyo3(get)]
     testcfileref: Py<TestCFileRef>,
@@ -52,8 +53,8 @@ pub struct TestCFunctionRef {
     #[pyo3(get)]
     refd: HashMap<String, Py<PyAny>>, // Supposed to be HashMap<String, String>
     // TODO: use OnceLock when once_cell_try stabilizes
-    line_ppos: HashMap<isize, Vec<Py<TestPPORef>>>,
-    line_spos: HashMap<isize, Vec<Py<TestSPORef>>>,
+    line_ppos: OnceCell<HashMap<isize, Vec<Py<TestPPORef>>>>,
+    line_spos: OnceCell<HashMap<isize, Vec<Py<TestSPORef>>>>,
 }
 
 #[pymethods]
@@ -68,46 +69,44 @@ impl TestCFunctionRef {
             testcfileref,
             name,
             refd,
-            line_ppos: HashMap::new(),
-            line_spos: HashMap::new(),
+            line_ppos: OnceCell::new(),
+            line_spos: OnceCell::new(),
         }
     }
 
     #[getter]
-    fn line_ppos(slf: Py<Self>, py: Python) -> PyResult<HashMap<isize, Vec<Py<TestPPORef>>>> {
-        let mut slf_mut_ref = slf.borrow_mut(py);
-        if slf_mut_ref.line_ppos.is_empty() {
-            if let Some(ppos) = slf_mut_ref.refd.get("ppos") {
-                for p in ppos.extract::<Vec<Py<PyAny>>>(py)? {
-                    let ppo = Py::new(py, TestPPORef::new(slf.clone(), p.extract(py)?))?;
-                    let line = ppo.borrow(py).line(py)?;
-                    slf_mut_ref
-                        .line_ppos
-                        .entry(line)
-                        .or_insert(Vec::new())
-                        .push(ppo)
+    fn line_ppos(py_self: Py<Self>, py: Python) -> PyResult<HashMap<isize, Vec<Py<TestPPORef>>>> {
+        let slf = py_self.get();
+        slf.line_ppos
+            .get_or_try_init(|| {
+                let mut line_ppos = HashMap::new();
+                if let Some(ppos) = slf.refd.get("ppos") {
+                    for p in ppos.extract::<Vec<Py<PyAny>>>(py)? {
+                        let ppo = Py::new(py, TestPPORef::new(py_self.clone(), p.extract(py)?))?;
+                        let line = ppo.borrow(py).line(py)?;
+                        line_ppos.entry(line).or_insert(Vec::new()).push(ppo)
+                    }
                 }
-            }
-        }
-        Ok(slf_mut_ref.line_ppos.clone())
+                Ok(line_ppos)
+            })
+            .cloned()
     }
 
     #[getter]
-    fn line_spos(slf: Py<Self>, py: Python) -> PyResult<HashMap<isize, Vec<Py<TestSPORef>>>> {
-        let mut slf_mut_ref = slf.borrow_mut(py);
-        if slf_mut_ref.line_spos.is_empty() {
-            if let Some(spos) = slf_mut_ref.refd.get("spos") {
-                for p in spos.extract::<Vec<Py<PyAny>>>(py)? {
-                    let spo = Py::new(py, TestSPORef::new(slf.clone(), p.extract(py)?))?;
-                    let line = spo.borrow(py).line(py)?;
-                    slf_mut_ref
-                        .line_spos
-                        .entry(line)
-                        .or_insert(Vec::new())
-                        .push(spo)
+    fn line_spos(py_self: Py<Self>, py: Python) -> PyResult<HashMap<isize, Vec<Py<TestSPORef>>>> {
+        let slf = py_self.get();
+        slf.line_spos
+            .get_or_try_init(|| {
+                let mut line_spos = HashMap::new();
+                if let Some(spos) = slf.refd.get("spos") {
+                    for p in spos.extract::<Vec<Py<PyAny>>>(py)? {
+                        let spo = Py::new(py, TestSPORef::new(py_self.clone(), p.extract(py)?))?;
+                        let line = spo.borrow(py).line(py)?;
+                        line_spos.entry(line).or_insert(Vec::new()).push(spo)
+                    }
                 }
-            }
-        }
-        Ok(slf_mut_ref.line_spos.clone())
+                Ok(line_spos)
+            })
+            .cloned()
     }
 }

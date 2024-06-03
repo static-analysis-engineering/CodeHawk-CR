@@ -10,4 +10,5 @@ name = "chc_rust"
 [dependencies]
 itertools = "0.13.0"
 maturin = "1.5.1"
+once_cell = "1.19.0"
 pyo3 = { version = "0.21.2", features = ["extension-module"] }
