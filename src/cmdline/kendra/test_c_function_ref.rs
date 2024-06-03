@@ -28,7 +28,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ------------------------------------------------------------------------------
 */
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 
 use once_cell::sync::OnceCell;
 use pyo3::prelude::*;
@@ -51,10 +51,10 @@ pub struct TestCFunctionRef {
     #[pyo3(get)]
     name: String,
     #[pyo3(get)]
-    refd: HashMap<String, Py<PyAny>>, // Supposed to be HashMap<String, String>
+    refd: BTreeMap<String, Py<PyAny>>, // Supposed to be HashMap<String, String>
     // TODO: use OnceLock when once_cell_try stabilizes
-    line_ppos: OnceCell<HashMap<isize, Vec<Py<TestPPORef>>>>,
-    line_spos: OnceCell<HashMap<isize, Vec<Py<TestSPORef>>>>,
+    line_ppos: OnceCell<BTreeMap<isize, Vec<Py<TestPPORef>>>>,
+    line_spos: OnceCell<BTreeMap<isize, Vec<Py<TestSPORef>>>>,
 }
 
 #[pymethods]
@@ -63,7 +63,7 @@ impl TestCFunctionRef {
     fn new(
         testcfileref: Py<TestCFileRef>,
         name: String,
-        refd: HashMap<String, Py<PyAny>>,
+        refd: BTreeMap<String, Py<PyAny>>,
     ) -> TestCFunctionRef {
         TestCFunctionRef {
             testcfileref,
@@ -75,11 +75,11 @@ impl TestCFunctionRef {
     }
 
     #[getter]
-    fn line_ppos(py_self: Py<Self>, py: Python) -> PyResult<HashMap<isize, Vec<Py<TestPPORef>>>> {
+    fn line_ppos(py_self: Py<Self>, py: Python) -> PyResult<BTreeMap<isize, Vec<Py<TestPPORef>>>> {
         let slf = py_self.get();
         slf.line_ppos
             .get_or_try_init(|| {
-                let mut line_ppos = HashMap::new();
+                let mut line_ppos = BTreeMap::new();
                 if let Some(ppos) = slf.refd.get("ppos") {
                     for p in ppos.extract::<Vec<Py<PyAny>>>(py)? {
                         let ppo = Py::new(py, TestPPORef::new(py_self.clone(), p.extract(py)?))?;
@@ -93,11 +93,11 @@ impl TestCFunctionRef {
     }
 
     #[getter]
-    fn line_spos(py_self: Py<Self>, py: Python) -> PyResult<HashMap<isize, Vec<Py<TestSPORef>>>> {
+    fn line_spos(py_self: Py<Self>, py: Python) -> PyResult<BTreeMap<isize, Vec<Py<TestSPORef>>>> {
         let slf = py_self.get();
         slf.line_spos
             .get_or_try_init(|| {
-                let mut line_spos = HashMap::new();
+                let mut line_spos = BTreeMap::new();
                 if let Some(spos) = slf.refd.get("spos") {
                     for p in spos.extract::<Vec<Py<PyAny>>>(py)? {
                         let spo = Py::new(py, TestSPORef::new(py_self.clone(), p.extract(py)?))?;
@@ -108,5 +108,23 @@ impl TestCFunctionRef {
                 Ok(line_spos)
             })
             .cloned()
+    }
+
+    #[getter]
+    fn ppos(py_self: Py<Self>, py: Python) -> PyResult<Vec<Py<TestPPORef>>> {
+        Ok(TestCFunctionRef::line_ppos(py_self, py)?
+            .values()
+            .flatten()
+            .cloned()
+            .collect())
+    }
+
+    #[getter]
+    fn spos(py_self: Py<Self>, py: Python) -> PyResult<Vec<Py<TestSPORef>>> {
+        Ok(TestCFunctionRef::line_spos(py_self, py)?
+            .values()
+            .flatten()
+            .cloned()
+            .collect())
     }
 }

@@ -48,13 +48,6 @@ class TestCFunctionRef(chc_rust.cmdline.kendra.test_c_function_ref.TestCFunction
     ) -> "TestCFunctionRef":
         return super().__new__(cls, testcfileref, name, refd)
 
-    @property
-    def ppos(self) -> List[TestPPORef]:
-        result: List[TestPPORef] = []
-        for line in self.line_ppos:
-            result.extend(self.line_ppos[line])
-        return result
-
     def add_ppo(self, ppo: Dict[str, Any]) -> None:
         self._refd["ppos"].append(ppo)
 
@@ -67,13 +60,6 @@ class TestCFunctionRef(chc_rust.cmdline.kendra.test_c_function_ref.TestCFunction
             for ppo in self.line_ppos[line]:
                 if ppo.predicate == pred:
                     result.append(ppo)
-        return result
-
-    @property
-    def spos(self) -> List[TestSPORef]:
-        result: List[TestSPORef] = []
-        for line in self.line_spos:
-            result.extend(self.line_spos[line])
         return result
 
     def has_spos(self) -> bool:
