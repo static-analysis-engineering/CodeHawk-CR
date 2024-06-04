@@ -39,24 +39,26 @@ from chc.util.Config import Config
 import chc.util.fileutil as UF
 from chc.util.loggingutil import chklogger
 
+import chc_rust
+
 
 if TYPE_CHECKING:
     from chc.app.CApplication import CApplication
     from chc.app.CFile import CFile
 
 
-class AnalysisManager:
+class AnalysisManager(chc_rust.cmdline.analysis_manager.AnalysisManager):
     """Provide the interface to the codehawk (ocaml) analyzer."""
 
-    def __init__(
-        self,
+    def __new__(
+        cls,
         capp: "CApplication",
         wordsize: int = 0,
         unreachability: bool = False,
         thirdpartysummaries: List[str] = [],
         nofilter: bool = True,
         verbose: bool = False,
-    ) -> None:
+    ) -> "AnalysisManager":
         """Initialize the analyzer location and target file location.
 
         Args:
@@ -71,6 +73,7 @@ class AnalysisManager:
             nofilter (bool): don't remove functions with absolute filename (default True)
         """
 
+        self = super().__new__(cls)
         self._capp = capp
         # self.contractpath = capp.contractpath
         self._config = Config()
@@ -83,6 +86,7 @@ class AnalysisManager:
         self.thirdpartysummaries = thirdpartysummaries
         self.unreachability = unreachability
         self.verbose = verbose
+        return self
 
     @property
     def capp(self) -> "CApplication":
