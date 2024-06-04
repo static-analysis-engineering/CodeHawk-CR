@@ -27,54 +27,7 @@
 # SOFTWARE.
 # ------------------------------------------------------------------------------
 
-from typing import Any, Dict, List, Optional, TYPE_CHECKING
-
-from chc.cmdline.kendra.TestCFunctionRef import TestCFunctionRef
-
-if TYPE_CHECKING:
-    from chc.cmdline.kendra.TestSetRef import TestSetRef
-
 import chc_rust
 
 
-class TestCFileRef(chc_rust.cmdline.kendra.test_c_file_ref.TestCFileRef):
-
-    def __new__(
-            cls, testsetref: "TestSetRef", name: str, refd: Dict[str, Any]
-    ) -> "TestCFileRef":
-        self = super().__new__(cls, testsetref, name, refd)
-        self._functions: Dict[str, TestCFunctionRef] = {}
-        return self
-
-    @property
-    def functions(self) -> Dict[str, TestCFunctionRef]:
-        if len(self._functions) == 0:
-            for (f, fdata) in self.refd["functions"].items():
-                self._functions[f] = TestCFunctionRef(self, f, fdata)
-        return self._functions
-
-    @property
-    def functionnames(self) -> List[str]:
-        return sorted(self.functions.keys())
-
-    def get_function(self, fname: str) -> Optional[TestCFunctionRef]:
-        if fname in self.functions:
-            return self.functions[fname]
-        return None
-
-    def has_domains(self) -> bool:
-        return "domains" in self.refd and len(self.refd["domains"]) > 0
-
-    @property
-    def domains(self) -> List[str]:
-        if self.has_domains():
-            return self.refd["domains"]
-        else:
-            return []
-
-    def has_spos(self) -> bool:
-        for f in self.functions.values():
-            if f.has_spos():
-                return True
-        else:
-            return False
+TestCFileRef = chc_rust.cmdline.kendra.test_c_file_ref.TestCFileRef

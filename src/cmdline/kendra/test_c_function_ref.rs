@@ -61,7 +61,7 @@ pub struct TestCFunctionRef {
 #[pymethods]
 impl TestCFunctionRef {
     #[new]
-    fn new(
+    pub fn new(
         testcfileref: Py<TestCFileRef>,
         name: String,
         refd: BTreeMap<String, Py<PyAny>>,
@@ -163,7 +163,7 @@ impl TestCFunctionRef {
     }
 
     // Seems unused
-    fn has_spos(py_self: Py<Self>, py: Python) -> PyResult<bool> {
+    pub fn has_spos(py_self: Py<Self>, py: Python) -> PyResult<bool> {
         Ok(!TestCFunctionRef::spos(py_self, py)?.is_empty())
     }
 

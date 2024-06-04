@@ -28,11 +28,12 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ------------------------------------------------------------------------------
 */
-use std::collections::HashMap;
+use std::collections::{BTreeMap, HashMap};
 
+use once_cell::sync::OnceCell;
 use pyo3::prelude::*;
 
-use crate::cmdline::kendra::test_set_ref::TestSetRef;
+use crate::cmdline::kendra::{test_c_function_ref::TestCFunctionRef, test_set_ref::TestSetRef};
 
 pub fn module(py: Python) -> PyResult<Bound<PyModule>> {
     let module = PyModule::new_bound(py, "test_c_file_ref")?;
@@ -41,7 +42,7 @@ pub fn module(py: Python) -> PyResult<Bound<PyModule>> {
 }
 
 #[derive(Clone)]
-#[pyclass(subclass)]
+#[pyclass(frozen, subclass)]
 pub struct TestCFileRef {
     #[pyo3(get)]
     name: String,
@@ -49,6 +50,7 @@ pub struct TestCFileRef {
     testsetref: Py<TestSetRef>,
     #[pyo3(get)]
     refd: HashMap<String, Py<PyAny>>,
+    functions: OnceCell<BTreeMap<String, Py<TestCFunctionRef>>>,
 }
 
 #[pymethods]
@@ -63,6 +65,70 @@ impl TestCFileRef {
             testsetref,
             name,
             refd,
+            functions: OnceCell::new(),
         }
+    }
+
+    #[getter]
+    fn functions(
+        py_self: Py<Self>,
+        py: Python,
+    ) -> PyResult<BTreeMap<String, Py<TestCFunctionRef>>> {
+        let slf = py_self.get();
+        slf.functions
+            .get_or_try_init(|| {
+                let mut functions = BTreeMap::new();
+                let Some(dict) = slf.refd.get("functions") else {
+                    return Ok(functions);
+                };
+                let fn_map: BTreeMap<String, BTreeMap<String, Py<PyAny>>> = dict.extract(py)?;
+                for (f, fdata) in fn_map {
+                    functions.insert(
+                        f.clone(),
+                        Py::new(py, TestCFunctionRef::new(py_self.clone(), f, fdata))?,
+                    );
+                }
+                Ok(functions)
+            })
+            .cloned()
+    }
+
+    #[getter]
+    fn functionnames(py_self: Py<Self>, py: Python) -> PyResult<Vec<String>> {
+        Ok(TestCFileRef::functions(py_self, py)?
+            .keys()
+            .cloned()
+            .collect()) // Sorting comes from collection
+    }
+
+    // Seems unused
+    fn get_function(
+        py_self: Py<Self>,
+        py: Python,
+        fname: &str,
+    ) -> PyResult<Option<Py<TestCFunctionRef>>> {
+        Ok(TestCFileRef::functions(py_self, py)?.get(fname).cloned())
+    }
+
+    fn has_domains(&self, py: Python) -> PyResult<bool> {
+        Ok(!self.domains(py)?.is_empty())
+    }
+
+    #[getter]
+    fn domains(&self, py: Python) -> PyResult<Vec<String>> {
+        let Some(domains) = self.refd.get("domains") else {
+            return Ok(Vec::new());
+        };
+        domains.extract(py)
+    }
+
+    // Seems unused
+    fn has_spos(py_self: Py<Self>, py: Python) -> PyResult<bool> {
+        for f in TestCFileRef::functions(py_self, py)?.into_values() {
+            if TestCFunctionRef::has_spos(f, py)? {
+                return Ok(true);
+            }
+        }
+        Ok(false)
     }
 }
