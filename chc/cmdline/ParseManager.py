@@ -43,8 +43,10 @@ import chc.util.fileutil as UF
 from chc.util.loggingutil import chklogger
 import chc.util.xmlutil as UX
 
+import chc_rust
 
-class ParseManager(object):
+
+class ParseManager(chc_rust.cmdline.parse_manager.ParseManager):
     """Utility functions to support preprocessing and parsing source code.
 
     Naming conventions:
@@ -67,8 +69,8 @@ class ParseManager(object):
     - cchtargzfile  targetpath/projectname.cch.tar.gz
     """
 
-    def __init__(
-            self,
+    def __new__(
+            cls,
             projectpath: str,
             projectname: str,
             targetpath: str,
@@ -77,7 +79,7 @@ class ParseManager(object):
             verbose: bool = True,
             keepUnused: bool = False,
             tgtplatform: str = "-m64",
-    ) -> None:
+    ) -> "ParseManager":
         """Initialize paths to code, results, and parser executable.
 
         Args:
@@ -88,6 +90,7 @@ class ParseManager(object):
         Effects:
             creates tgtpath and subdirectories if necessary.
         """
+        self = super().__new__(cls)
         self._projectpath = projectpath
         self._projectname = projectname
         self._targetpath = targetpath
@@ -110,6 +113,7 @@ class ParseManager(object):
             )
             self._tgtplatform = "-m64"
         self.config = Config()
+        return self
 
     @property
     def projectpath(self) -> str:
