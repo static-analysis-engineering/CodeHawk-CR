@@ -56,6 +56,8 @@ from chc.proof.CFunctionSPOs import CFunctionSPOs
 import chc.util.fileutil as UF
 from chc.util.loggingutil import chklogger
 
+import chc_rust
+
 if TYPE_CHECKING:
     from chc.api.CFunctionContract import CFunctionContract
     from chc.api.InterfaceDictionary import InterfaceDictionary
@@ -66,10 +68,11 @@ if TYPE_CHECKING:
     from chc.app.CVarInfo import CVarInfo
 
 
-class CFunction:
+class CFunction(chc_rust.app.c_function.CFunction):
     """Function implementation."""
 
-    def __init__(self, cfile: "CFile", xnode: ET.Element, fname: str) -> None:
+    def __new__(cls, cfile: "CFile", xnode: ET.Element, fname: str) -> "CFunction":
+        self = super().__new__(cls)
         self.xnode = xnode
         self._cfile = cfile
         self._name = fname
@@ -84,6 +87,7 @@ class CFunction:
         self._vard: Optional[CFunVarDictionary] = None
         self._invd: Optional[CFunInvDictionary] = None
         self._invarianttable: Optional[CFunInvariantTable] = None
+        return self
 
     def xmsg(self, txt: str) -> str:
         return "Function " + self.name + ": " + txt

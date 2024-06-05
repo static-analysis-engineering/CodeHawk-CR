@@ -7,6 +7,7 @@ mod c_context_dictionary;
 mod c_dictionary;
 mod c_dictionary_record;
 mod c_file;
+mod c_function;
 
 pub fn module(py: Python) -> PyResult<Bound<PyModule>> {
     let module = PyModule::new_bound(py, "app")?;
@@ -17,5 +18,6 @@ pub fn module(py: Python) -> PyResult<Bound<PyModule>> {
     module.add_submodule(&c_dictionary::module(py)?)?;
     module.add_submodule(&c_dictionary_record::module(py)?)?;
     module.add_submodule(&c_file::module(py)?)?;
+    module.add_submodule(&c_function::module(py)?)?;
     Ok(module)
 }
