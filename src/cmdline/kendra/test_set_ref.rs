@@ -39,12 +39,15 @@ pub fn module(py: Python) -> PyResult<Bound<PyModule>> {
 /// Provides access to the reference results of a set of C files.
 #[derive(Clone)]
 #[pyclass(subclass)]
-pub struct TestSetRef {}
+pub struct TestSetRef {
+    #[pyo3(get)]
+    specfilename: String,
+}
 
 #[pymethods]
 impl TestSetRef {
     #[new]
-    fn new() -> TestSetRef {
-        TestSetRef {}
+    fn new(specfilename: String) -> TestSetRef {
+        TestSetRef { specfilename }
     }
 }
