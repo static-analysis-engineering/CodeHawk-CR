@@ -28,7 +28,10 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ------------------------------------------------------------------------------
 */
-use pyo3::{intern, prelude::*, types::PyDict};
+use std::collections::BTreeMap;
+
+use once_cell::sync::OnceCell;
+use pyo3::{intern, prelude::*};
 
 pub fn module(py: Python) -> PyResult<Bound<PyModule>> {
     let module = PyModule::new_bound(py, "test_set_ref")?;
@@ -38,37 +41,36 @@ pub fn module(py: Python) -> PyResult<Bound<PyModule>> {
 
 /// Provides access to the reference results of a set of C files.
 #[derive(Clone)]
-#[pyclass(subclass)]
+#[pyclass(frozen, subclass)]
 pub struct TestSetRef {
     #[pyo3(get)]
     specfilename: String,
-    #[pyo3(get, set)]
-    _refd: Py<PyDict>,
+    refd: OnceCell<BTreeMap<String, Py<PyAny>>>,
 }
 
 #[pymethods]
 impl TestSetRef {
     #[new]
-    fn new(py: Python, specfilename: String) -> TestSetRef {
+    fn new(specfilename: String) -> TestSetRef {
         TestSetRef {
             specfilename,
-            _refd: PyDict::new_bound(py).unbind(),
+            refd: OnceCell::new(),
         }
     }
 
     #[getter]
-    fn refd(&mut self, py: Python) -> PyResult<Py<PyDict>> {
-        if self._refd.bind(py).len() == 0 {
-            let builtins = PyModule::import_bound(py, intern!(py, "builtins"))?;
-            let fp = builtins
-                .getattr(intern!(py, "open"))?
-                .call1((&self.specfilename,))?;
-            let json = PyModule::import_bound(py, intern!(py, "json"))?;
-            let refd_any = json.getattr(intern!(py, "load"))?.call1((fp.clone(),))?;
-            let refd_dict = refd_any.downcast()?;
-            self._refd = refd_dict.clone().unbind();
-            fp.call_method0(intern!(py, "close"))?;
-        }
-        Ok(self._refd.clone())
+    fn refd(&self, py: Python) -> PyResult<BTreeMap<String, Py<PyAny>>> {
+        self.refd
+            .get_or_try_init(|| {
+                let builtins = PyModule::import_bound(py, intern!(py, "builtins"))?;
+                let fp = builtins
+                    .getattr(intern!(py, "open"))?
+                    .call1((&self.specfilename,))?;
+                let json = PyModule::import_bound(py, intern!(py, "json"))?;
+                let refd_any = json.getattr(intern!(py, "load"))?.call1((fp.clone(),))?;
+                fp.call_method0(intern!(py, "close"))?;
+                refd_any.extract()
+            })
+            .cloned()
     }
 }

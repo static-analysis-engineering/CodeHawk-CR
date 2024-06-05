@@ -61,16 +61,6 @@ class TestSetRef(chc_rust.cmdline.kendra.test_set_ref.TestSetRef):
         else:
             return None
 
-    def set_ppos(
-            self, cfilename: str, cfun: str, ppos: List[Dict[str, str]]
-    ) -> None:
-        self._refd["cfiles"][cfilename]["functions"][cfun]["ppos"] = ppos
-
-    def set_spos(
-            self, cfilename: str, cfun: str, spos: List[Dict[str, str]]
-    ) -> None:
-        self._refd["cfiles"][cfilename]["functions"][cfun]["spos"] = spos
-
     def has_characteristics(self) -> bool:
         return "characteristics" in self.refd
 
@@ -94,10 +84,6 @@ class TestSetRef(chc_rust.cmdline.kendra.test_set_ref.TestSetRef):
     @property
     def is_linux_only(self) -> bool:
         return "linux-only" in self.restrictions
-
-    def save(self) -> None:
-        with open(self.specfilename, "w") as fp:
-            fp.write(json.dumps(self._refd, indent=4, sort_keys=True))
 
     def __str__(self) -> str:
         lines: List[str] = []
