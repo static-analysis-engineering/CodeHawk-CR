@@ -99,4 +99,53 @@ impl TestSetRef {
             })
             .cloned()
     }
+
+    // Seems unused
+    #[getter]
+    fn cfilenames(py_slf: Py<Self>, py: Python) -> PyResult<Vec<String>> {
+        Ok(TestSetRef::cfiles(py_slf, py)?.keys().cloned().collect()) // Sorted by BTreeMap
+    }
+
+    // Seems unused
+    fn cfile(py_slf: Py<Self>, py: Python, cfilename: &str) -> PyResult<Option<Py<TestCFileRef>>> {
+        let cfiles = TestSetRef::cfiles(py_slf, py)?;
+        Ok(cfiles.get(cfilename).cloned())
+    }
+
+    // Seems unused
+    fn has_characteristics(&self, py: Python) -> PyResult<bool> {
+        let refd = self.refd(py)?;
+        Ok(refd.contains_key("characteristics"))
+    }
+
+    // Seems unused
+    fn characteristics(&self, py: Python) -> PyResult<Vec<String>> {
+        let refd = self.refd(py)?;
+        Ok(if let Some(characteristics) = refd.get("characteristics") {
+            characteristics.extract(py)?
+        } else {
+            Vec::new()
+        })
+    }
+
+    // Seems unused
+    fn has_restrictions(&self, py: Python) -> PyResult<bool> {
+        let refd = self.refd(py)?;
+        Ok(refd.contains_key("restrictions"))
+    }
+
+    // Seems unused
+    fn restrictions(&self, py: Python) -> PyResult<Vec<String>> {
+        let refd = self.refd(py)?;
+        Ok(if let Some(restrictions) = refd.get("restrictions") {
+            restrictions.extract(py)?
+        } else {
+            Vec::new()
+        })
+    }
+
+    // Seems unused
+    fn is_linux_only(&self, py: Python) -> PyResult<bool> {
+        Ok(self.restrictions(py)?.contains(&"linux-only".to_owned()))
+    }
 }

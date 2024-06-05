@@ -42,41 +42,8 @@ class TestSetRef(chc_rust.cmdline.kendra.test_set_ref.TestSetRef):
     def __new__(cls, specfilename: str) -> "TestSetRef":
         return super().__new__(cls, specfilename)
 
-    @property
-    def cfilenames(self) -> List[str]:
-        return sorted(self.cfiles.keys())
-
-    def cfile(self, cfilename: str) -> Optional[TestCFileRef]:
-        if cfilename in self.cfiles:
-            return self.cfiles[cfilename]
-        else:
-            return None
-
-    def has_characteristics(self) -> bool:
-        return "characteristics" in self.refd
-
-    @property
-    def characteristics(self) -> List[str]:
-        if "characteristics" in self.refd:
-            return self.refd["characteristics"]
-        else:
-            return []
-
-    def has_restrictions(self) -> bool:
-        return "restrictions" in self.refd
-
-    @property
-    def restrictions(self) -> List[str]:
-        if "restrictions" in self.refd:
-            return self.refd["restrictions"]
-        else:
-            return []
-
-    @property
-    def is_linux_only(self) -> bool:
-        return "linux-only" in self.restrictions
-
     def __str__(self) -> str:
+        raise Exception("eee")
         lines: List[str] = []
         for cfile in self.cfiles.values():
             lines.append(cfile.name)
