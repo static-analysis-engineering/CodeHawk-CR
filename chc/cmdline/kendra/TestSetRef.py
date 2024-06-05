@@ -40,16 +40,7 @@ class TestSetRef(chc_rust.cmdline.kendra.test_set_ref.TestSetRef):
     """Provides access to the reference results of a set of C files."""
 
     def __new__(cls, specfilename: str) -> "TestSetRef":
-        self = super().__new__(cls, specfilename)
-        self._cfiles: Dict[str, TestCFileRef] = {}
-        return self
-
-    @property
-    def cfiles(self) -> Dict[str, TestCFileRef]:
-        if len(self._cfiles) == 0:
-            for (f, fdata) in self.refd["cfiles"].items():
-                self._cfiles[f] = TestCFileRef(self, f, fdata)
-        return self._cfiles
+        return super().__new__(cls, specfilename)
 
     @property
     def cfilenames(self) -> List[str]:

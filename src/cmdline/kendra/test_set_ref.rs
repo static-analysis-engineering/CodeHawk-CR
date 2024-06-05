@@ -31,7 +31,9 @@ SOFTWARE.
 use std::collections::BTreeMap;
 
 use once_cell::sync::OnceCell;
-use pyo3::{intern, prelude::*};
+use pyo3::{exceptions::PyException, intern, prelude::*};
+
+use crate::cmdline::kendra::test_c_file_ref::TestCFileRef;
 
 pub fn module(py: Python) -> PyResult<Bound<PyModule>> {
     let module = PyModule::new_bound(py, "test_set_ref")?;
@@ -46,6 +48,7 @@ pub struct TestSetRef {
     #[pyo3(get)]
     specfilename: String,
     refd: OnceCell<BTreeMap<String, Py<PyAny>>>,
+    cfiles: OnceCell<BTreeMap<String, Py<TestCFileRef>>>,
 }
 
 #[pymethods]
@@ -55,6 +58,7 @@ impl TestSetRef {
         TestSetRef {
             specfilename,
             refd: OnceCell::new(),
+            cfiles: OnceCell::new(),
         }
     }
 
@@ -70,6 +74,28 @@ impl TestSetRef {
                 let refd_any = json.getattr(intern!(py, "load"))?.call1((fp.clone(),))?;
                 fp.call_method0(intern!(py, "close"))?;
                 refd_any.extract()
+            })
+            .cloned()
+    }
+
+    #[getter]
+    fn cfiles(py_slf: Py<Self>, py: Python) -> PyResult<BTreeMap<String, Py<TestCFileRef>>> {
+        let slf = py_slf.get();
+        slf.cfiles
+            .get_or_try_init(|| {
+                let refd = slf.refd(py)?;
+                let refd_cfiles = refd
+                    .get("cfiles")
+                    .ok_or_else(|| PyException::new_err("'cfiles' missing"))?;
+                let cfiles_dict: BTreeMap<String, Py<PyAny>> = refd_cfiles.extract(py)?;
+                let mut cfiles = BTreeMap::new();
+                for (f, fdata) in cfiles_dict {
+                    cfiles.insert(
+                        f.clone(),
+                        Py::new(py, TestCFileRef::new(py_slf.clone(), f, fdata.extract(py)?))?,
+                    );
+                }
+                Ok(cfiles)
             })
             .cloned()
     }

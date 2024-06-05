@@ -56,7 +56,7 @@ pub struct TestCFileRef {
 #[pymethods]
 impl TestCFileRef {
     #[new]
-    fn new(
+    pub fn new(
         testsetref: Py<TestSetRef>,
         name: String,
         refd: HashMap<String, Py<PyAny>>,
