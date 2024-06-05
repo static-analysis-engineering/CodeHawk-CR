@@ -28,7 +28,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ------------------------------------------------------------------------------
 */
-use pyo3::prelude::*;
+use pyo3::{intern, prelude::*, types::PyDict};
 
 pub fn module(py: Python) -> PyResult<Bound<PyModule>> {
     let module = PyModule::new_bound(py, "test_set_ref")?;
@@ -42,12 +42,33 @@ pub fn module(py: Python) -> PyResult<Bound<PyModule>> {
 pub struct TestSetRef {
     #[pyo3(get)]
     specfilename: String,
+    #[pyo3(get, set)]
+    _refd: Py<PyDict>,
 }
 
 #[pymethods]
 impl TestSetRef {
     #[new]
-    fn new(specfilename: String) -> TestSetRef {
-        TestSetRef { specfilename }
+    fn new(py: Python, specfilename: String) -> TestSetRef {
+        TestSetRef {
+            specfilename,
+            _refd: PyDict::new_bound(py).unbind(),
+        }
+    }
+
+    #[getter]
+    fn refd(&mut self, py: Python) -> PyResult<Py<PyDict>> {
+        if self._refd.bind(py).len() == 0 {
+            let builtins = PyModule::import_bound(py, intern!(py, "builtins"))?;
+            let fp = builtins
+                .getattr(intern!(py, "open"))?
+                .call1((&self.specfilename,))?;
+            let json = PyModule::import_bound(py, intern!(py, "json"))?;
+            let refd_any = json.getattr(intern!(py, "load"))?.call1((fp.clone(),))?;
+            let refd_dict = refd_any.downcast()?;
+            self._refd = refd_dict.clone().unbind();
+            fp.call_method0(intern!(py, "close"))?;
+        }
+        Ok(self._refd.clone())
     }
 }

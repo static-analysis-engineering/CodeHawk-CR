@@ -42,15 +42,7 @@ class TestSetRef(chc_rust.cmdline.kendra.test_set_ref.TestSetRef):
     def __new__(cls, specfilename: str) -> "TestSetRef":
         self = super().__new__(cls, specfilename)
         self._cfiles: Dict[str, TestCFileRef] = {}
-        self._refd: Dict[str, Any] = {}
         return self
-
-    @property
-    def refd(self) -> Dict[str, Any]:
-        if len(self._refd) == 0:
-            with open(self.specfilename) as fp:
-                self._refd = json.load(fp)
-        return self._refd
 
     @property
     def cfiles(self) -> Dict[str, TestCFileRef]:
