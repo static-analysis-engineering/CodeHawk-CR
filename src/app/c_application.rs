@@ -28,7 +28,9 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ------------------------------------------------------------------------------
 */
-use pyo3::prelude::*;
+use pyo3::{intern, prelude::*};
+
+use crate::app::index_manager::IndexManager;
 
 pub fn module(py: Python) -> PyResult<Bound<PyModule>> {
     let module = PyModule::new_bound(py, "c_application")?;
@@ -76,26 +78,39 @@ pub struct CApplication {
     is_singlefile: bool,
     #[pyo3(get)]
     excludefiles: Vec<String>,
+    #[pyo3(get)]
+    indexmanager: Py<IndexManager>,
 }
 
 #[pymethods]
 impl CApplication {
     #[new]
     fn new(
+        py: Python,
         projectpath: String,
         projectname: String,
         targetpath: String,
         contractpath: String,
         singlefile: Option<bool>,
         excludefiles: Option<Vec<String>>,
-    ) -> CApplication {
-        CApplication {
+    ) -> PyResult<CApplication> {
+        let chc = PyModule::import_bound(py, intern!(py, "chc"))?;
+        let app = chc.getattr(intern!(py, "app"))?;
+        let index_manager_mod = app.getattr(intern!(py, "IndexManager"))?;
+        let index_manager_type = index_manager_mod.getattr(intern!(py, "IndexManager"))?;
+        let indexmanager = index_manager_type
+            .call1((singlefile.unwrap_or(false),))?
+            .downcast()?
+            .clone()
+            .unbind();
+        Ok(CApplication {
             projectpath,
             projectname,
             targetpath,
             contractpath,
             is_singlefile: singlefile.unwrap_or(false),
             excludefiles: excludefiles.unwrap_or_else(|| Vec::new()),
-        }
+            indexmanager,
+        })
     }
 }

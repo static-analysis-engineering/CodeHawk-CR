@@ -97,7 +97,6 @@ class CApplication(chc_rust.app.c_application.CApplication):
             singlefile: bool = False,
             excludefiles: List[str] = []) -> "CApplication":
         self = super().__new__(cls, projectpath, projectname, targetpath, contractpath, singlefile, excludefiles)
-        self._indexmanager = IndexManager(singlefile)
         self._globalcontract: Optional[CGlobalContract] = None
         self._dictionary: Optional[CGlobalDictionary] = None
         self._declarations: Optional[CGlobalDeclarations] = None
@@ -158,10 +157,6 @@ class CApplication(chc_rust.app.c_application.CApplication):
         directory.
         """
         return {cfile.name: index for (index, cfile) in self.files.items()}
-
-    @property
-    def indexmanager(self) -> IndexManager:
-        return self._indexmanager
 
     @property
     def dictionary(self) -> CGlobalDictionary:
