@@ -38,6 +38,8 @@ import chc.util.fileutil as UF
 from chc.util.loggingutil import chklogger
 import chc.util.xmlutil as UX
 
+import chc_rust
+
 if TYPE_CHECKING:
     from chc.app.CFileDeclarations import CFileDeclarations
     from chc.app.CFile import CFile
@@ -92,9 +94,10 @@ class CKeyReference:
         return self.fid is None
 
 
-class IndexManager:
+class IndexManager(chc_rust.app.index_manager.IndexManager):
 
-    def __init__(self, issinglefile: bool) -> None:
+    def __new__(cls, issinglefile: bool) -> "IndexManager":
+        self = super().__new__(cls, issinglefile)
         self._issinglefile = issinglefile  # application consists of a single file
 
         self.vid2gvid: Dict[int, Dict[int, int]] = {}  # fid -> vid -> gvid
@@ -109,9 +112,7 @@ class IndexManager:
         # gvid -> fid  (file in which gvid is defined)
         self.gviddefs: Dict[int, int] = {}
 
-    @property
-    def is_single_file(self) -> bool:
-        return self._issinglefile
+        return self
 
     def get_vid_gvid_subst(self, fid: int) -> Dict[int, int]:
         return self.vid2gvid[fid]
