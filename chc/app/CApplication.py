@@ -96,13 +96,7 @@ class CApplication(chc_rust.app.c_application.CApplication):
             contractpath: str,
             singlefile: bool = False,
             excludefiles: List[str] = []) -> "CApplication":
-        self = super().__new__(cls)
-        self._projectpath = projectpath
-        self._projectname = projectname
-        self._targetpath = targetpath
-        self._contractpath = contractpath
-        self._singlefile = singlefile
-        self._excludefiles = excludefiles
+        self = super().__new__(cls, projectpath, projectname, targetpath, contractpath, singlefile, excludefiles)
         self._indexmanager = IndexManager(singlefile)
         self._globalcontract: Optional[CGlobalContract] = None
         self._dictionary: Optional[CGlobalDictionary] = None
@@ -117,34 +111,10 @@ class CApplication(chc_rust.app.c_application.CApplication):
         return self
 
     @property
-    def projectpath(self) -> str:
-        return self._projectpath
-
-    @property
-    def projectname(self) -> str:
-        return self._projectname
-
-    @property
-    def targetpath(self) -> str:
-        return self._targetpath
-
-    @property
-    def contractpath(self) -> str:
-        return self._contractpath
-
-    @property
     def globalcontract(self) -> CGlobalContract:
         if self._globalcontract is None:
             self._globalcontract = CGlobalContract(self)
         return self._globalcontract
-
-    @property
-    def is_singlefile(self) -> bool:
-        return self._singlefile
-
-    @property
-    def excludefiles(self) -> List[str]:
-        return self._excludefiles
 
     @property
     def files(self) -> Dict[int, CFile]:

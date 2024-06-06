@@ -63,12 +63,39 @@ pub fn module(py: Python) -> PyResult<Bound<PyModule>> {
 
 #[derive(Clone)]
 #[pyclass(subclass)]
-pub struct CApplication {}
+pub struct CApplication {
+    #[pyo3(get)]
+    projectpath: String,
+    #[pyo3(get)]
+    projectname: String,
+    #[pyo3(get)]
+    targetpath: String,
+    #[pyo3(get)]
+    contractpath: String,
+    #[pyo3(get)]
+    is_singlefile: bool,
+    #[pyo3(get)]
+    excludefiles: Vec<String>,
+}
 
 #[pymethods]
 impl CApplication {
     #[new]
-    fn new() -> CApplication {
-        CApplication {}
+    fn new(
+        projectpath: String,
+        projectname: String,
+        targetpath: String,
+        contractpath: String,
+        singlefile: Option<bool>,
+        excludefiles: Option<Vec<String>>,
+    ) -> CApplication {
+        CApplication {
+            projectpath,
+            projectname,
+            targetpath,
+            contractpath,
+            is_singlefile: singlefile.unwrap_or(false),
+            excludefiles: excludefiles.unwrap_or_else(|| Vec::new()),
+        }
     }
 }
