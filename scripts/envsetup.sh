@@ -28,3 +28,17 @@ chc_test_parallel () {(
 	chc_build
 	chkc kendra list | grep '  id' | parallel --trim l chkc kendra test-set
 )}
+
+chc_demo () {(
+	set -e
+	chc_build
+	cd $PROJECT_DIR/tests
+	rm -r demo.build
+	cp -r demo demo.build
+	cd demo.build
+	ninja
+	ninja -t compdb > compile_commands.json
+	chkc c-project parse ./ codehawk_demo
+	chkc c-project analyze ./ codehawk_demo
+	chkc c-project report ./ codehawk_demo
+)}
