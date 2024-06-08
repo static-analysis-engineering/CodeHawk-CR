@@ -50,26 +50,7 @@ CAttr = chc_rust.app.c_attributes.CAttr
 CAttrInt = cdregistry.register_tag("aint", CAttr)(chc_rust.app.c_attributes.CAttrInt)
 
 
-@cdregistry.register_tag("astr", CAttr)
-class CAttrStr(CAttr):
-    """String attribute.
-
-    * args[0]: index in string table of string attribute
-    """
-
-    def __new__(cls, cd: "CDictionary", ixval: IT.IndexedTableValue) -> "CAttrStr":
-        return super().__new__(cls, cd, ixval)
-
-    @property
-    def stringvalue(self) -> str:
-        return self.cd.get_string(self.args[0])
-
-    @property
-    def is_str(self) -> bool:
-        return True
-
-    def __str__(self) -> str:
-        return "astr(" + str(self.stringvalue) + ")"
+CAttrStr = cdregistry.register_tag("astr", CAttr)(chc_rust.app.c_attributes.CAttrStr)
 
 
 @cdregistry.register_tag("acons", CAttr)

@@ -28,7 +28,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ------------------------------------------------------------------------------
 */
-use pyo3::prelude::*;
+use pyo3::{intern, prelude::*};
 
 use crate::{
     app::{c_dictionary::CDictionary, c_dictionary_record::CDictionaryRecord},
@@ -39,6 +39,7 @@ pub fn module(py: Python) -> PyResult<Bound<PyModule>> {
     let module = PyModule::new_bound(py, "c_attributes")?;
     module.add_class::<CAttr>()?;
     module.add_class::<CAttrInt>()?;
+    module.add_class::<CAttrStr>()?;
     Ok(module)
 }
 
@@ -167,5 +168,42 @@ impl CAttrInt {
     #[pyo3(name = "__str__")]
     fn str(slf: PyRef<Self>) -> String {
         format!("aint({})", CAttrInt::intvalue(slf))
+    }
+}
+
+/// String attribute.
+///
+/// * args[0]: index in string table of string attribute
+#[derive(Clone)]
+#[pyclass(extends = CAttr, frozen, subclass)]
+struct CAttrStr {}
+
+// Unvalidated
+#[pymethods]
+impl CAttrStr {
+    #[new]
+    fn new(cd: Py<CDictionary>, ixval: IndexedTableValue) -> PyClassInitializer<Self> {
+        PyClassInitializer::from(CAttr::new(cd, ixval)).add_subclass(CAttrStr {})
+    }
+
+    #[getter]
+    fn stringvalue(slf: Py<Self>, py: Python) -> PyResult<String> {
+        let args_0 = slf.borrow(py).into_super().into_super().into_super().args()[0];
+        slf.borrow(py)
+            .into_super()
+            .into_super()
+            .cd()
+            .call_method1(py, intern!(py, "get_string"), (args_0,))?
+            .extract(py)
+    }
+
+    #[getter]
+    fn is_str(&self) -> bool {
+        true
+    }
+
+    #[pyo3(name = "__str__")]
+    fn str(slf: Py<Self>, py: Python) -> PyResult<String> {
+        Ok(format!("astr({})", CAttrStr::stringvalue(slf, py)?))
     }
 }
