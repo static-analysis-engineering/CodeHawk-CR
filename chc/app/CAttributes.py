@@ -36,84 +36,15 @@ import chc.util.fileutil as UF
 import chc.util.IndexedTable as IT
 from chc.util.loggingutil import chklogger
 
+import chc_rust
+
 if TYPE_CHECKING:
     from chc.app.CDictionary import CDictionary
     from chc.app.CTyp import CTyp
     from chc.app.CTypsig import CTypsig
 
 
-class CAttr(CDictionaryRecord):
-    """Attribute that comes with a C type."""
-
-    def __new__(cls, cd: "CDictionary", ixval: IT.IndexedTableValue) -> "CAttr":
-        return super().__new__(cls, cd, ixval)
-
-    @property
-    def is_int(self) -> bool:
-        return False
-
-    @property
-    def is_str(self) -> bool:
-        return False
-
-    @property
-    def is_cons(self) -> bool:
-        return False
-
-    @property
-    def is_sizeof(self) -> bool:
-        return False
-
-    @property
-    def is_sizeofe(self) -> bool:
-        return False
-
-    @property
-    def is_sizeofs(self) -> bool:
-        return False
-
-    @property
-    def is_alignof(self) -> bool:
-        return False
-
-    @property
-    def is_alignofe(self) -> bool:
-        return False
-
-    @property
-    def is_alignofs(self) -> bool:
-        return False
-
-    @property
-    def is_unop(self) -> bool:
-        return False
-
-    @property
-    def is_binop(self) -> bool:
-        return False
-
-    @property
-    def is_dot(self) -> bool:
-        return False
-
-    @property
-    def is_star(self) -> bool:
-        return False
-
-    @property
-    def is_addrof(self) -> bool:
-        return False
-
-    @property
-    def is_index(self) -> bool:
-        return False
-
-    @property
-    def is_question(self) -> bool:
-        return False
-
-    def __str__(self) -> str:
-        return "attrparam:" + self.tags[0]
+CAttr = chc_rust.app.c_attributes.CAttr
 
 
 @cdregistry.register_tag("aint", CAttr)
