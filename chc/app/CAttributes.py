@@ -47,26 +47,7 @@ if TYPE_CHECKING:
 CAttr = chc_rust.app.c_attributes.CAttr
 
 
-@cdregistry.register_tag("aint", CAttr)
-class CAttrInt(CAttr):
-    """Integer attribute.
-
-    args[0]: integer value
-    """
-
-    def __new__(cls, cd: "CDictionary", ixval: IT.IndexedTableValue) -> "CAttrInt":
-        return super().__new__(cls, cd, ixval)
-
-    @property
-    def intvalue(self) -> int:
-        return int(self.args[0])
-
-    @property
-    def is_int(self) -> bool:
-        return True
-
-    def __str__(self) -> str:
-        return "aint(" + str(self.intvalue) + ")"
+CAttrInt = cdregistry.register_tag("aint", CAttr)(chc_rust.app.c_attributes.CAttrInt)
 
 
 @cdregistry.register_tag("astr", CAttr)

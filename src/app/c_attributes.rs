@@ -38,6 +38,7 @@ use crate::{
 pub fn module(py: Python) -> PyResult<Bound<PyModule>> {
     let module = PyModule::new_bound(py, "c_attributes")?;
     module.add_class::<CAttr>()?;
+    module.add_class::<CAttrInt>()?;
     Ok(module)
 }
 
@@ -136,5 +137,35 @@ impl CAttr {
     #[pyo3(name = "__str__")]
     fn str(slf: PyRef<Self>) -> String {
         format!("attrparam:{}", slf.into_super().into_super().tags()[0])
+    }
+}
+
+/// Integer attribute.
+///
+/// args[0]: integer value
+#[derive(Clone)]
+#[pyclass(extends = CAttr, frozen, subclass)]
+struct CAttrInt {}
+
+#[pymethods]
+impl CAttrInt {
+    #[new]
+    fn new(cd: Py<CDictionary>, ixval: IndexedTableValue) -> PyClassInitializer<Self> {
+        PyClassInitializer::from(CAttr::new(cd, ixval)).add_subclass(CAttrInt {})
+    }
+
+    #[getter]
+    fn intvalue(slf: PyRef<Self>) -> isize {
+        slf.into_super().into_super().into_super().args()[0]
+    }
+
+    #[getter]
+    fn is_int(&self) -> bool {
+        true
+    }
+
+    #[pyo3(name = "__str__")]
+    fn str(slf: PyRef<Self>) -> String {
+        format!("aint({})", CAttrInt::intvalue(slf))
     }
 }
