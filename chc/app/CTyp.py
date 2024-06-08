@@ -38,6 +38,8 @@ import chc.util.fileutil as UF
 import chc.util.IndexedTable as IT
 from chc.util.loggingutil import chklogger
 
+import chc_rust
+
 if TYPE_CHECKING:
     from chc.app.CDictionary import CDictionary
     from chc.app.CExp import CExp, CExpConst
@@ -77,7 +79,7 @@ attribute_index = {
 }
 
 
-class CTyp(CDictionaryRecord):
+class CTyp(chc_rust.app.c_typ.CTyp):
     """Base class of all variable types."""
 
     def __new__(cls, cd: "CDictionary", ixval: IT.IndexedTableValue) -> "CTyp":
