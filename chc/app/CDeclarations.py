@@ -35,6 +35,8 @@ from chc.app.CDictionary import CDictionary
 
 import chc.util.fileutil as UF
 
+import chc_rust
+
 if TYPE_CHECKING:
     from chc.app.CCompInfo import CCompInfo
     from chc.app.CFieldInfo import CFieldInfo
@@ -44,36 +46,30 @@ if TYPE_CHECKING:
     from chc.app.CTyp import CTyp
 
 
-class CDeclarations(ABC):
+class CDeclarations(chc_rust.app.c_declarations.CDeclarations):
 
-    def __init__(self) -> None:
-        pass
+    def __new__(cls) -> "CDeclarations":
+        return super().__new__(cls)
 
     @property
-    @abstractmethod
     def dictionary(self) -> CDictionary:
-        ...
+        raise UF.CHError("unimplemented")
 
     @property
-    @abstractmethod
     def cfile(self) -> "CFile":
-        ...
+        raise UF.CHError("unimplemented")
 
-    @abstractmethod
     def get_initinfo(self, ix: int) -> "CInitInfo":
-        ...
+        raise UF.CHError("unimplemented")
 
-    @abstractmethod
     def get_fieldinfo(self, ix: int) -> "CFieldInfo":
-        ...
+        raise UF.CHError("unimplemented")
 
-    @abstractmethod
     def get_offset_init(self, ix: int) -> "COffsetInitInfo":
-        ...
+        raise UF.CHError("unimplemented")
 
-    @abstractmethod
     def get_compinfo_by_ckey(self, ckey: int) -> "CCompInfo":
-        ...
+        raise UF.CHError("unimplemented")
 
     def get_location(self, ix: int) -> "CLocation":
         raise UF.CHError("Global declarations does not keep a location.")

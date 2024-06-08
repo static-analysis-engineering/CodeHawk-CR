@@ -113,7 +113,8 @@ class CFileDeclarations(CDeclarations):
     Declarations are dependent on CFileDictionary
     """
 
-    def __init__(self, cfile: "CFile", xnode: ET.Element) -> None:
+    def __new__(cls, cfile: "CFile", xnode: ET.Element) -> "CFileDeclarations":
+        self = super().__new__(cls)
         self._cfile = cfile
 
         # File definition dictionary
@@ -152,6 +153,8 @@ class CFileDeclarations(CDeclarations):
 
         # self.string_table = SI.StringIndexedTable("string-table")
         self._initialize(xnode)
+
+        return self
 
     @property
     def dictionary(self) -> "CFileDictionary":

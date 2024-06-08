@@ -99,7 +99,8 @@ class CGlobalDeclarations(CDeclarations):
 
     """
 
-    def __init__(self, capp: "CApplication", xnode: Optional[ET.Element]) -> None:
+    def __new__(cls, capp: "CApplication", xnode: Optional[ET.Element]) -> "CGlobalDeclarations":
+        self = super().__new__(cls)
         self._capp = capp
 
         # Global definitions and declarations dictionary
@@ -139,6 +140,8 @@ class CGlobalDeclarations(CDeclarations):
         self._initialize(xnode)
         if self.compinfo_table.size() == 0:
             self.index_opaque_struct()
+
+        return self
 
     @property
     def cfile(self) -> "CFile":

@@ -5,6 +5,7 @@ mod c_attributes;
 mod c_const;
 mod c_context;
 mod c_context_dictionary;
+mod c_declarations;
 mod c_dictionary;
 mod c_dictionary_record;
 mod c_exp;
@@ -20,6 +21,7 @@ pub fn module(py: Python) -> PyResult<Bound<PyModule>> {
     module.add_submodule(&c_const::module(py)?)?;
     module.add_submodule(&c_context::module(py)?)?;
     module.add_submodule(&c_context_dictionary::module(py)?)?;
+    module.add_submodule(&c_declarations::module(py)?)?;
     module.add_submodule(&c_dictionary::module(py)?)?;
     module.add_submodule(&c_dictionary_record::module(py)?)?;
     module.add_submodule(&c_exp::module(py)?)?;
