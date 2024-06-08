@@ -34,6 +34,8 @@ from chc.app.CDictionaryRecord import CDictionaryRecord, cdregistry
 
 import chc.util.IndexedTable as IT
 
+import chc_rust
+
 if TYPE_CHECKING:
     from chc.app.CDictionary import CDictionary
     from chc.app.CConst import CConst
@@ -69,10 +71,10 @@ binoperatorstrings = {
 unoperatorstrings = {"neg": "-", "bnot": "~", "lnot": "!"}
 
 
-class CExp(CDictionaryRecord):
+class CExp(chc_rust.app.c_exp.CExp):
     """Base class for all expressions."""
 
-    def __new__(cls, cd: "CDictionary", ixval: IT.IndexedTableValue) -> None:
+    def __new__(cls, cd: "CDictionary", ixval: IT.IndexedTableValue) -> "CExp":
         return super().__new__(cls, cd, ixval)
 
     @property
