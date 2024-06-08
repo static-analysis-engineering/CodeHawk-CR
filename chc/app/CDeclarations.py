@@ -28,7 +28,6 @@
 # ------------------------------------------------------------------------------
 """Abstract super class for CGlobalDeclarations and CFileDeclarations."""
 
-from abc import ABC, abstractmethod
 from typing import Dict, Set, TYPE_CHECKING
 
 from chc.app.CDictionary import CDictionary
@@ -51,14 +50,6 @@ class CDeclarations(chc_rust.app.c_declarations.CDeclarations):
     def __new__(cls) -> "CDeclarations":
         return super().__new__(cls)
 
-    @property
-    def dictionary(self) -> CDictionary:
-        raise UF.CHError("unimplemented")
-
-    @property
-    def cfile(self) -> "CFile":
-        raise UF.CHError("unimplemented")
-
     def get_initinfo(self, ix: int) -> "CInitInfo":
         raise UF.CHError("unimplemented")
 
@@ -73,10 +64,3 @@ class CDeclarations(chc_rust.app.c_declarations.CDeclarations):
 
     def get_location(self, ix: int) -> "CLocation":
         raise UF.CHError("Global declarations does not keep a location.")
-
-    @property
-    def varinfo_storage_classes(sef) -> Dict[int, Set[str]]:
-        raise UF.CHError("File declarations does not keep storage classes.")
-
-    def expand(self, name: str) -> "CTyp":
-        raise UF.CHError("Types should be expanded at the file level.")

@@ -28,7 +28,13 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ------------------------------------------------------------------------------
 */
+use std::collections::{BTreeMap, BTreeSet};
+
 use pyo3::prelude::*;
+
+use crate::app::{c_dictionary::CDictionary, c_file::CFile, c_typ::CTyp};
+
+pyo3::import_exception!(chc.util.fileutil, CHError);
 
 pub fn module(py: Python) -> PyResult<Bound<PyModule>> {
     let module = PyModule::new_bound(py, "c_declarations")?;
@@ -45,5 +51,28 @@ impl CDeclarations {
     #[new]
     fn new() -> CDeclarations {
         CDeclarations {}
+    }
+
+    #[getter]
+    fn dictionary(&self) -> PyResult<Py<CDictionary>> {
+        Err(CHError::new_err("unimplemented"))
+    }
+
+    #[getter]
+    fn cfile(&self) -> PyResult<Py<CFile>> {
+        Err(CHError::new_err("unimplemented"))
+    }
+
+    #[getter]
+    fn varinfo_storage_classes(&self) -> PyResult<BTreeMap<isize, BTreeSet<String>>> {
+        Err(CHError::new_err(
+            "File declarations does not keep storage classes.",
+        ))
+    }
+
+    fn expand(&self) -> PyResult<Py<CTyp>> {
+        Err(CHError::new_err(
+            "Types should be expanded at the file level.",
+        ))
     }
 }
