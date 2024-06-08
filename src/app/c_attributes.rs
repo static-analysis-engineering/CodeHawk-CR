@@ -38,6 +38,7 @@ use crate::{
 pub fn module(py: Python) -> PyResult<Bound<PyModule>> {
     let module = PyModule::new_bound(py, "c_attributes")?;
     module.add_class::<CAttr>()?;
+    module.add_class::<CAttrCons>()?;
     module.add_class::<CAttrInt>()?;
     module.add_class::<CAttrStr>()?;
     Ok(module)
@@ -205,5 +206,50 @@ impl CAttrStr {
     #[pyo3(name = "__str__")]
     fn str(slf: Py<Self>, py: Python) -> PyResult<String> {
         Ok(format!("astr({})", CAttrStr::stringvalue(slf, py)?))
+    }
+}
+
+/// Constructed attributes.
+///
+/// * tags[1]: name
+/// * args[0..]: indices of attribute parameters in cdictionary.
+#[derive(Clone)]
+#[pyclass(extends = CAttr, frozen, subclass)]
+struct CAttrCons {}
+
+#[pymethods]
+impl CAttrCons {
+    #[new]
+    fn new(cd: Py<CDictionary>, ixval: IndexedTableValue) -> PyClassInitializer<Self> {
+        PyClassInitializer::from(CAttr::new(cd, ixval)).add_subclass(CAttrCons {})
+    }
+
+    #[getter]
+    fn name(slf: PyRef<Self>) -> String {
+        slf.into_super().into_super().into_super().tags()[1].clone()
+    }
+
+    #[getter]
+    fn params(slf: Py<Self>, py: Python) -> PyResult<Vec<Bound<CAttr>>> {
+        let cd = slf.borrow(py).into_super().into_super().cd();
+        slf.borrow(py)
+            .into_super()
+            .into_super()
+            .into_super()
+            .args()
+            .iter()
+            .map(|i| cd.call_method1(py, intern!(py, "get_attrparam"), (*i,)))
+            .map(|ins| Ok(ins?.downcast_bound::<CAttr>(py)?.clone()))
+            .collect()
+    }
+
+    #[getter]
+    fn is_cons(&self) -> bool {
+        true
+    }
+
+    #[pyo3(name = "__str__")]
+    fn str(slf: PyRef<Self>) -> String {
+        format!("acons({})", CAttrCons::name(slf))
     }
 }

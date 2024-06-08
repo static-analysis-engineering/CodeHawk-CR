@@ -53,31 +53,7 @@ CAttrInt = cdregistry.register_tag("aint", CAttr)(chc_rust.app.c_attributes.CAtt
 CAttrStr = cdregistry.register_tag("astr", CAttr)(chc_rust.app.c_attributes.CAttrStr)
 
 
-@cdregistry.register_tag("acons", CAttr)
-class CAttrCons(CAttr):
-    """Constructed attributes.
-
-    * tags[1]: name
-    * args[0..]: indices of attribute parameters in cdictionary.
-    """
-
-    def __new__(cls, cd: "CDictionary", ixval: IT.IndexedTableValue) -> "CAttrCons":
-        return super().__new__(cls, cd, ixval)
-
-    @property
-    def name(self) -> str:
-        return self.tags[1]
-
-    @property
-    def params(self) -> List[CAttr]:
-        return [self.cd.get_attrparam(int(i)) for i in self.args]
-
-    @property
-    def is_cons(self) -> bool:
-        return True
-
-    def __str__(self) -> str:
-        return "acons(" + str(self.name) + ")"
+CAttrCons = cdregistry.register_tag("acons", CAttr)(chc_rust.app.c_attributes.CAttrCons)
 
 
 @cdregistry.register_tag("asizeof", CAttr)
