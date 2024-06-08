@@ -28,6 +28,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ------------------------------------------------------------------------------
 */
+use std::collections::BTreeMap;
+
 use pyo3::prelude::*;
 
 use crate::{
@@ -51,5 +53,113 @@ impl CExp {
     #[new]
     fn new(cd: Py<CDictionary>, ixval: IndexedTableValue) -> PyClassInitializer<Self> {
         PyClassInitializer::from(CDictionaryRecord::new(cd, ixval)).add_subclass(CExp {})
+    }
+
+    #[getter]
+    fn is_binop(&self) -> bool {
+        false
+    }
+
+    #[getter]
+    fn is_caste(&self) -> bool {
+        false
+    }
+
+    #[getter]
+    fn is_constant(&self) -> bool {
+        false
+    }
+
+    #[getter]
+    fn is_lval(&self) -> bool {
+        false
+    }
+
+    #[getter]
+    fn is_question(&self) -> bool {
+        false
+    }
+
+    #[getter]
+    fn is_sizeof(&self) -> bool {
+        false
+    }
+
+    #[getter]
+    fn is_sizeofe(&self) -> bool {
+        false
+    }
+
+    #[getter]
+    fn is_sizeofstr(&self) -> bool {
+        false
+    }
+
+    #[getter]
+    fn is_addrof(&self) -> bool {
+        false
+    }
+
+    #[getter]
+    fn is_startof(&self) -> bool {
+        false
+    }
+
+    #[getter]
+    fn is_unop(&self) -> bool {
+        false
+    }
+
+    #[getter]
+    fn is_alignof(&self) -> bool {
+        false
+    }
+
+    #[getter]
+    fn is_alignofe(&self) -> bool {
+        false
+    }
+
+    #[getter]
+    fn is_fn_app(&self) -> bool {
+        false
+    }
+
+    #[getter]
+    fn is_cn_app(&self) -> bool {
+        false
+    }
+
+    fn has_variable(&self, _vid: isize) -> bool {
+        false
+    }
+
+    fn has_variable_op(&self, _vid: isize, _op: &str) -> bool {
+        false
+    }
+
+    fn get_strings(&self) -> Vec<String> {
+        vec![]
+    }
+
+    fn get_variable_uses(&self, _vid: isize) -> isize {
+        0
+    }
+
+    fn to_dict(&self) -> BTreeMap<String, String> {
+        BTreeMap::from([("base".to_string(), "exp".to_string())])
+    }
+
+    fn to_idict(slf: PyRef<Self>, py: Python) -> BTreeMap<String, Py<PyAny>> {
+        let c_dict_record = slf.into_super().into_super();
+        BTreeMap::from([
+            ("t".to_string(), c_dict_record.tags().to_vec().into_py(py)),
+            ("a".to_string(), c_dict_record.args().to_vec().into_py(py)),
+        ])
+    }
+
+    #[pyo3(name = "__str__")]
+    fn str(slf: PyRef<Self>) -> String {
+        format!("baseexp:{}", slf.into_super().into_super().tags()[0])
     }
 }
