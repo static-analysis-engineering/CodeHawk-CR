@@ -28,6 +28,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ------------------------------------------------------------------------------
 */
+use std::collections::BTreeMap;
+
 use pyo3::{prelude::*, types::PyDict};
 
 pub fn module(py: Python) -> PyResult<Bound<PyModule>> {
@@ -68,5 +70,27 @@ impl IndexManager {
             gckey2ckey: PyDict::new_bound(py).unbind(),
             gviddefs: PyDict::new_bound(py).unbind(),
         }
+    }
+
+    // Seems unused
+    fn get_vid_gvid_subst(&self, py: Python, fid: isize) -> PyResult<BTreeMap<isize, isize>> {
+        Ok(self.vid2gvid.bind(py).as_any().get_item(fid)?.extract()?)
+    }
+
+    // Seems unused
+    fn get_fid_gvid_subset(
+        &self,
+        py: Python,
+        fileindex: isize,
+    ) -> PyResult<BTreeMap<isize, isize>> {
+        let mut result = BTreeMap::new();
+        for (gvid, table) in self.gvid2vid.bind(py) {
+            for (fid, value) in table.downcast::<PyDict>()? {
+                if fid.extract::<isize>()? == fileindex {
+                    result.insert(gvid.extract()?, value.extract()?);
+                }
+            }
+        }
+        Ok(result)
     }
 }

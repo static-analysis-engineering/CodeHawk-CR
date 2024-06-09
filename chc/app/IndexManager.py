@@ -99,17 +99,6 @@ class IndexManager(chc_rust.app.index_manager.IndexManager):
     def __new__(cls, issinglefile: bool) -> "IndexManager":
         return super().__new__(cls, issinglefile)
 
-    def get_vid_gvid_subst(self, fid: int) -> Dict[int, int]:
-        return self.vid2gvid[fid]
-
-    def get_fid_gvid_subset(self, fileindex: int) -> Dict[int, int]:
-        result: Dict[int, int] = {}
-        for gvid in self.gvid2vid:
-            for fid in self.gvid2vid[gvid]:
-                if fid == fileindex:
-                    result[gvid] = self.gvid2vid[gvid][fid]
-        return result
-
     def resolve_vid(
             self, filevar: FileVarReference) -> Optional[FileVarReference]:
         """Returns the local reference of the definition of (fid, vid).
