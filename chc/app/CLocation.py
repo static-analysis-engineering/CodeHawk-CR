@@ -36,12 +36,14 @@ from chc.app.CDictionaryRecord import CDeclarationsRecord
 
 import chc.util.IndexedTable as IT
 
+import chc_rust
+
 if TYPE_CHECKING:
     from chc.app.CDeclarations import CDeclarations
     from chc.app.CFileDeclarations import CFileDeclarations
 
 
-class CLocation(CDeclarationsRecord):
+class CLocation(chc_rust.app.c_location.CLocation):
     """Location in a C source program.
 
     - args[0]: filename index
