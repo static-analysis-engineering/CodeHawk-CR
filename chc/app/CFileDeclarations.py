@@ -67,6 +67,8 @@ from chc.util.IndexedTable import IndexedTable, IndexedTableValue
 import chc.util.StringIndexedTable as SI
 import chc.util.xmlutil as UX
 
+import chc_rust
+
 if TYPE_CHECKING:
     from chc.app.CFile import CFile
     from chc.app.CFileDictionary import CFileDictionary
@@ -104,7 +106,7 @@ class CFilename(CDeclarationsRecord):
         return self.get_filename()
 
 
-class CFileDeclarations(CDeclarations):
+class CFileDeclarations(chc_rust.app.c_file_declarations.CFileDeclarations):
     """C File level definitions and declarations.
 
     This information is originally written by cchcil/cHCilWriteXml:
