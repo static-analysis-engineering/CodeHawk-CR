@@ -34,6 +34,8 @@ import chc.util.IndexedTable as IT
 
 from chc.app.CDictionaryRecord import CDeclarationsRecord
 
+import chc_rust
+
 if TYPE_CHECKING:
     from chc.app.CAttributes import CAttributes
     from chc.app.CDeclarations import CDeclarations
@@ -42,7 +44,7 @@ if TYPE_CHECKING:
     from chc.app.CTyp import CTyp
 
 
-class CFieldInfo(CDeclarationsRecord):
+class CFieldInfo(chc_rust.app.c_field_info.CFieldInfo):
     """Definition of a struct field.
 
     * tags[0] fname
