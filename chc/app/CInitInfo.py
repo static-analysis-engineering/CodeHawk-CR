@@ -34,6 +34,8 @@ from chc.app.CDictionaryRecord import CDeclarationsRecord
 
 import chc.util.IndexedTable as IT
 
+import chc_rust
+
 if TYPE_CHECKING:
     from chc.app.CExp import CExp
     from chc.app.CTyp import CTyp
@@ -41,19 +43,7 @@ if TYPE_CHECKING:
     from chc.app.COffset import COffset
 
 
-class CInitInfo(CDeclarationsRecord):
-    """Global variable initializer."""
-
-    def __new__(cls, decls: "CDeclarations", ixval: IT.IndexedTableValue) -> "CInitInfo":
-        return super().__new__(cls, decls, ixval)
-
-    @property
-    def is_single(self) -> bool:
-        return False
-
-    @property
-    def is_compound(self) -> bool:
-        return False
+CInitInfo = chc_rust.app.c_init_info.CInitInfo
 
 
 class CSingleInitInfo(CInitInfo):

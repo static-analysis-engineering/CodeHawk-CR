@@ -11,6 +11,7 @@ mod c_dictionary_record;
 mod c_exp;
 mod c_file;
 mod c_function;
+mod c_init_info;
 mod c_typ;
 mod index_manager;
 
@@ -27,6 +28,7 @@ pub fn module(py: Python) -> PyResult<Bound<PyModule>> {
     module.add_submodule(&c_exp::module(py)?)?;
     module.add_submodule(&c_file::module(py)?)?;
     module.add_submodule(&c_function::module(py)?)?;
+    module.add_submodule(&c_init_info::module(py)?)?;
     module.add_submodule(&c_typ::module(py)?)?;
     module.add_submodule(&index_manager::module(py)?)?;
     Ok(module)

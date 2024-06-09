@@ -28,70 +28,38 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ------------------------------------------------------------------------------
 */
-use pyo3::{intern, prelude::*};
+use pyo3::prelude::*;
 
 use crate::{
-    app::{c_declarations::CDeclarations, c_dictionary::CDictionary},
+    app::{c_declarations::CDeclarations, c_dictionary_record::CDeclarationsRecord},
     util::indexed_table::IndexedTableValue,
 };
 
 pub fn module(py: Python) -> PyResult<Bound<PyModule>> {
-    let module = PyModule::new_bound(py, "c_dictionary_record")?;
-    module.add_class::<CDictionaryRecord>()?;
-    module.add_class::<CDeclarationsRecord>()?;
+    let module = PyModule::new_bound(py, "c_init_info")?;
+    module.add_class::<CInitInfo>()?;
     Ok(module)
 }
 
-/// Base class for all objects kept in the CDictionary
+/// Global variable initializer.
 #[derive(Clone)]
-#[pyclass(extends = IndexedTableValue, frozen, subclass)]
-pub struct CDictionaryRecord {
-    #[pyo3(get)]
-    cd: Py<CDictionary>,
-}
+#[pyclass(extends = CDeclarationsRecord, frozen, subclass)]
+pub struct CInitInfo {}
 
 #[pymethods]
-impl CDictionaryRecord {
+impl CInitInfo {
     #[new]
-    pub fn new(
-        cd: Py<CDictionary>,
-        ixval: IndexedTableValue,
-    ) -> (CDictionaryRecord, IndexedTableValue) {
-        (CDictionaryRecord { cd }, ixval)
+    fn new(cd: Py<CDeclarations>, ixval: IndexedTableValue) -> PyClassInitializer<Self> {
+        PyClassInitializer::from(CDeclarationsRecord::new(cd, ixval)).add_subclass(CInitInfo {})
     }
 
     #[getter]
-    pub fn decls(&self, py: Python) -> PyResult<Py<PyAny>> {
-        self.cd.getattr(py, intern!(py, "decls"))
-    }
-}
-
-impl CDictionaryRecord {
-    pub fn cd(&self) -> Py<CDictionary> {
-        self.cd.clone()
-    }
-}
-
-/// Base class for all objects kept in the CFileDeclarations.
-#[derive(Clone)]
-#[pyclass(extends = IndexedTableValue, frozen, subclass)]
-pub struct CDeclarationsRecord {
-    #[pyo3(get)]
-    decls: Py<CDeclarations>,
-}
-
-#[pymethods]
-impl CDeclarationsRecord {
-    #[new]
-    pub fn new(
-        decls: Py<CDeclarations>,
-        ixval: IndexedTableValue,
-    ) -> (CDeclarationsRecord, IndexedTableValue) {
-        (CDeclarationsRecord { decls }, ixval)
+    fn is_single(&self) -> bool {
+        false
     }
 
     #[getter]
-    fn dictionary(&self, py: Python) -> PyResult<Py<PyAny>> {
-        self.decls.getattr(py, intern!(py, "dictionary"))
+    fn is_compound(&self) -> bool {
+        false
     }
 }
