@@ -13,6 +13,7 @@ mod c_exp;
 mod c_field_info;
 mod c_file;
 mod c_function;
+mod c_global_declarations;
 mod c_init_info;
 mod c_location;
 mod c_typ;
@@ -33,6 +34,7 @@ pub fn module(py: Python) -> PyResult<Bound<PyModule>> {
     module.add_submodule(&c_field_info::module(py)?)?;
     module.add_submodule(&c_file::module(py)?)?;
     module.add_submodule(&c_function::module(py)?)?;
+    module.add_submodule(&c_global_declarations::module(py)?)?;
     module.add_submodule(&c_init_info::module(py)?)?;
     module.add_submodule(&c_location::module(py)?)?;
     module.add_submodule(&c_typ::module(py)?)?;

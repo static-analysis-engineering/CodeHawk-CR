@@ -58,7 +58,7 @@ pub struct CDeclarations {}
 #[pymethods]
 impl CDeclarations {
     #[new]
-    fn new() -> CDeclarations {
+    pub fn new() -> CDeclarations {
         CDeclarations {}
     }
 

@@ -49,6 +49,8 @@ from chc.app.CVarInfo import CVarInfo
 from chc.util.IndexedTable import IndexedTable, IndexedTableValue
 from chc.util.loggingutil import chklogger
 
+import chc_rust
+
 if TYPE_CHECKING:
     from chc.api.CGlobalContract import CGlobalContract
     from chc.app.CApplication import CApplication
@@ -67,7 +69,7 @@ class ConjectureFailure(Exception):
             f"Compinfo {self.ckey} is not compatible with global compinfo {self.gckey}")
 
 
-class CGlobalDeclarations(CDeclarations):
+class CGlobalDeclarations(chc_rust.app.c_global_declarations.CGlobalDeclarations):
     """Dictionary that indexes global vars and struct definitions from all files.
 
     The indexing of struct definitions may involve backtracking in the case of
