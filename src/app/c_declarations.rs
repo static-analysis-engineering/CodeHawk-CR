@@ -32,7 +32,15 @@ use std::collections::{BTreeMap, BTreeSet};
 
 use pyo3::prelude::*;
 
-use crate::app::{c_dictionary::CDictionary, c_file::CFile, c_typ::CTyp};
+use crate::app::{
+    c_comp_info::CCompInfo,
+    c_dictionary::CDictionary,
+    c_field_info::CFieldInfo,
+    c_file::CFile,
+    c_init_info::{CInitInfo, COffsetInitInfo},
+    c_location::CLocation,
+    c_typ::CTyp,
+};
 
 pyo3::import_exception!(chc.util.fileutil, CHError);
 
@@ -42,6 +50,7 @@ pub fn module(py: Python) -> PyResult<Bound<PyModule>> {
     Ok(module)
 }
 
+/// Abstract super class for CGlobalDeclarations and CFileDeclarations.
 #[derive(Clone)]
 #[pyclass(subclass)]
 pub struct CDeclarations {}
@@ -61,6 +70,28 @@ impl CDeclarations {
     #[getter]
     fn cfile(&self) -> PyResult<Py<CFile>> {
         Err(CHError::new_err("unimplemented"))
+    }
+
+    fn get_initinfo(&self, _ix: isize) -> PyResult<Py<CInitInfo>> {
+        Err(CHError::new_err("unimplemented"))
+    }
+
+    fn get_fieldinfo(&self, _ix: isize) -> PyResult<Py<CFieldInfo>> {
+        Err(CHError::new_err("unimplemented"))
+    }
+
+    fn get_offset_init(&self, _ix: isize) -> PyResult<Py<COffsetInitInfo>> {
+        Err(CHError::new_err("unimplemented"))
+    }
+
+    fn get_compinfo_by_ckey(&self, _ix: isize) -> PyResult<Py<CCompInfo>> {
+        Err(CHError::new_err("unimplemented"))
+    }
+
+    fn get_location(&self, _ix: isize) -> PyResult<Py<CLocation>> {
+        Err(CHError::new_err(
+            "Global declarations does not keep a location.",
+        ))
     }
 
     #[getter]

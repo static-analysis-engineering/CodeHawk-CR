@@ -26,41 +26,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 # ------------------------------------------------------------------------------
-"""Abstract super class for CGlobalDeclarations and CFileDeclarations."""
-
-from typing import Dict, Set, TYPE_CHECKING
-
-from chc.app.CDictionary import CDictionary
-
-import chc.util.fileutil as UF
 
 import chc_rust
 
-if TYPE_CHECKING:
-    from chc.app.CCompInfo import CCompInfo
-    from chc.app.CFieldInfo import CFieldInfo
-    from chc.app.CFile import CFile
-    from chc.app.CInitInfo import CInitInfo, COffsetInitInfo
-    from chc.app.CLocation import CLocation
-    from chc.app.CTyp import CTyp
 
-
-class CDeclarations(chc_rust.app.c_declarations.CDeclarations):
-
-    def __new__(cls) -> "CDeclarations":
-        return super().__new__(cls)
-
-    def get_initinfo(self, ix: int) -> "CInitInfo":
-        raise UF.CHError("unimplemented")
-
-    def get_fieldinfo(self, ix: int) -> "CFieldInfo":
-        raise UF.CHError("unimplemented")
-
-    def get_offset_init(self, ix: int) -> "COffsetInitInfo":
-        raise UF.CHError("unimplemented")
-
-    def get_compinfo_by_ckey(self, ckey: int) -> "CCompInfo":
-        raise UF.CHError("unimplemented")
-
-    def get_location(self, ix: int) -> "CLocation":
-        raise UF.CHError("Global declarations does not keep a location.")
+CDeclarations = chc_rust.app.c_declarations.CDeclarations
