@@ -97,22 +97,7 @@ class CKeyReference:
 class IndexManager(chc_rust.app.index_manager.IndexManager):
 
     def __new__(cls, issinglefile: bool) -> "IndexManager":
-        self = super().__new__(cls, issinglefile)
-        self._issinglefile = issinglefile  # application consists of a single file
-
-        self.vid2gvid: Dict[int, Dict[int, int]] = {}  # fid -> vid -> gvid
-        self.gvid2vid: Dict[int, Dict[int, int]] = {}  # gvid -> fid -> vid
-
-        # fid -> maximum vid in file with index fid
-        self.fidvidmax: Dict[int, int] = {}
-
-        self.ckey2gckey: Dict[int, Dict[int, int]] = {}  # fid -> ckey -> gckey
-        self.gckey2ckey: Dict[int, Dict[int, int]] = {}  # gckey -> fid -> ckey
-
-        # gvid -> fid  (file in which gvid is defined)
-        self.gviddefs: Dict[int, int] = {}
-
-        return self
+        return super().__new__(cls, issinglefile)
 
     def get_vid_gvid_subst(self, fid: int) -> Dict[int, int]:
         return self.vid2gvid[fid]

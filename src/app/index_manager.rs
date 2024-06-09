@@ -28,7 +28,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ------------------------------------------------------------------------------
 */
-use pyo3::prelude::*;
+use pyo3::{prelude::*, types::PyDict};
 
 pub fn module(py: Python) -> PyResult<Bound<PyModule>> {
     let module = PyModule::new_bound(py, "index_manager")?;
@@ -40,15 +40,33 @@ pub fn module(py: Python) -> PyResult<Bound<PyModule>> {
 #[pyclass(subclass)]
 pub struct IndexManager {
     #[pyo3(get)]
-    is_single_file: bool,
+    is_single_file: bool, // application consists of a single file
+    #[pyo3(get)]
+    vid2gvid: Py<PyDict>, // fid -> vid -> gvid
+    #[pyo3(get)]
+    gvid2vid: Py<PyDict>, // gvid -> fid -> vid
+    #[pyo3(get)]
+    fidvidmax: Py<PyDict>, // fid -> maximum vid in file with index fid
+    #[pyo3(get)]
+    ckey2gckey: Py<PyDict>, // fid -> ckey -> gckey
+    #[pyo3(get)]
+    gckey2ckey: Py<PyDict>, // gckey -> fid -> ckey
+    #[pyo3(get)]
+    gviddefs: Py<PyDict>, // gvid -> fid  (file in which gvid is defined)
 }
 
 #[pymethods]
 impl IndexManager {
     #[new]
-    fn new(issinglefile: bool) -> IndexManager {
+    fn new(py: Python, issinglefile: bool) -> IndexManager {
         IndexManager {
             is_single_file: issinglefile,
+            vid2gvid: PyDict::new_bound(py).unbind(),
+            gvid2vid: PyDict::new_bound(py).unbind(),
+            fidvidmax: PyDict::new_bound(py).unbind(),
+            ckey2gckey: PyDict::new_bound(py).unbind(),
+            gckey2ckey: PyDict::new_bound(py).unbind(),
+            gviddefs: PyDict::new_bound(py).unbind(),
         }
     }
 }
