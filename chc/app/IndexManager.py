@@ -52,17 +52,7 @@ TODO:
 """
 
 
-@dataclass
-class FileVarReference:
-    fid: int   # file index
-    vid: int   # variable index in file with fid
-
-    @property
-    def tuple(self) -> Tuple[int, int]:
-        return (self.fid, self.vid)
-
-    def __str__(self) -> str:
-        return f"(vid: {self.vid}, fid: {self.fid})"
+FileVarReference = chc_rust.app.index_manager.FileVarReference
 
 
 @dataclass

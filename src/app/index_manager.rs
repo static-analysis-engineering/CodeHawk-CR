@@ -34,27 +34,47 @@ use pyo3::{prelude::*, types::PyDict};
 
 pub fn module(py: Python) -> PyResult<Bound<PyModule>> {
     let module = PyModule::new_bound(py, "index_manager")?;
+    module.add_class::<FileVarReference>()?;
     module.add_class::<IndexManager>()?;
     Ok(module)
 }
 
+// Originally a datclass, but ordering and hashing weren't used
 #[derive(Clone)]
-#[pyclass(subclass)]
+#[pyclass(get_all, set_all)]
+pub struct FileVarReference {
+    fid: isize, // file index
+    vid: isize, // variable index in file with fid
+}
+
+#[pymethods]
+impl FileVarReference {
+    #[new]
+    fn new(fid: isize, vid: isize) -> FileVarReference {
+        FileVarReference { fid, vid }
+    }
+
+    #[getter]
+    fn tuple(&self) -> (isize, isize) {
+        (self.fid, self.vid)
+    }
+
+    #[pyo3(name = "__str__")]
+    fn str(&self) -> String {
+        format!("(vid: {}, fid: {})", self.vid, self.fid)
+    }
+}
+
+#[derive(Clone)]
+#[pyclass(get_all, subclass)]
 pub struct IndexManager {
-    #[pyo3(get)]
-    is_single_file: bool, // application consists of a single file
-    #[pyo3(get)]
-    vid2gvid: Py<PyDict>, // fid -> vid -> gvid
-    #[pyo3(get)]
-    gvid2vid: Py<PyDict>, // gvid -> fid -> vid
-    #[pyo3(get)]
-    fidvidmax: Py<PyDict>, // fid -> maximum vid in file with index fid
-    #[pyo3(get)]
+    is_single_file: bool,   // application consists of a single file
+    vid2gvid: Py<PyDict>,   // fid -> vid -> gvid
+    gvid2vid: Py<PyDict>,   // gvid -> fid -> vid
+    fidvidmax: Py<PyDict>,  // fid -> maximum vid in file with index fid
     ckey2gckey: Py<PyDict>, // fid -> ckey -> gckey
-    #[pyo3(get)]
     gckey2ckey: Py<PyDict>, // gckey -> fid -> ckey
-    #[pyo3(get)]
-    gviddefs: Py<PyDict>, // gvid -> fid  (file in which gvid is defined)
+    gviddefs: Py<PyDict>,   // gvid -> fid  (file in which gvid is defined)
 }
 
 #[pymethods]
