@@ -92,7 +92,7 @@ class CCompoundInitInfo(CInitInfo):
         return "\n".join([str(x) for x in self.offset_initializers])
 
 
-class COffsetInitInfo(CDeclarationsRecord):
+class COffsetInitInfo(chc_rust.app.c_init_info.COffsetInitInfo):
     """Component of a compound initializer.
 
     - args[0]: index of offset expression in cdictionary

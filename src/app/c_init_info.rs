@@ -38,6 +38,7 @@ use crate::{
 pub fn module(py: Python) -> PyResult<Bound<PyModule>> {
     let module = PyModule::new_bound(py, "c_init_info")?;
     module.add_class::<CInitInfo>()?;
+    module.add_class::<COffsetInitInfo>()?;
     Ok(module)
 }
 
@@ -61,5 +62,23 @@ impl CInitInfo {
     #[getter]
     fn is_compound(&self) -> bool {
         false
+    }
+}
+
+/// Component of a compound initializer.
+///
+/// - args[0]: index of offset expression in cdictionary
+/// - args[1]: index of initinfo in cdeclarations
+#[derive(Clone)]
+#[pyclass(extends = CDeclarationsRecord, frozen, subclass)]
+pub struct COffsetInitInfo {}
+
+// Not validated?
+#[pymethods]
+impl COffsetInitInfo {
+    #[new]
+    fn new(cd: Py<CDeclarations>, ixval: IndexedTableValue) -> PyClassInitializer<Self> {
+        PyClassInitializer::from(CDeclarationsRecord::new(cd, ixval))
+            .add_subclass(COffsetInitInfo {})
     }
 }
