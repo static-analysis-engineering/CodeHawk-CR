@@ -37,6 +37,7 @@ pub fn module(py: Python) -> PyResult<Bound<PyModule>> {
     module.add_class::<FileKeyReference>()?;
     module.add_class::<FileVarReference>()?;
     module.add_class::<IndexManager>()?;
+    module.add_class::<VarReference>()?;
     Ok(module)
 }
 
@@ -84,6 +85,28 @@ impl FileKeyReference {
     #[pyo3(name = "__str__")]
     fn str(&self) -> String {
         format!("(ckey: {}, fid: {})", self.ckey, self.fid)
+    }
+}
+
+// Originally a dataclass, but ordering and hasing weren't used
+#[derive(Clone)]
+#[pyclass(get_all, set_all)]
+pub struct VarReference {
+    fid: Option<isize>,
+    vid: isize,
+}
+
+#[pymethods]
+impl VarReference {
+    #[new]
+    #[pyo3(signature = (fid, vid))] // specify the caller must give two arguments
+    fn new(fid: Option<isize>, vid: isize) -> VarReference {
+        VarReference { fid, vid }
+    }
+
+    #[getter]
+    fn is_global(&self) -> bool {
+        self.fid.is_none()
     }
 }
 
