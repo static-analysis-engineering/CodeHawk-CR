@@ -55,13 +55,7 @@ TODO:
 FileVarReference = chc_rust.app.index_manager.FileVarReference
 
 
-@dataclass
-class FileKeyReference:
-    fid: int    # file index
-    ckey: int   # struct key in file with fid
-
-    def __str__(self) -> str:
-        return f"(ckey: {self.ckey}, fid: {self.fid})"
+FileKeyReference = chc_rust.app.index_manager.FileKeyReference
 
 
 @dataclass

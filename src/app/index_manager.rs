@@ -34,12 +34,13 @@ use pyo3::{prelude::*, types::PyDict};
 
 pub fn module(py: Python) -> PyResult<Bound<PyModule>> {
     let module = PyModule::new_bound(py, "index_manager")?;
+    module.add_class::<FileKeyReference>()?;
     module.add_class::<FileVarReference>()?;
     module.add_class::<IndexManager>()?;
     Ok(module)
 }
 
-// Originally a datclass, but ordering and hashing weren't used
+// Originally a dataclass, but ordering and hashing weren't used
 #[derive(Clone)]
 #[pyclass(get_all, set_all)]
 pub struct FileVarReference {
@@ -62,6 +63,27 @@ impl FileVarReference {
     #[pyo3(name = "__str__")]
     fn str(&self) -> String {
         format!("(vid: {}, fid: {})", self.vid, self.fid)
+    }
+}
+
+// Originally a dataclass, but ordering and hasing weren't used
+#[derive(Clone)]
+#[pyclass(get_all, set_all)]
+pub struct FileKeyReference {
+    fid: isize,
+    ckey: isize,
+}
+
+#[pymethods]
+impl FileKeyReference {
+    #[new]
+    fn new(fid: isize, ckey: isize) -> FileKeyReference {
+        FileKeyReference { fid, ckey }
+    }
+
+    #[pyo3(name = "__str__")]
+    fn str(&self) -> String {
+        format!("(ckey: {}, fid: {})", self.ckey, self.fid)
     }
 }
 
