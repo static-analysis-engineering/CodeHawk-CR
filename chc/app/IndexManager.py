@@ -69,53 +69,6 @@ class IndexManager(chc_rust.app.index_manager.IndexManager):
     def __new__(cls, issinglefile: bool) -> "IndexManager":
         return super().__new__(cls, issinglefile)
 
-    def resolve_vid(
-            self, filevar: FileVarReference) -> Optional[FileVarReference]:
-        """Returns the local reference of the definition of (fid, vid).
-
-        An object (variable or function) may be declared in one file (fid) and
-        referenced by vid, but defined in another file, with file index def-fid
-        and variable reference def-vid. If the definition is found this method
-        returns (def-fid, def-vid).
-        """
-        if self.is_single_file:
-            # there is only one file, so all objects must be defined there.
-            return filevar
-
-        fid = filevar.fid
-        vid = filevar.vid
-        if fid in self.vid2gvid:
-            if vid in self.vid2gvid[fid]:
-                gvid = self.vid2gvid[fid][vid]    # global vid for (fid, vid)
-                if gvid in self.gviddefs:
-                    deffid = self.gviddefs[gvid]  # file that defines gvid
-                    if gvid in self.gvid2vid:
-                        if deffid in self.gvid2vid[gvid]:
-                            defvid = self.gvid2vid[gvid][deffid]
-                            return FileVarReference(deffid, defvid)
-                        chklogger.logger.debug(
-                            "target fid: %s not found in gvid2vid[%s] for "
-                            + "(%s, %s)",
-                            str(deffid),
-                            str(gvid),
-                            str(fid),
-                            str(vid))
-                        return None
-                    chklogger.logger.debug(
-                        "global vid %s not found in gvid2vid for (%s, %s)",
-                        str(gvid), str(fid), str(vid))
-                    return None
-                chklogger.logger.debug(
-                    "global vid %s not found gviddefs for (%s, %s)",
-                    str(gvid), str(fid), str(vid))
-                return None
-            chklogger.logger.debug(
-                "local vid %s not found in vid2gvid[%s] for (%s, %s)",
-                str(vid), str(fid), str(fid), str(vid))
-            return None
-        chklogger.logger.debug("file id %s not found in vid2gvid", str(fid))
-        return None
-
     """return a list of (fid,vid) pairs that refer to the same global variable."""
 
     def get_gvid_references(self, gvid: int) -> List[FileVarReference]:

@@ -30,7 +30,7 @@ SOFTWARE.
 */
 use std::collections::BTreeMap;
 
-use pyo3::{prelude::*, types::PyDict};
+use pyo3::{intern, prelude::*, types::PyDict};
 
 pub fn module(py: Python) -> PyResult<Bound<PyModule>> {
     let module = PyModule::new_bound(py, "index_manager")?;
@@ -133,6 +133,16 @@ impl CKeyReference {
     }
 }
 
+fn chklogger_debug(py: Python, text: String) -> PyResult<()> {
+    let chc = PyModule::import_bound(py, intern!(py, "chc"))?;
+    let util = chc.getattr(intern!(py, "util"))?;
+    let loggingutil = util.getattr(intern!(py, "loggingutil"))?;
+    let chklogger = loggingutil.getattr(intern!(py, "chklogger"))?;
+    let logger = chklogger.getattr(intern!(py, "logger"))?;
+    logger.call_method1(intern!(py, "debug"), (text,))?;
+    Ok(())
+}
+
 #[derive(Clone)]
 #[pyclass(get_all, subclass)]
 pub struct IndexManager {
@@ -180,5 +190,59 @@ impl IndexManager {
             }
         }
         Ok(result)
+    }
+
+    /// Returns the local reference of the definition of (fid, vid).
+    ///
+    /// An object (variable or function) may be declared in one file (fid) and referenced by vid,
+    /// but defined in another file, with file index def-fid and variable reference def-vid. If the
+    /// definition is found this method returns (def-fid, def-vid).
+    fn resolve_vid(
+        &mut self,
+        py: Python,
+        filevar: FileVarReference,
+    ) -> PyResult<Option<FileVarReference>> {
+        if self.is_single_file {
+            return Ok(Some(filevar)); // there is only one file, so all objects must be defined there.
+        }
+        let (fid, vid) = filevar.tuple();
+        let Some(vid2gvid_fid) = self.vid2gvid.bind(py).get_item(fid)? else {
+            chklogger_debug(py, format!("file id {fid} not found in vid2gvid"))?;
+            return Ok(None);
+        };
+        let vid2gvid_fid = vid2gvid_fid.downcast::<PyDict>()?;
+        let Some(gvid) = vid2gvid_fid.get_item(vid)? else {
+            chklogger_debug(
+                py,
+                format!("local vid {vid} not found in vid2gvid[{fid}] for ({fid}, {vid})"),
+            )?;
+            return Ok(None);
+        };
+        let gvid: isize = gvid.extract()?;
+        let Some(deffid) = self.gviddefs.bind(py).get_item(gvid)? else {
+            chklogger_debug(
+                py,
+                format!("global vid {gvid} not found gviddefs for ({fid}, {vid})"),
+            )?;
+            return Ok(None);
+        };
+        let deffid: isize = deffid.extract()?;
+        let Some(gvid2vid_gvid) = self.gvid2vid.bind(py).get_item(gvid)? else {
+            chklogger_debug(
+                py,
+                format!("global vid {gvid} not found in gvid2vid for ({fid}, {vid})"),
+            )?;
+            return Ok(None);
+        };
+        let gvid2vid_gvid = gvid2vid_gvid.downcast::<PyDict>()?;
+        let Some(defvid) = gvid2vid_gvid.get_item(deffid)? else {
+            chklogger_debug(
+                py,
+                format!("target fid: {deffid} not found in gvid2vid[{gvid}] for ({fid}, {vid})"),
+            )?;
+            return Ok(None);
+        };
+        let defvid: isize = defvid.extract()?;
+        Ok(Some(FileVarReference::new(deffid, defvid)))
     }
 }
