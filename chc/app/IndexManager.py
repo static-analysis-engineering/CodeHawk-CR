@@ -61,14 +61,7 @@ FileKeyReference = chc_rust.app.index_manager.FileKeyReference
 VarReference = chc_rust.app.index_manager.VarReference
 
 
-@dataclass
-class CKeyReference:
-    fid: Optional[int]
-    ckey: int
-
-    @property
-    def is_global(self) -> bool:
-        return self.fid is None
+CKeyReference = chc_rust.app.index_manager.CKeyReference
 
 
 class IndexManager(chc_rust.app.index_manager.IndexManager):

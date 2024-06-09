@@ -34,6 +34,7 @@ use pyo3::{prelude::*, types::PyDict};
 
 pub fn module(py: Python) -> PyResult<Bound<PyModule>> {
     let module = PyModule::new_bound(py, "index_manager")?;
+    module.add_class::<CKeyReference>()?;
     module.add_class::<FileKeyReference>()?;
     module.add_class::<FileVarReference>()?;
     module.add_class::<IndexManager>()?;
@@ -102,6 +103,28 @@ impl VarReference {
     #[pyo3(signature = (fid, vid))] // specify the caller must give two arguments
     fn new(fid: Option<isize>, vid: isize) -> VarReference {
         VarReference { fid, vid }
+    }
+
+    #[getter]
+    fn is_global(&self) -> bool {
+        self.fid.is_none()
+    }
+}
+
+// Originally a dataclass, but ordering and hasing weren't used
+#[derive(Clone)]
+#[pyclass(get_all, set_all)]
+pub struct CKeyReference {
+    fid: Option<isize>,
+    ckey: isize,
+}
+
+#[pymethods]
+impl CKeyReference {
+    #[new]
+    #[pyo3(signature = (fid, ckey))] // specify the caller must give two arguments
+    fn new(fid: Option<isize>, ckey: isize) -> CKeyReference {
+        CKeyReference { fid, ckey }
     }
 
     #[getter]
