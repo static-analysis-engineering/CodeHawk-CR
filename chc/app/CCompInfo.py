@@ -34,6 +34,8 @@ from chc.app.CDictionaryRecord import CDeclarationsRecord
 
 import chc.util.IndexedTable as IT
 
+import chc_rust
+
 if TYPE_CHECKING:
     from chc.app.CAttributes import CAttributes
     from chc.app.CDeclarations import CDeclarations
@@ -41,7 +43,7 @@ if TYPE_CHECKING:
     from chc.app.CGlobalDeclarations import CGlobalDeclarations
 
 
-class CCompInfo(CDeclarationsRecord):
+class CCompInfo(chc_rust.app.c_comp_info.CCompInfo):
     """Struct/union definition.
 
     * tags[0]: cname                 ('?' for global struct)

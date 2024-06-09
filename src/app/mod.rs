@@ -3,6 +3,7 @@ use pyo3::prelude::*;
 mod c_application;
 mod c_attributes;
 mod c_const;
+mod c_comp_info;
 mod c_context;
 mod c_context_dictionary;
 mod c_declarations;
@@ -24,6 +25,7 @@ pub fn module(py: Python) -> PyResult<Bound<PyModule>> {
     module.add_submodule(&c_const::module(py)?)?;
     module.add_submodule(&c_context::module(py)?)?;
     module.add_submodule(&c_context_dictionary::module(py)?)?;
+    module.add_submodule(&c_comp_info::module(py)?)?;
     module.add_submodule(&c_declarations::module(py)?)?;
     module.add_submodule(&c_dictionary::module(py)?)?;
     module.add_submodule(&c_dictionary_record::module(py)?)?;
