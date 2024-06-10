@@ -56,7 +56,7 @@ pub struct CContextDictionaryRecord {
 impl CContextDictionaryRecord {
     #[new]
     pub fn new(
-        cxd: PyObject,
+        cxd: Py<PyAny>,
         ixval: IndexedTableValue,
     ) -> (CContextDictionaryRecord, IndexedTableValue) {
         (CContextDictionaryRecord { cxd }, ixval)
@@ -89,7 +89,7 @@ pub struct CContextNode {}
 #[pymethods]
 impl CContextNode {
     #[new]
-    pub fn new(cxd: PyObject, ixval: IndexedTableValue) -> PyClassInitializer<Self> {
+    pub fn new(cxd: Py<PyAny>, ixval: IndexedTableValue) -> PyClassInitializer<Self> {
         PyClassInitializer::from(CContextDictionaryRecord::new(cxd, ixval))
             .add_subclass(CContextNode {})
     }
@@ -140,13 +140,13 @@ pub struct CfgContext {}
 #[pymethods]
 impl CfgContext {
     #[new]
-    pub fn new(cxd: PyObject, ixval: IndexedTableValue) -> PyClassInitializer<Self> {
+    pub fn new(cxd: Py<PyAny>, ixval: IndexedTableValue) -> PyClassInitializer<Self> {
         PyClassInitializer::from(CContextDictionaryRecord::new(cxd, ixval))
             .add_subclass(CfgContext {})
     }
 
     #[getter]
-    fn nodes(slf: &Bound<Self>) -> PyResult<Vec<PyObject>> {
+    fn nodes(slf: &Bound<Self>) -> PyResult<Vec<Py<PyAny>>> {
         let py_super = slf.borrow().into_super();
         let cxd = py_super.cxd();
         py_super
@@ -178,13 +178,13 @@ pub struct ExpContext {}
 #[pymethods]
 impl ExpContext {
     #[new]
-    pub fn new(cxd: PyObject, ixval: IndexedTableValue) -> PyClassInitializer<Self> {
+    pub fn new(cxd: Py<PyAny>, ixval: IndexedTableValue) -> PyClassInitializer<Self> {
         PyClassInitializer::from(CContextDictionaryRecord::new(cxd, ixval))
             .add_subclass(ExpContext {})
     }
 
     #[getter]
-    fn nodes(slf: &Bound<Self>) -> PyResult<Vec<PyObject>> {
+    fn nodes(slf: &Bound<Self>) -> PyResult<Vec<Py<PyAny>>> {
         let py_super = slf.borrow().into_super();
         let cxd = py_super.cxd();
         py_super
@@ -218,7 +218,7 @@ impl ProgramContext {
     }
 
     #[getter]
-    fn cfg_context(slf: PyRef<Self>, py: Python) -> PyResult<PyObject> {
+    fn cfg_context(slf: PyRef<Self>, py: Python) -> PyResult<Py<PyAny>> {
         let py_super = slf.into_super();
         let cxd = py_super.cxd();
         let base = py_super.into_super();
@@ -229,7 +229,7 @@ impl ProgramContext {
     }
 
     #[getter]
-    fn exp_context(slf: PyRef<Self>, py: Python) -> PyResult<PyObject> {
+    fn exp_context(slf: PyRef<Self>, py: Python) -> PyResult<Py<PyAny>> {
         let py_super = slf.into_super();
         let cxd = py_super.cxd();
         let base = py_super.into_super();

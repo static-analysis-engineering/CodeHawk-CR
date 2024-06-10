@@ -151,7 +151,7 @@ impl CExp {
         BTreeMap::from([("base".to_string(), "exp".to_string())])
     }
 
-    fn to_idict(slf: &Bound<Self>) -> BTreeMap<String, PyObject> {
+    fn to_idict(slf: &Bound<Self>) -> BTreeMap<String, Py<PyAny>> {
         let c_dict_record = slf.borrow().into_super().into_super();
         BTreeMap::from([
             ("t".to_string(), c_dict_record.tags().to_object(slf.py())),
@@ -203,7 +203,7 @@ impl CExpConst {
             .extract()?)
     }
 
-    fn to_dict(slf: &Bound<Self>) -> PyResult<BTreeMap<String, PyObject>> {
+    fn to_dict(slf: &Bound<Self>) -> PyResult<BTreeMap<String, Py<PyAny>>> {
         Ok(BTreeMap::from([
             ("base".to_string(), "value".to_object(slf.py())),
             (
