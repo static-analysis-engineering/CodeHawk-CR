@@ -56,17 +56,17 @@ pub struct CContextDictionaryRecord {
 impl CContextDictionaryRecord {
     #[new]
     pub fn new(
-        cxd: Py<PyAny>,
+        cxd: PyObject,
         ixval: IndexedTableValue,
     ) -> (CContextDictionaryRecord, IndexedTableValue) {
         (CContextDictionaryRecord { cxd }, ixval)
     }
 
     #[pyo3(name = "__str__")]
-    pub fn str(slf: Py<Self>, py: Python) -> PyResult<String> {
+    pub fn str(slf: Bound<Self>) -> PyResult<String> {
         Ok(format!(
             "context-record: {}",
-            slf.getattr(py, intern!(py, "key"))?
+            slf.getattr(intern!(slf.py(), "key"))?
         ))
     }
 }
@@ -89,7 +89,7 @@ pub struct CContextNode {}
 #[pymethods]
 impl CContextNode {
     #[new]
-    pub fn new(cxd: Py<PyAny>, ixval: IndexedTableValue) -> PyClassInitializer<Self> {
+    pub fn new(cxd: PyObject, ixval: IndexedTableValue) -> PyClassInitializer<Self> {
         PyClassInitializer::from(CContextDictionaryRecord::new(cxd, ixval))
             .add_subclass(CContextNode {})
     }
@@ -106,12 +106,12 @@ impl CContextNode {
     }
 
     #[getter]
-    fn data_id(slf: Py<Self>, py: Python) -> PyResult<isize> {
-        let binding = slf.borrow(py).into_super().into_super();
+    fn data_id(slf: &Bound<Self>) -> PyResult<isize> {
+        let binding = slf.borrow().into_super().into_super();
         if let Some(arg0) = binding.args().iter().next() {
             Ok(*arg0)
         } else {
-            let name = CContextNode::name(slf.borrow(py))?;
+            let name = CContextNode::name(slf.borrow())?;
             Err(CHCError::new_err(format!(
                 "Context node {name} does not have a data-id"
             )))
@@ -140,31 +140,31 @@ pub struct CfgContext {}
 #[pymethods]
 impl CfgContext {
     #[new]
-    pub fn new(cxd: Py<PyAny>, ixval: IndexedTableValue) -> PyClassInitializer<Self> {
+    pub fn new(cxd: PyObject, ixval: IndexedTableValue) -> PyClassInitializer<Self> {
         PyClassInitializer::from(CContextDictionaryRecord::new(cxd, ixval))
             .add_subclass(CfgContext {})
     }
 
     #[getter]
-    fn nodes(slf: PyRef<Self>, py: Python) -> PyResult<Vec<PyObject>> {
-        let py_super = slf.into_super();
+    fn nodes(slf: &Bound<Self>) -> PyResult<Vec<PyObject>> {
+        let py_super = slf.borrow().into_super();
         let cxd = py_super.cxd();
         py_super
             .into_super()
             .args()
             .into_iter()
-            .map(|arg| cxd.call_method1(py, intern!(py, "get_node"), (*arg,)))
+            .map(|arg| cxd.call_method1(slf.py(), intern!(slf.py(), "get_node"), (*arg,)))
             .collect()
     }
 
     #[getter]
-    fn reverse_repr(slf: PyRef<Self>, py: Python) -> PyResult<String> {
-        Ok(CfgContext::nodes(slf, py)?.into_iter().rev().join("_"))
+    fn reverse_repr(slf: &Bound<Self>) -> PyResult<String> {
+        Ok(CfgContext::nodes(slf)?.into_iter().rev().join("_"))
     }
 
     #[pyo3(name = "__str__")]
-    fn str(slf: PyRef<Self>, py: Python) -> PyResult<String> {
-        Ok(CfgContext::nodes(slf, py)?.into_iter().join("_"))
+    fn str(slf: &Bound<Self>) -> PyResult<String> {
+        Ok(CfgContext::nodes(slf)?.into_iter().join("_"))
     }
 }
 
@@ -178,26 +178,26 @@ pub struct ExpContext {}
 #[pymethods]
 impl ExpContext {
     #[new]
-    pub fn new(cxd: Py<PyAny>, ixval: IndexedTableValue) -> PyClassInitializer<Self> {
+    pub fn new(cxd: PyObject, ixval: IndexedTableValue) -> PyClassInitializer<Self> {
         PyClassInitializer::from(CContextDictionaryRecord::new(cxd, ixval))
             .add_subclass(ExpContext {})
     }
 
     #[getter]
-    fn nodes(slf: PyRef<Self>, py: Python) -> PyResult<Vec<PyObject>> {
-        let py_super = slf.into_super();
+    fn nodes(slf: &Bound<Self>) -> PyResult<Vec<PyObject>> {
+        let py_super = slf.borrow().into_super();
         let cxd = py_super.cxd();
         py_super
             .into_super()
             .args()
             .into_iter()
-            .map(|arg| cxd.call_method1(py, intern!(py, "get_node"), (*arg,)))
+            .map(|arg| cxd.call_method1(slf.py(), intern!(slf.py(), "get_node"), (*arg,)))
             .collect()
     }
 
     #[pyo3(name = "__str__")]
-    fn str(slf: PyRef<Self>, py: Python) -> PyResult<String> {
-        Ok(ExpContext::nodes(slf, py)?.into_iter().join("_"))
+    fn str(slf: &Bound<Self>) -> PyResult<String> {
+        Ok(ExpContext::nodes(slf)?.into_iter().join("_"))
     }
 }
 
