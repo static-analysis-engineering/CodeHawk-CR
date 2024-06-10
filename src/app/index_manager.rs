@@ -245,4 +245,71 @@ impl IndexManager {
         let defvid: isize = defvid.extract()?;
         Ok(Some(FileVarReference::new(deffid, defvid)))
     }
+
+    // Seems unused
+    /// Returns a list all file variables that refer to the same global var.
+    fn get_gvid_references(&self, py: Python, gvid: isize) -> PyResult<Vec<Py<FileVarReference>>> {
+        let Some(gvid2vid_gvid) = self.gvid2vid.bind(py).get_item(gvid)? else {
+            return Ok(vec![]);
+        };
+        let gvid2vid_gvid = gvid2vid_gvid.downcast::<PyDict>()?;
+        gvid2vid_gvid
+            .into_iter()
+            .map(|(fid, vid)| Py::new(py, FileVarReference::new(fid.extract()?, vid.extract()?)))
+            .collect()
+    }
+
+    // Seems unused
+    fn has_gvid_reference(&self, py: Python, gvid: isize, fid: isize) -> PyResult<bool> {
+        let Some(gvid2vid_gvid) = self.gvid2vid.bind(py).get_item(gvid)? else {
+            return Ok(false);
+        };
+        let gvid2vid_gvid = gvid2vid_gvid.downcast::<PyDict>()?;
+        gvid2vid_gvid.contains(fid)
+    }
+
+    // Seems unused
+    /// Returns the vid that corresponds to gvid in the file with index fid.
+    fn get_gvid_reference(&self, py: Python, gvid: isize, fid: isize) -> PyResult<Option<isize>> {
+        let Some(gvid2vid_gvid) = self.gvid2vid.bind(py).get_item(gvid)? else {
+            return Ok(None);
+        };
+        let gvid2vid_gvid = gvid2vid_gvid.downcast::<PyDict>()?;
+        if let Some(ret) = gvid2vid_gvid.get_item(fid)? {
+            Ok(Some(ret.extract()?))
+        } else {
+            Ok(None)
+        }
+    }
+
+    // Seems unused
+    /// Returns a list of file vars that refer to the same variable as filevar.
+    ///
+    /// Note: does not include filevar itself.
+    fn get_vid_references(
+        &self,
+        py: Python,
+        filevar: Bound<FileVarReference>,
+    ) -> PyResult<Vec<Py<FileVarReference>>> {
+        if self.is_single_file {
+            return Ok(vec![]);
+        }
+        let Some(vid2gvid_fid) = self.vid2gvid.bind(py).get_item(filevar.borrow().fid)? else {
+            return Ok(vec![]);
+        };
+        let vid2gvid_fid = vid2gvid_fid.downcast::<PyDict>()?;
+        let Some(gvid) = vid2gvid_fid.get_item(filevar.borrow().vid)? else {
+            return Ok(vec![]);
+        };
+        let gvid: isize = gvid.extract()?;
+        let Some(gvid2vid_gvid) = self.gvid2vid.bind(py).get_item(gvid)? else {
+            return Ok(vec![]);
+        };
+        let gvid2vid_gvid = gvid2vid_gvid.downcast::<PyDict>()?;
+        gvid2vid_gvid
+            .into_iter()
+            .filter(|(fid, _)| fid.extract().unwrap_or(-1) != filevar.borrow().fid)
+            .map(|(fid, vid)| Py::new(py, FileVarReference::new(fid.extract()?, vid.extract()?)))
+            .collect()
+    }
 }

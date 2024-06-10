@@ -71,52 +71,7 @@ class IndexManager(chc_rust.app.index_manager.IndexManager):
 
     """return a list of (fid,vid) pairs that refer to the same global variable."""
 
-    def get_gvid_references(self, gvid: int) -> List[FileVarReference]:
-        """Returns a list all file variables that refer to the same global var."""
-
-        result: List[FileVarReference] = []
-        for fid in self.gvid2vid[gvid]:
-            vid = self.gvid2vid[gvid][fid]
-            result.append(FileVarReference(fid, vid))
-        return result
-
-    def has_gvid_reference(self, gvid: int, fid: int) -> bool:
-        if gvid in self.gvid2vid:
-            return fid in self.gvid2vid[gvid]
-        else:
-            return False
-
-    def get_gvid_reference(self, gvid: int, fid: int) -> Optional[int]:
-        """Returns the vid that corresponds to gvid in the file with index fid."""
-
-        if gvid in self.gvid2vid:
-            if fid in self.gvid2vid[gvid]:
-                return self.gvid2vid[gvid][fid]
-        return None
-
     """return a list of (fid,vid) pairs that refer to the same variable."""
-
-    def get_vid_references(
-            self, filevar: FileVarReference) -> List[FileVarReference]:
-        """Returns a list of file vars that refer to the same variable as filevar.
-
-        Note: does not include filevar itself.
-        """
-
-        result: List[FileVarReference] = []
-
-        if self.is_single_file:
-            return result
-
-        if filevar.fid in self.vid2gvid:
-            if filevar.vid in self.vid2gvid[filevar.fid]:
-                gvid = self.vid2gvid[filevar.fid][filevar.vid]
-                for fid in self.gvid2vid[gvid]:
-                    if fid == filevar.fid:
-                        continue
-                    vid = self.gvid2vid[gvid][fid]
-                    result.append(FileVarReference(fid, vid))
-        return result
 
     """return the vid in the file with index fidtgt for vid in fidsrc.
 
