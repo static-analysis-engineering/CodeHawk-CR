@@ -312,4 +312,21 @@ impl IndexManager {
             .map(|(fid, vid)| Py::new(py, FileVarReference::new(fid.extract()?, vid.extract()?)))
             .collect()
     }
+
+    /// Returns the global vid that corresponds to the file var reference.
+    fn get_gvid(&self, py: Python, varref: Bound<FileVarReference>) -> PyResult<Option<isize>> {
+        let varref = varref.borrow();
+        if self.is_single_file {
+            return Ok(Some(varref.vid));
+        }
+        let Some(vid2gvid_fid) = self.vid2gvid.bind(py).get_item(varref.fid)? else {
+            return Ok(None);
+        };
+        let vid2gvid_fid = vid2gvid_fid.downcast::<PyDict>()?;
+        if let Some(gvid) = vid2gvid_fid.get_item(varref.vid)? {
+            Ok(Some(gvid.extract()?))
+        } else {
+            Ok(None)
+        }
+    }
 }

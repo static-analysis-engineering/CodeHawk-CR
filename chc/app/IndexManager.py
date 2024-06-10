@@ -99,18 +99,6 @@ class IndexManager(chc_rust.app.index_manager.IndexManager):
                     return None
         return None
 
-    def get_gvid(self, varref: FileVarReference) -> Optional[int]:
-        """Returns the global vid that corresponds to the file var reference."""
-
-        if self.is_single_file:
-            # for a single file the global vid is the same as the file vid
-            return varref.vid
-
-        if varref.fid in self.vid2gvid:
-            if varref.vid in self.vid2gvid[varref.fid]:
-                return self.vid2gvid[varref.fid][varref.vid]
-        return None
-
     def get_vid(self, fid: int, gvid: int) -> Optional[int]:
         """Returns the vid of the gvid in the file with index fid."""
 
