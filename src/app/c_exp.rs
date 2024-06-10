@@ -151,11 +151,11 @@ impl CExp {
         BTreeMap::from([("base".to_string(), "exp".to_string())])
     }
 
-    fn to_idict(slf: PyRef<Self>, py: Python) -> BTreeMap<String, Py<PyAny>> {
-        let c_dict_record = slf.into_super().into_super();
+    fn to_idict(slf: &Bound<Self>) -> BTreeMap<String, PyObject> {
+        let c_dict_record = slf.borrow().into_super().into_super();
         BTreeMap::from([
-            ("t".to_string(), c_dict_record.tags().to_vec().into_py(py)),
-            ("a".to_string(), c_dict_record.args().to_vec().into_py(py)),
+            ("t".to_string(), c_dict_record.tags().to_object(slf.py())),
+            ("a".to_string(), c_dict_record.args().to_object(slf.py())),
         ])
     }
 
