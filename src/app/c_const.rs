@@ -51,7 +51,7 @@ pub fn module(py: Python) -> PyResult<Bound<PyModule>> {
 /// Constant expression.
 #[derive(Clone)]
 #[pyclass(extends = CDictionaryRecord, frozen, subclass)]
-struct CConst {}
+pub struct CConst {}
 
 #[pymethods]
 impl CConst {

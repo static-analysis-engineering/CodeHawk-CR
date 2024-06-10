@@ -74,33 +74,7 @@ unoperatorstrings = {"neg": "-", "bnot": "~", "lnot": "!"}
 CExp = chc_rust.app.c_exp.CExp
 
 
-@cdregistry.register_tag("const", CExp)
-class CExpConst(CExp):
-    """
-    Constant expression
-
-    - args[0]: constant
-    """
-
-    def __new__(cls, cd: "CDictionary", ixval: IT.IndexedTableValue) -> None:
-        return super().__new__(cls, cd, ixval)
-
-    @property
-    def is_constant(self) -> bool:
-        return True
-
-    @property
-    def constant(self) -> "CConst":
-        return self.cd.get_constant(self.args[0])
-
-    def get_strings(self) -> List[str]:
-        return self.constant.get_strings()
-
-    def to_dict(self) -> Dict[str, Any]:
-        return {"base": "const", "value": str(self.constant)}
-
-    def __str__(self) -> str:
-        return str(self.constant)
+CExpConst = cdregistry.register_tag("const", CExp)(chc_rust.app.c_exp.CExpConst)
 
 
 @cdregistry.register_tag("lval", CExp)

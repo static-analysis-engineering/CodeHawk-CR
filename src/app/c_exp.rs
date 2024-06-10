@@ -30,16 +30,17 @@ SOFTWARE.
 */
 use std::collections::BTreeMap;
 
-use pyo3::prelude::*;
+use pyo3::{intern, prelude::*};
 
 use crate::{
-    app::{c_dictionary::CDictionary, c_dictionary_record::CDictionaryRecord},
+    app::{c_const::CConst, c_dictionary::CDictionary, c_dictionary_record::CDictionaryRecord},
     util::indexed_table::IndexedTableValue,
 };
 
 pub fn module(py: Python) -> PyResult<Bound<PyModule>> {
     let module = PyModule::new_bound(py, "c_exp")?;
     module.add_class::<CExp>()?;
+    module.add_class::<CExpConst>()?;
     Ok(module)
 }
 
@@ -161,5 +162,59 @@ impl CExp {
     #[pyo3(name = "__str__")]
     fn str(slf: PyRef<Self>) -> String {
         format!("baseexp:{}", slf.into_super().into_super().tags()[0])
+    }
+}
+
+/// Constant expression
+///
+/// - args[0]: constant
+#[derive(Clone)]
+#[pyclass(extends = CExp, frozen, subclass)]
+struct CExpConst {}
+
+#[pymethods]
+impl CExpConst {
+    #[new]
+    fn new(cd: Py<CDictionary>, ixval: IndexedTableValue) -> PyClassInitializer<Self> {
+        PyClassInitializer::from(CExp::new(cd, ixval)).add_subclass(CExpConst {})
+    }
+
+    #[getter]
+    fn is_constant(&self) -> bool {
+        true
+    }
+
+    #[getter]
+    fn constant<'a, 'b>(slf: &'a Bound<'b, Self>) -> PyResult<Bound<'b, CConst>> {
+        let py = slf.py();
+        let c_dict_record = slf.borrow().into_super().into_super();
+        let cd = c_dict_record.cd();
+        let arg_0 = c_dict_record.into_super().args()[0];
+        Ok(cd
+            .call_method1(py, intern!(py, "get_constant"), (arg_0,))?
+            .downcast_bound(py)?
+            .clone())
+    }
+
+    fn get_strings(slf: &Bound<Self>) -> PyResult<Vec<String>> {
+        // Use python runtime to resolve inheritance on get_strings
+        Ok(CExpConst::constant(slf)?
+            .call_method0(intern!(slf.py(), "get_strings"))?
+            .extract()?)
+    }
+
+    fn to_dict(slf: &Bound<Self>) -> PyResult<BTreeMap<String, PyObject>> {
+        Ok(BTreeMap::from([
+            ("base".to_string(), "value".to_object(slf.py())),
+            (
+                "value".to_string(),
+                CExpConst::constant(slf)?.into_any().unbind(),
+            ),
+        ]))
+    }
+
+    #[pyo3(name = "__str__")]
+    fn str(slf: &Bound<Self>) -> PyResult<String> {
+        Ok(CExpConst::constant(slf)?.str()?.extract()?)
     }
 }
