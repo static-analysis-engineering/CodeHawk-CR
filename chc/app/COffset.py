@@ -60,17 +60,6 @@ class CIndexOffset(chc_rust.app.c_offset.CIndexOffset):
     def __new__(cls, cd: "CDictionary", ixval: IT.IndexedTableValue) -> "CIndexOffset":
         return super().__new__(cls, cd, ixval)
 
-    @property
-    def index_exp(self) -> "CExp":
-        return self.cd.get_exp(self.args[0])
-
-    @property
-    def offset(self) -> COffset:
-        return self.cd.get_offset(self.args[1])
-
-    def get_strings(self) -> List[str]:
-        return self.index_exp.get_strings()
-
     def get_variable_uses(self, vid: int) -> int:
         return self.index_exp.get_variable_uses(vid)
 

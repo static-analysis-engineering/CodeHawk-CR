@@ -47,7 +47,7 @@ pub fn module(py: Python) -> PyResult<Bound<PyModule>> {
 /// Base class for all expressions.
 #[derive(Clone)]
 #[pyclass(extends = CDictionaryRecord, frozen, subclass)]
-struct CExp {}
+pub struct CExp {}
 
 #[pymethods]
 impl CExp {

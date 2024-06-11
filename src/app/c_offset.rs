@@ -33,7 +33,7 @@ use std::collections::BTreeMap;
 use pyo3::{intern, prelude::*};
 
 use crate::{
-    app::{c_dictionary::CDictionary, c_dictionary_record::CDictionaryRecord},
+    app::{c_dictionary::CDictionary, c_dictionary_record::CDictionaryRecord, c_exp::CExp},
     util::indexed_table::IndexedTableValue,
 };
 
@@ -224,8 +224,44 @@ impl CIndexOffset {
         PyClassInitializer::from(COffset::new(cd, ixval)).add_subclass(CIndexOffset {})
     }
 
+    // Unvalidated
+    #[getter]
+    fn index_exp<'a, 'b>(slf: &'a Bound<'b, Self>) -> PyResult<Bound<'b, CExp>> {
+        let py = slf.py();
+        let c_dict_record = slf.borrow().into_super().into_super();
+        let cd = c_dict_record.cd();
+        let arg_0 = c_dict_record.into_super().args()[0];
+        // Resovle with python interpreter in case this method is overridden
+        Ok(cd
+            .call_method1(py, intern!(py, "get_exp"), (arg_0,))?
+            .downcast_bound(py)?
+            .clone())
+    }
+
+    #[getter]
+    fn offset<'a, 'b>(slf: &'a Bound<'b, Self>) -> PyResult<Bound<'b, COffset>> {
+        let py = slf.py();
+        let c_dict_record = slf.borrow().into_super().into_super();
+        let cd = c_dict_record.cd();
+        let arg_1 = c_dict_record.into_super().args()[1];
+        // Resovle with python interpreter in case this method is overridden
+        Ok(cd
+            .call_method1(py, intern!(py, "get_offset"), (arg_1,))?
+            .downcast_bound(py)?
+            .clone())
+    }
+
     #[getter]
     fn is_index(&self) -> bool {
         true
+    }
+
+    // Unvalidated
+    fn get_strings(slf: &Bound<Self>) -> PyResult<Vec<String>> {
+        let index_exp = CIndexOffset::index_exp(slf)?;
+        // Resovle with python interpreter in case this method is overridden
+        Ok(index_exp
+            .call_method0(intern!(slf.py(), "get_strings"))?
+            .extract()?)
     }
 }
