@@ -28,6 +28,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ------------------------------------------------------------------------------
 */
+use std::collections::BTreeMap;
 
 use pyo3::prelude::*;
 
@@ -52,6 +53,42 @@ impl COffset {
     #[new]
     fn new(cd: Py<CDictionary>, ixval: IndexedTableValue) -> PyClassInitializer<Self> {
         PyClassInitializer::from(CDictionaryRecord::new(cd, ixval)).add_subclass(COffset {})
+    }
+
+    fn has_offset(&self) -> bool {
+        true
+    }
+
+    #[getter]
+    fn is_no_offset(&self) -> bool {
+        false
+    }
+
+    #[getter]
+    fn is_field(&self) -> bool {
+        false
+    }
+
+    #[getter]
+    fn is_index(&self) -> bool {
+        false
+    }
+
+    fn get_strings(&self) -> Vec<String> {
+        vec![]
+    }
+
+    fn get_variable_uses(&self, _vid: isize) -> isize {
+        0
+    }
+
+    fn to_dict(&self) -> BTreeMap<String, String> {
+        BTreeMap::from([("base".to_string(), "offset".to_string())])
+    }
+
+    #[pyo3(name = "__str__")]
+    fn str(slf: PyRef<Self>) -> String {
+        format!("offsetbase: {}", slf.into_super().into_super().tags()[0])
     }
 }
 

@@ -41,38 +41,7 @@ if TYPE_CHECKING:
     from chc.app.CExp import CExp
 
 
-class COffset(chc_rust.app.c_offset.COffset):
-    """Base class for an expression offset."""
-
-    def __new__(cls, cd: "CDictionary", ixval: IT.IndexedTableValue) -> "COffset":
-        return super().__new__(cls, cd, ixval)
-
-    def has_offset(self) -> bool:
-        return True
-
-    @property
-    def is_no_offset(self) -> bool:
-        return False
-
-    @property
-    def is_field(self) -> bool:
-        return False
-
-    @property
-    def is_index(self) -> bool:
-        return False
-
-    def get_strings(self) -> List[str]:
-        return []
-
-    def get_variable_uses(self, vid: int) -> int:
-        return 0
-
-    def to_dict(self) -> Dict[str, object]:
-        return {"base": "offset"}
-
-    def __str__(self) -> str:
-        return "offsetbase:" + self.tags[0]
+COffset = chc_rust.app.c_offset.COffset
 
 
 @cdregistry.register_tag("n", COffset)
