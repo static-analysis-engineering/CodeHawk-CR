@@ -40,6 +40,7 @@ use crate::{
 pub fn module(py: Python) -> PyResult<Bound<PyModule>> {
     let module = PyModule::new_bound(py, "c_offset")?;
     module.add_class::<CFieldOffset>()?;
+    module.add_class::<CIndexOffset>()?;
     module.add_class::<COffset>()?;
     module.add_class::<CNoOffset>()?;
     Ok(module)
@@ -205,5 +206,26 @@ impl CFieldOffset {
             ".{}{offset}",
             CFieldOffset::fieldname(slf.borrow())
         ))
+    }
+}
+
+/// Index offset into an array.
+///
+/// * args[0]: index of base of index expression in cdictionary
+/// * args[1]: index of sub-offset in cdictionary
+#[derive(Clone)]
+#[pyclass(extends = COffset, frozen, subclass)]
+struct CIndexOffset {}
+
+#[pymethods]
+impl CIndexOffset {
+    #[new]
+    fn new(cd: Py<CDictionary>, ixval: IndexedTableValue) -> PyClassInitializer<Self> {
+        PyClassInitializer::from(COffset::new(cd, ixval)).add_subclass(CIndexOffset {})
+    }
+
+    #[getter]
+    fn is_index(&self) -> bool {
+        true
     }
 }

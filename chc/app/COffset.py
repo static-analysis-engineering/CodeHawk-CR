@@ -51,7 +51,7 @@ CFieldOffset = cdregistry.register_tag("f", COffset)(chc_rust.app.c_offset.CFiel
 
 
 @cdregistry.register_tag("i", COffset)
-class CIndexOffset(COffset):
+class CIndexOffset(chc_rust.app.c_offset.CIndexOffset):
     """Index offset into an array.
 
     * args[0]: index of base of index expression in cdictionary
@@ -73,10 +73,6 @@ class CIndexOffset(COffset):
 
     def get_variable_uses(self, vid: int) -> int:
         return self.index_exp.get_variable_uses(vid)
-
-    @property
-    def is_index(self) -> bool:
-        return True
 
     def to_dict(self) -> Dict[str, object]:
         result: Dict[str, object] = {
