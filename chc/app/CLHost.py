@@ -34,12 +34,14 @@ from chc.app.CDictionaryRecord import CDictionaryRecord, cdregistry
 
 import chc.util.IndexedTable as IT
 
+import chc_rust
+
 if TYPE_CHECKING:
     from chc.app.CDictionary import CDictionary
     from chc.app.CExp import CExp
 
 
-class CLHost(CDictionaryRecord):
+class CLHost(chc_rust.app.c_lhost.CLHost):
     """Base class for variable and dereference."""
 
     def __new__(cls, cd: "CDictionary", ixval: IT.IndexedTableValue) -> "CLHost":
