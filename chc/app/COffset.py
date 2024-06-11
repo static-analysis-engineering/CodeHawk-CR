@@ -44,24 +44,7 @@ if TYPE_CHECKING:
 COffset = chc_rust.app.c_offset.COffset
 
 
-@cdregistry.register_tag("n", COffset)
-class CNoOffset(COffset):
-
-    def __new__(cls, cd: "CDictionary", ixval: IT.IndexedTableValue) -> "CNoOffset":
-        return super().__new__(cls, cd, ixval)
-
-    def has_offset(self) -> bool:
-        return False
-
-    @property
-    def is_no_offset(self) -> bool:
-        return True
-
-    def to_dict(self) -> Dict[str, object]:
-        return {"base": "no-offset"}
-
-    def __str__(self) -> str:
-        return ""
+CNoOffset = cdregistry.register_tag("n", COffset)(chc_rust.app.c_offset.CNoOffset)
 
 
 @cdregistry.register_tag("f", COffset)

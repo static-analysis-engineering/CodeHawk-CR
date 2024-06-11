@@ -40,6 +40,7 @@ use crate::{
 pub fn module(py: Python) -> PyResult<Bound<PyModule>> {
     let module = PyModule::new_bound(py, "c_offset")?;
     module.add_class::<COffset>()?;
+    module.add_class::<CNoOffset>()?;
     Ok(module)
 }
 
@@ -92,4 +93,32 @@ impl COffset {
     }
 }
 
+#[derive(Clone)]
+#[pyclass(extends = COffset, frozen, subclass)]
+struct CNoOffset {}
 
+#[pymethods]
+impl CNoOffset {
+    #[new]
+    fn new(cd: Py<CDictionary>, ixval: IndexedTableValue) -> PyClassInitializer<Self> {
+        PyClassInitializer::from(COffset::new(cd, ixval)).add_subclass(CNoOffset {})
+    }
+
+    fn has_offset(&self) -> bool {
+        false
+    }
+
+    #[getter]
+    fn is_no_offset(&self) -> bool {
+        true
+    }
+
+    fn to_dict(&self) -> BTreeMap<String, String> {
+        BTreeMap::from([("base".to_string(), "no-offset".to_string())])
+    }
+
+    #[pyo3(name = "__str__")]
+    fn str(&self) -> String {
+        "".to_string()
+    }
+}
