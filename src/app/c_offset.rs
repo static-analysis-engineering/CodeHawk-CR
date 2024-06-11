@@ -28,6 +28,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ------------------------------------------------------------------------------
 */
+//! Object representation for CIL offset sum type.
 use std::collections::BTreeMap;
 
 use pyo3::{intern, prelude::*};
@@ -231,7 +232,7 @@ impl CIndexOffset {
         let c_dict_record = slf.borrow().into_super().into_super();
         let cd = c_dict_record.cd();
         let arg_0 = c_dict_record.into_super().args()[0];
-        // Resovle with python interpreter in case this method is overridden
+        // Resolve with python interpreter in case this method is overridden
         Ok(cd
             .call_method1(py, intern!(py, "get_exp"), (arg_0,))?
             .downcast_bound(py)?
@@ -244,11 +245,29 @@ impl CIndexOffset {
         let c_dict_record = slf.borrow().into_super().into_super();
         let cd = c_dict_record.cd();
         let arg_1 = c_dict_record.into_super().args()[1];
-        // Resovle with python interpreter in case this method is overridden
+        // Resolve with python interpreter in case this method is overridden
         Ok(cd
             .call_method1(py, intern!(py, "get_offset"), (arg_1,))?
             .downcast_bound(py)?
             .clone())
+    }
+
+    // Unvalidated
+    fn get_strings(slf: &Bound<Self>) -> PyResult<Vec<String>> {
+        let index_exp = CIndexOffset::index_exp(slf)?;
+        // Resolve with python interpreter in case this method is overridden
+        Ok(index_exp
+            .call_method0(intern!(slf.py(), "get_strings"))?
+            .extract()?)
+    }
+
+    // Unvalidated
+    fn get_variable_uses(slf: &Bound<Self>, vid: isize) -> PyResult<isize> {
+        let index_exp = CIndexOffset::index_exp(slf)?;
+        // Resolve with python interpreter in case this method is overridden
+        Ok(index_exp
+            .call_method1(intern!(slf.py(), "get_variable_uses"), (vid,))?
+            .extract()?)
     }
 
     #[getter]
@@ -257,11 +276,43 @@ impl CIndexOffset {
     }
 
     // Unvalidated
-    fn get_strings(slf: &Bound<Self>) -> PyResult<Vec<String>> {
-        let index_exp = CIndexOffset::index_exp(slf)?;
-        // Resovle with python interpreter in case this method is overridden
-        Ok(index_exp
-            .call_method0(intern!(slf.py(), "get_strings"))?
-            .extract()?)
+    fn to_dict(slf: &Bound<Self>) -> PyResult<BTreeMap<String, Py<PyAny>>> {
+        let py = slf.py();
+        let mut map = BTreeMap::from([
+            ("base".to_string(), "field-offset".to_object(py)),
+            (
+                "field".to_string(),
+                CIndexOffset::index_exp(slf)?
+                    .call_method0(intern!(py, "to_dict"))?
+                    .unbind(),
+            ),
+        ]);
+        let offset = CIndexOffset::offset(slf)?;
+        // Resolve call with python interpreter for possible override
+        if offset
+            .call_method0(intern!(slf.py(), "has_offset"))?
+            .extract()?
+        {
+            let inner = offset.call_method0(intern!(slf.py(), "to_dict"))?;
+            map.insert("offset".to_string(), inner.unbind());
+        }
+        Ok(map)
+    }
+
+    #[pyo3(name = "__str__")]
+    fn str(slf: &Bound<Self>) -> PyResult<String> {
+        // Resolve call with python interpret for possible override
+        let offset = if slf
+            .call_method0(intern!(slf.py(), "has_offset"))?
+            .extract()?
+        {
+            CIndexOffset::offset(slf)?.str()?.extract()?
+        } else {
+            "".to_string()
+        };
+        Ok(format!(
+            "[{}]{offset}",
+            CIndexOffset::index_exp(slf)?.str()?
+        ))
     }
 }

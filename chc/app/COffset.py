@@ -28,17 +28,9 @@
 # ------------------------------------------------------------------------------
 """Object representation for CIL offset sum type."""
 
-from typing import Dict, List, Tuple, TYPE_CHECKING
-
-from chc.app.CDictionaryRecord import CDictionaryRecord, cdregistry
-
-import chc.util.IndexedTable as IT
+from chc.app.CDictionaryRecord import cdregistry
 
 import chc_rust
-
-if TYPE_CHECKING:
-    from chc.app.CDictionary import CDictionary
-    from chc.app.CExp import CExp
 
 
 COffset = chc_rust.app.c_offset.COffset
@@ -50,26 +42,4 @@ CNoOffset = cdregistry.register_tag("n", COffset)(chc_rust.app.c_offset.CNoOffse
 CFieldOffset = cdregistry.register_tag("f", COffset)(chc_rust.app.c_offset.CFieldOffset)
 
 
-@cdregistry.register_tag("i", COffset)
-class CIndexOffset(chc_rust.app.c_offset.CIndexOffset):
-    """Index offset into an array.
-
-    * args[0]: index of base of index expression in cdictionary
-    * args[1]: index of sub-offset in cdictionary
-    """
-    def __new__(cls, cd: "CDictionary", ixval: IT.IndexedTableValue) -> "CIndexOffset":
-        return super().__new__(cls, cd, ixval)
-
-    def get_variable_uses(self, vid: int) -> int:
-        return self.index_exp.get_variable_uses(vid)
-
-    def to_dict(self) -> Dict[str, object]:
-        result: Dict[str, object] = {
-            "base": "index-offset", "exp": self.index_exp.to_dict()}
-        if self.offset.has_offset():
-            result["offset"] = self.offset.to_dict()
-        return result
-
-    def __str__(self) -> str:
-        offset = str(self.offset) if self.has_offset() else ""
-        return "[" + str(self.index_exp) + "]" + offset
+CIndexOffset = cdregistry.register_tag("i", COffset)(chc_rust.app.c_offset.CIndexOffset)
