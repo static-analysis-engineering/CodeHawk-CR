@@ -34,12 +34,14 @@ from chc.app.CDictionaryRecord import CDictionaryRecord, cdregistry
 
 import chc.util.IndexedTable as IT
 
+import chc_rust
+
 if TYPE_CHECKING:
     from chc.app.CDictionary import CDictionary
     from chc.app.CExp import CExp
 
 
-class COffset(CDictionaryRecord):
+class COffset(chc_rust.app.c_offset.COffset):
     """Base class for an expression offset."""
 
     def __new__(cls, cd: "CDictionary", ixval: IT.IndexedTableValue) -> "COffset":

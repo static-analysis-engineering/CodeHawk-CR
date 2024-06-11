@@ -18,6 +18,7 @@ mod c_global_declarations;
 mod c_init_info;
 mod c_lhost;
 mod c_location;
+mod c_offset;
 mod c_typ;
 mod index_manager;
 
@@ -41,6 +42,7 @@ pub fn module(py: Python) -> PyResult<Bound<PyModule>> {
     module.add_submodule(&c_init_info::module(py)?)?;
     module.add_submodule(&c_lhost::module(py)?)?;
     module.add_submodule(&c_location::module(py)?)?;
+    module.add_submodule(&c_offset::module(py)?)?;
     module.add_submodule(&c_typ::module(py)?)?;
     module.add_submodule(&index_manager::module(py)?)?;
     Ok(module)
