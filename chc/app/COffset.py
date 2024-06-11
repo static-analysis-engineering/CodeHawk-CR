@@ -47,45 +47,7 @@ COffset = chc_rust.app.c_offset.COffset
 CNoOffset = cdregistry.register_tag("n", COffset)(chc_rust.app.c_offset.CNoOffset)
 
 
-@cdregistry.register_tag("f", COffset)
-class CFieldOffset(COffset):
-    """Field offset
-
-    * tags[1]: fieldname
-
-    * args[0]: ckey of the containing struct
-    * args[1]: index of sub-offset in cdictionary
-    """
-
-    def __new__(cls, cd: "CDictionary", ixval: IT.IndexedTableValue) -> "CFieldOffset":
-        return super().__new__(cls, cd, ixval)
-
-    @property
-    def fieldname(self) -> str:
-        return self.tags[1]
-
-    @property
-    def ckey(self) -> int:
-        return self.args[0]
-
-    @property
-    def offset(self) -> COffset:
-        return self.cd.get_offset(self.args[1])
-
-    @property
-    def is_field(self) -> bool:
-        return True
-
-    def to_dict(self) -> Dict[str, object]:
-        result: Dict[str, object] = {
-            "base": "field-offset", "field": self.fieldname}
-        if self.offset.has_offset():
-            result["offset"] = self.offset.to_dict()
-        return result
-
-    def __str__(self) -> str:
-        offset = str(self.offset) if self.has_offset() else ""
-        return "." + self.fieldname + offset
+CFieldOffset = cdregistry.register_tag("f", COffset)(chc_rust.app.c_offset.CFieldOffset)
 
 
 @cdregistry.register_tag("i", COffset)

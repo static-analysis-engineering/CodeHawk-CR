@@ -30,7 +30,7 @@ SOFTWARE.
 */
 use std::collections::BTreeMap;
 
-use pyo3::prelude::*;
+use pyo3::{intern, prelude::*};
 
 use crate::{
     app::{c_dictionary::CDictionary, c_dictionary_record::CDictionaryRecord},
@@ -39,6 +39,7 @@ use crate::{
 
 pub fn module(py: Python) -> PyResult<Bound<PyModule>> {
     let module = PyModule::new_bound(py, "c_offset")?;
+    module.add_class::<CFieldOffset>()?;
     module.add_class::<COffset>()?;
     module.add_class::<CNoOffset>()?;
     Ok(module)
@@ -120,5 +121,89 @@ impl CNoOffset {
     #[pyo3(name = "__str__")]
     fn str(&self) -> String {
         "".to_string()
+    }
+}
+
+/// Field offset
+///
+/// * tags[1]: fieldname
+///
+/// * args[0]: ckey of the containing struct
+/// * args[1]: index of sub-offset in cdictionary
+#[derive(Clone)]
+#[pyclass(extends = COffset, frozen, subclass)]
+struct CFieldOffset {}
+
+#[pymethods]
+impl CFieldOffset {
+    #[new]
+    fn new(cd: Py<CDictionary>, ixval: IndexedTableValue) -> PyClassInitializer<Self> {
+        PyClassInitializer::from(COffset::new(cd, ixval)).add_subclass(CFieldOffset {})
+    }
+
+    #[getter]
+    fn fieldname(slf: PyRef<Self>) -> String {
+        slf.into_super().into_super().into_super().tags()[1].clone()
+    }
+
+    #[getter]
+    fn ckey(slf: PyRef<Self>) -> isize {
+        slf.into_super().into_super().into_super().args()[0]
+    }
+
+    #[getter]
+    fn offset<'a, 'b>(slf: &'a Bound<'b, Self>) -> PyResult<Bound<'b, COffset>> {
+        let py = slf.py();
+        let c_dict_record = slf.borrow().into_super().into_super();
+        let cd = c_dict_record.cd();
+        let arg_1 = c_dict_record.into_super().args()[1];
+        Ok(cd
+            .call_method1(py, intern!(py, "get_offset"), (arg_1,))?
+            .downcast_bound(py)?
+            .clone())
+    }
+
+    #[getter]
+    fn is_field(&self) -> bool {
+        true
+    }
+
+    // Seems unused
+    fn to_dict(slf: &Bound<Self>) -> PyResult<BTreeMap<String, Py<PyAny>>> {
+        let py = slf.py();
+        let mut map = BTreeMap::from([
+            ("base".to_string(), "field-offset".to_object(py)),
+            (
+                "field".to_string(),
+                CFieldOffset::fieldname(slf.borrow()).to_object(py),
+            ),
+        ]);
+        let offset = CFieldOffset::offset(slf)?;
+        // Resolve call with python interpreter for possible override
+        if offset
+            .call_method0(intern!(slf.py(), "has_offset"))?
+            .extract()?
+        {
+            let inner = offset.call_method0(intern!(slf.py(), "to_dict"))?;
+            map.insert("offset".to_string(), inner.unbind());
+        }
+        Ok(map)
+    }
+
+    #[pyo3(name = "__str__")]
+    fn str(slf: &Bound<Self>) -> PyResult<String> {
+        // Resolve call with python interpret for possible override
+        let offset = if slf
+            .call_method0(intern!(slf.py(), "has_offset"))?
+            .extract()?
+        {
+            CFieldOffset::offset(slf)?.str()?.extract()?
+        } else {
+            "".to_string()
+        };
+        Ok(format!(
+            ".{}{offset}",
+            CFieldOffset::fieldname(slf.borrow())
+        ))
     }
 }
