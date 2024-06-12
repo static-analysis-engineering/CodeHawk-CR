@@ -28,29 +28,64 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ------------------------------------------------------------------------------
 */
-
-use pyo3::prelude::*;
+use pyo3::{intern, prelude::*};
 
 use crate::{
-    app::{c_dictionary::CDictionary, c_dictionary_record::CDictionaryRecord},
+    app::{
+        c_dictionary::CDictionary, c_dictionary_record::CDictionaryRecord, c_lhost::CLHost,
+        c_offset::COffset,
+    },
     util::indexed_table::IndexedTableValue,
 };
 
 pub fn module(py: Python) -> PyResult<Bound<PyModule>> {
-    let module = PyModule::new_bound(py, "c_lhost")?;
-    module.add_class::<CLHost>()?;
+    let module = PyModule::new_bound(py, "c_lval")?;
+    module.add_class::<CLval>()?;
     Ok(module)
 }
 
-/// Base class for variable and dereference.
+/// Left-hand side value.
+///
+/// * args[0]: index of lhost in cdictionary
+/// * args[1]: index of offset in cdictionary
 #[derive(Clone)]
 #[pyclass(extends = CDictionaryRecord, frozen, subclass)]
-pub struct CLHost {}
+pub struct CLval {}
 
 #[pymethods]
-impl CLHost {
+impl CLval {
     #[new]
     fn new(cd: Py<CDictionary>, ixval: IndexedTableValue) -> PyClassInitializer<Self> {
-        PyClassInitializer::from(CDictionaryRecord::new(cd, ixval)).add_subclass(CLHost {})
+        PyClassInitializer::from(CDictionaryRecord::new(cd, ixval)).add_subclass(CLval {})
+    }
+
+    #[getter]
+    fn lhost<'a, 'b>(slf: &'a Bound<'b, Self>) -> PyResult<Bound<'b, CLHost>> {
+        let c_dict_entry = slf.borrow().into_super();
+        let cd = c_dict_entry.cd();
+        let arg_0 = c_dict_entry.into_super().args()[0];
+        Ok(cd
+            .call_method1(slf.py(), intern!(slf.py(), "get_lhost"), (arg_0,))?
+            .downcast_bound::<CLHost>(slf.py())?
+            .clone())
+    }
+
+    #[getter]
+    fn offset<'a, 'b>(slf: &'a Bound<'b, Self>) -> PyResult<Bound<'b, COffset>> {
+        let c_dict_entry = slf.borrow().into_super();
+        let cd = c_dict_entry.cd();
+        let arg_1 = c_dict_entry.into_super().args()[1];
+        Ok(cd
+            .call_method1(slf.py(), intern!(slf.py(), "get_offset"), (arg_1,))?
+            .downcast_bound::<COffset>(slf.py())?
+            .clone())
+    }
+
+    // Unvalidated
+    fn has_variable(slf: &Bound<Self>, vid: isize) -> PyResult<bool> {
+        // Method is overridden
+        Ok(CLval::lhost(slf)?
+            .call_method1(intern!(slf.py(), "has_variable"), (vid,))?
+            .extract()?)
     }
 }

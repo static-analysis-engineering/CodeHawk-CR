@@ -20,6 +20,7 @@ mod c_global_declarations;
 mod c_init_info;
 mod c_lhost;
 mod c_location;
+mod c_lval;
 mod c_offset;
 mod c_typ;
 mod c_type_info;
@@ -46,6 +47,7 @@ pub fn module(py: Python) -> PyResult<Bound<PyModule>> {
     module.add_submodule(&c_global_declarations::module(py)?)?;
     module.add_submodule(&c_init_info::module(py)?)?;
     module.add_submodule(&c_lhost::module(py)?)?;
+    module.add_submodule(&c_lval::module(py)?)?;
     module.add_submodule(&c_location::module(py)?)?;
     module.add_submodule(&c_offset::module(py)?)?;
     module.add_submodule(&c_typ::module(py)?)?;

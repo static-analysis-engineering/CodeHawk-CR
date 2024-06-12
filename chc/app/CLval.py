@@ -34,13 +34,15 @@ from chc.app.CDictionaryRecord import CDictionaryRecord
 
 import chc.util.IndexedTable as IT
 
+import chc_rust
+
 if TYPE_CHECKING:
     from chc.app.CDictionary import CDictionary
     from chc.app.CLHost import CLHost
     from chc.app.COffset import COffset
 
 
-class CLval(CDictionaryRecord):
+class CLval(chc_rust.app.c_lval.CLval):
     """Left-hand side value.
 
     * args[0]: index of lhost in cdictionary
@@ -49,17 +51,6 @@ class CLval(CDictionaryRecord):
 
     def __new__(cls, cd: "CDictionary", ixval: IT.IndexedTableValue) -> "CLval":
         return super().__new__(cls, cd, ixval)
-
-    @property
-    def lhost(self) -> "CLHost":
-        return self.cd.get_lhost(self.args[0])
-
-    @property
-    def offset(self) -> "COffset":
-        return self.cd.get_offset(self.args[1])
-
-    def has_variable(self, vid: int) -> bool:
-        return self.lhost.has_variable(vid)
 
     def get_strings(self) -> List[str]:
         hostresult = self.lhost.get_strings()

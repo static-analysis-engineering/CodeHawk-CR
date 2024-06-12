@@ -29,6 +29,7 @@ SOFTWARE.
 ------------------------------------------------------------------------------
 */
 //! Object representation for CIL offset sum type.
+
 use std::collections::BTreeMap;
 
 use pyo3::{intern, prelude::*};
@@ -50,7 +51,7 @@ pub fn module(py: Python) -> PyResult<Bound<PyModule>> {
 /// Base class for an expression offset.
 #[derive(Clone)]
 #[pyclass(extends = CDictionaryRecord, frozen, subclass)]
-struct COffset {}
+pub struct COffset {}
 
 #[pymethods]
 impl COffset {
