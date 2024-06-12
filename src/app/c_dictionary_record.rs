@@ -95,3 +95,9 @@ impl CDeclarationsRecord {
         self.decls.getattr(py, intern!(py, "dictionary"))
     }
 }
+
+impl CDeclarationsRecord {
+    pub fn decls(&self) -> Py<CDeclarations> {
+        self.decls.clone()
+    }
+}

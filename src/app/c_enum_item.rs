@@ -30,10 +30,13 @@ SOFTWARE.
 */
 //! Enum item declaration data.
 
-use pyo3::prelude::*;
+use pyo3::{intern, prelude::*};
 
 use crate::{
-    app::{c_declarations::CDeclarations, c_dictionary_record::CDeclarationsRecord},
+    app::{
+        c_declarations::CDeclarations, c_dictionary_record::CDeclarationsRecord, c_exp::CExp,
+        c_file_declarations::CFileDeclarations, c_location::CLocation,
+    },
     util::indexed_table::IndexedTableValue,
 };
 
@@ -57,5 +60,46 @@ impl CEnumItem {
     #[new]
     fn new(cd: Py<CDeclarations>, ixval: IndexedTableValue) -> PyClassInitializer<Self> {
         PyClassInitializer::from(CDeclarationsRecord::new(cd, ixval)).add_subclass(CEnumItem {})
+    }
+
+    #[getter]
+    fn name(slf: PyRef<Self>) -> String {
+        slf.into_super().into_super().tags()[0].clone()
+    }
+
+    #[getter]
+    fn exp<'a, 'b>(slf: &'a Bound<'b, Self>) -> PyResult<Bound<'b, CExp>> {
+        let c_dict_record = slf.borrow().into_super();
+        let dictionary = c_dict_record.dictionary(slf.py())?;
+        let args_0 = c_dict_record.into_super().args()[0];
+        Ok(dictionary
+            .call_method1(slf.py(), intern!(slf.py(), "get_exp"), (args_0,))?
+            .downcast_bound(slf.py())?
+            .clone())
+    }
+
+    // Unvalidated
+    #[getter]
+    fn loc<'a, 'b>(slf: &'a Bound<'b, Self>) -> PyResult<Bound<'b, CLocation>> {
+        let c_dict_record = slf.borrow().into_super();
+        let decls = c_dict_record
+            .decls()
+            .bind(slf.py())
+            .downcast::<CFileDeclarations>()?
+            .clone();
+        let args_1 = c_dict_record.into_super().args()[1];
+        Ok(decls
+            .call_method1(intern!(slf.py(), "get_location"), (args_1,))?
+            .downcast()?
+            .clone())
+    }
+
+    #[pyo3(name = "__str__")]
+    fn str(slf: &Bound<Self>) -> PyResult<String> {
+        Ok(format!(
+            "{}:{}",
+            CEnumItem::name(slf.borrow()),
+            CEnumItem::exp(slf)?.str()?
+        ))
     }
 }

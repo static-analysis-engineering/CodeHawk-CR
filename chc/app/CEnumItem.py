@@ -28,42 +28,6 @@
 # ------------------------------------------------------------------------------
 """Enum item declaration data."""
 
-from typing import cast, List, TYPE_CHECKING
-
-from chc.app.CDictionaryRecord import CDeclarationsRecord
-
-import chc.util.IndexedTable as IT
-
 import chc_rust
 
-if TYPE_CHECKING:
-    from chc.app.CExp import CExp
-    from chc.app.CFileDeclarations import CFileDeclarations
-    from chc.app.CLocation import CLocation
-
-
-class CEnumItem(chc_rust.app.c_enum_item.CEnumItem):
-    """Enum Item.
-
-    * tags[0]: name of the item
-    * args[0]: index of expression associated with the item in cdictionary
-    * args[1]: index of definition location in the declarations
-    """
-    def __new__(cls, decls: "CFileDeclarations", ixval: IT.IndexedTableValue) -> "CEnumItem":
-        return super().__new__(cls, decls, ixval)
-
-    @property
-    def name(self) -> str:
-        return self.tags[0]
-
-    @property
-    def exp(self) -> "CExp":
-        return self.dictionary.get_exp(self.args[0])
-
-    @property
-    def loc(self) -> "CLocation":
-        decls = cast("CFileDeclarations", self.decls)
-        return decls.get_location(self.args[1])
-
-    def __str__(self) -> str:
-        return self.name + ":" + str(self.exp)
+CEnumItem = chc_rust.app.c_enum_item.CEnumItem
