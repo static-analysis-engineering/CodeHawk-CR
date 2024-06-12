@@ -34,12 +34,14 @@ from chc.app.CDictionaryRecord import CDeclarationsRecord
 
 import chc.util.IndexedTable as IT
 
+import chc_rust
+
 if TYPE_CHECKING:
     from chc.app.CDeclarations import CDeclarations
     from chc.app.CTyp import CTyp
 
 
-class CTypeInfo(CDeclarationsRecord):
+class CTypeInfo(chc_rust.app.c_type_info.CTypeInfo):
     """Type definition.
 
     - tags[0]: name of type definition
