@@ -34,13 +34,15 @@ from chc.app.CDictionaryRecord import CDeclarationsRecord
 
 import chc.util.IndexedTable as IT
 
+import chc_rust
+
 if TYPE_CHECKING:
     from chc.app.CExp import CExp
     from chc.app.CFileDeclarations import CFileDeclarations
     from chc.app.CLocation import CLocation
 
 
-class CEnumItem(CDeclarationsRecord):
+class CEnumItem(chc_rust.app.c_enum_item.CEnumItem):
     """Enum Item.
 
     * tags[0]: name of the item
