@@ -28,17 +28,9 @@
 # ------------------------------------------------------------------------------
 """Object representation of CIL constant sum type."""
 
-from typing import List, Tuple, TYPE_CHECKING
-
-from chc.app.CDictionaryRecord import CDictionaryRecord, cdregistry
+from chc.app.CDictionaryRecord import cdregistry
 
 import chc_rust
-import chc.util.IndexedTable as IT
-
-if TYPE_CHECKING:
-    from chc.app.CDictionary import CDictionary
-    from chc.app.CExp import CExp
-
 
 CConst = chc_rust.app.c_const.CConst
 
@@ -61,35 +53,4 @@ CConstReal = cdregistry.register_tag("real", CConst)(chc_rust.app.c_const.CConst
 CConstReal = cdregistry.register_tag("enum", CConst)(chc_rust.app.c_const.CConstEnum)
 
 
-class CStringConstant(CDictionaryRecord):
-    """Constant string value
-
-    - tags[0]: string value or hexadecimal representation of string value
-    - tags[1]: 'x' (optional) if string value is represented in hexadecimal
-
-    - args[0] length of original string
-    """
-
-    def __new__(cls, cd: "CDictionary", ixval: IT.IndexedTableValue) -> "CstringConstant":
-        return super().__new__(cls, cd, ixval)
-
-    @property
-    def stringvalue(self) -> str:
-        if len(self.tags) > 0:
-            return self.tags[0]
-        else:  # empty string is filtered out
-            return ""
-
-    @property
-    def string_length(self) -> int:
-        return self.args[0]
-
-    @property
-    def is_hex(self) -> bool:
-        return len(self.tags) > 1
-
-    def __str__(self) -> str:
-        if self.is_hex:
-            return "(" + str(self.string_length) + "-char string"
-        else:
-            return self.stringvalue
+CStringConstant = chc_rust.app.c_const.CStringConstant

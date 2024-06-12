@@ -45,6 +45,7 @@ pub fn module(py: Python) -> PyResult<Bound<PyModule>> {
     module.add_class::<CConstChr>()?;
     module.add_class::<CConstReal>()?;
     module.add_class::<CConstEnum>()?;
+    module.add_class::<CStringConstant>()?;
     Ok(module)
 }
 
@@ -330,5 +331,57 @@ impl CConstEnum {
         let item_name = CConstEnum::item_name(slf.borrow(py));
         let exp = CConstEnum::exp(slf, py)?;
         Ok(format!("{}: {}({})", enum_name, item_name, exp))
+    }
+}
+
+// Seems unused
+/// Constant string value
+///
+/// - tags[0]: string value or hexadecimal representation of string value
+/// - tags[1]: 'x' (optional) if string value is represented in hexadecimal
+///
+/// - args[0] length of original string
+#[derive(Clone)]
+#[pyclass(extends = CDictionaryRecord, frozen, subclass)]
+struct CStringConstant {}
+
+#[pymethods]
+impl CStringConstant {
+    #[new]
+    fn new(cd: Py<CDictionary>, ixval: IndexedTableValue) -> PyClassInitializer<Self> {
+        PyClassInitializer::from(CDictionaryRecord::new(cd, ixval)).add_subclass(CStringConstant {})
+    }
+
+    #[getter]
+    fn stringvalue(slf: PyRef<Self>) -> String {
+        let it_val = slf.into_super().into_super();
+        let tags = it_val.tags();
+        if tags.is_empty() {
+            "".to_string()
+        } else {
+            tags[0].clone()
+        }
+    }
+
+    #[getter]
+    fn string_length(slf: PyRef<Self>) -> isize {
+        slf.into_super().into_super().args()[0]
+    }
+
+    #[getter]
+    fn is_hex(slf: PyRef<Self>) -> bool {
+        slf.into_super().into_super().tags().len() > 1
+    }
+
+    #[pyo3(name = "__str__")]
+    fn str(slf: &Bound<Self>) -> String {
+        if CStringConstant::is_hex(slf.borrow()) {
+            format!(
+                "({}-char string",
+                CStringConstant::string_length(slf.borrow())
+            )
+        } else {
+            CStringConstant::stringvalue(slf.borrow())
+        }
     }
 }
