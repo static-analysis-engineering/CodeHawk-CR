@@ -34,13 +34,15 @@ from chc.app.CDictionaryRecord import CDeclarationsRecord
 
 import chc.util.IndexedTable as IT
 
+import chc_rust
+
 if TYPE_CHECKING:
     from chc.app.CAttributes import CAttributes
     from chc.app.CEnumItem import CEnumItem
     from chc.app.CFileDeclarations import CFileDeclarations
 
 
-class CEnumInfo(CDeclarationsRecord):
+class CEnumInfo(chc_rust.app.c_enum_info.CEnumInfo):
     """Global enum definition."""
 
     def __new__(cls, decls: "CFileDeclarations", ixval: IT.IndexedTableValue) -> "CEnumInfo":
