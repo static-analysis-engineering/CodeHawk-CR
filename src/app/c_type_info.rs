@@ -30,10 +30,10 @@ SOFTWARE.
 */
 //! Global type definition.
 
-use pyo3::prelude::*;
+use pyo3::{intern, prelude::*};
 
 use crate::{
-    app::{c_declarations::CDeclarations, c_dictionary_record::CDeclarationsRecord},
+    app::{c_declarations::CDeclarations, c_dictionary_record::CDeclarationsRecord, c_typ::CTyp},
     util::indexed_table::IndexedTableValue,
 };
 
@@ -44,7 +44,7 @@ pub fn module(py: Python) -> PyResult<Bound<PyModule>> {
 }
 
 /// Type definition.
-
+///
 /// - tags[0]: name of type definition
 /// - args[1]: index of type of type definition in cdictionary
 #[derive(Clone)]
@@ -56,5 +56,32 @@ impl CTypeInfo {
     #[new]
     fn new(cd: Py<CDeclarations>, ixval: IndexedTableValue) -> PyClassInitializer<Self> {
         PyClassInitializer::from(CDeclarationsRecord::new(cd, ixval)).add_subclass(CTypeInfo {})
+    }
+
+    #[getter]
+    fn name(slf: PyRef<Self>) -> String {
+        slf.into_super().into_super().tags()[0].clone()
+    }
+
+    // Seems unused
+    #[getter]
+    fn r#type<'a, 'b>(slf: &'a Bound<'b, Self>) -> PyResult<Bound<'b, CTyp>> {
+        let c_dict_record = slf.borrow().into_super();
+        let dict = c_dict_record.dictionary(slf.py())?;
+        // Comment says args[1] but original source uses args[0]
+        let args_0 = c_dict_record.into_super().args()[0];
+        Ok(dict
+            .call_method1(slf.py(), intern!(slf.py(), "get_typ"), (args_0,))?
+            .downcast_bound(slf.py())?
+            .clone())
+    }
+
+    #[pyo3(name = "__str__")]
+    fn str(slf: &Bound<Self>) -> PyResult<String> {
+        Ok(format!(
+            "{}:{}",
+            CTypeInfo::name(slf.borrow()),
+            CTypeInfo::r#type(slf)?.str()?
+        ))
     }
 }

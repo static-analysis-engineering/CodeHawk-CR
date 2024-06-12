@@ -28,37 +28,6 @@
 # ------------------------------------------------------------------------------
 """Global type definition."""
 
-from typing import List, TYPE_CHECKING
-
-from chc.app.CDictionaryRecord import CDeclarationsRecord
-
-import chc.util.IndexedTable as IT
-
 import chc_rust
 
-if TYPE_CHECKING:
-    from chc.app.CDeclarations import CDeclarations
-    from chc.app.CTyp import CTyp
-
-
-class CTypeInfo(chc_rust.app.c_type_info.CTypeInfo):
-    """Type definition.
-
-    - tags[0]: name of type definition
-    - args[1]: index of type of type definition in cdictionary
-    """
-
-    def __new__(
-            cls, cdecls: "CDeclarations", ixval: IT.IndexedTableValue) -> "CTypeInfo":
-        return super().__new__(cls, cdecls, ixval)
-
-    @property
-    def name(self) -> str:
-        return self.tags[0]
-
-    @property
-    def type(self) -> "CTyp":
-        return self.dictionary.get_typ(self.args[0])
-
-    def __str__(self) -> str:
-        return self.name + ":" + str(self.type)
+CTypeInfo = chc_rust.app.c_type_info.CTypeInfo

@@ -91,7 +91,7 @@ impl CDeclarationsRecord {
     }
 
     #[getter]
-    fn dictionary(&self, py: Python) -> PyResult<Py<PyAny>> {
+    pub fn dictionary(&self, py: Python) -> PyResult<Py<PyAny>> {
         self.decls.getattr(py, intern!(py, "dictionary"))
     }
 }
