@@ -36,6 +36,8 @@ from chc.app.CInstr import (CInstr, CCallInstr, CAssignInstr, CAsmInstr)
 
 import chc.util.fileutil as UF
 
+import chc_rust
+
 if TYPE_CHECKING:
     from chc.app.CExp import CExp
     from chc.app.CFile import CFile
@@ -69,18 +71,14 @@ def get_statement(parent: "CStmt", xnode: ET.Element) -> "CStmt":
     raise UF.CHCError("Unknown statement tag found: " + tag)
 
 
-class CStmt:
+class CStmt(chc_rust.app.c_stmt.CStmt):
     """Superclass of all control flow components in a function."""
 
-    def __init__(self, parent: Optional["CStmt"], xnode: ET.Element) -> None:
-        self._parent = parent
-        self.xnode = xnode
+    def __new__(cls, parent: Optional["CStmt"], xnode: ET.Element) -> "CStmt":
+        self = super().__new__(cls, parent, xnode)
         self._succs: Optional[List[int]] = None
         self._preds: Optional[List[int]] = None
-
-    @property
-    def parent(self) -> Optional["CStmt"]:
-        return self._parent
+        return self
 
     @property
     def cfun(self) -> "CFunction":
@@ -210,9 +208,10 @@ class CStmt:
 
 class CBlock(CStmt):
 
-    def __init__(self, parent: Optional["CStmt"], xnode: ET.Element) -> None:
-        CStmt.__init__(self, parent, xnode)
+    def __new__(cls, parent: Optional["CStmt"], xnode: ET.Element) -> "CBlock":
+        self = super().__new__(cls, parent, xnode)
         self._stmts: Optional[Dict[int, "CStmt"]] = None
+        return self
 
     @property
     def stmts(self) -> Dict[int, "CStmt"]:
@@ -238,9 +237,10 @@ class CBlock(CStmt):
 
 class CFunctionBody(CBlock):
 
-    def __init__(self, cfun: "CFunction", xnode: ET.Element) -> None:
-        CBlock.__init__(self, None, xnode)
+    def __new__(cls, cfun: "CFunction", xnode: ET.Element) -> "CFunctionBody":
+        self = super().__new__(cls, None, xnode)
         self._cfun = cfun
+        return self
 
     @property
     def cfun(self) -> "CFunction":
@@ -253,9 +253,10 @@ class CFunctionBody(CBlock):
 
 class CIfStmt(CStmt):
 
-    def __init__(self, parent: "CStmt", xnode: ET.Element) -> None:
-        CStmt.__init__(self, parent, xnode)
+    def __new__(cls, parent: "CStmt", xnode: ET.Element) -> "CIfStmt":
+        self = super().__new__(cls, parent, xnode)
         self._stmts: Optional[Dict[int, "CStmt"]] = None
+        return self
 
     @property
     def stmts(self) -> Dict[int, "CStmt"]:
@@ -300,9 +301,10 @@ class CIfStmt(CStmt):
 
 class CLoopStmt(CStmt):
 
-    def __init__(self, parent: "CStmt", xnode: ET.Element) -> None:
-        CStmt.__init__(self, parent, xnode)
+    def __new__(cls, parent: "CStmt", xnode: ET.Element) -> "CLoopStmt":
+        self = super().__new__(cls, parent, xnode)
         self._stmts: Optional[Dict[int, "CStmt"]] = None
+        return self
 
     @property
     def stmts(self) -> Dict[int, "CStmt"]:
@@ -320,9 +322,10 @@ class CLoopStmt(CStmt):
 
 class CSwitchStmt(CStmt):
 
-    def __init__(self, parent: "CStmt", xnode: ET.Element) -> None:
-        CStmt.__init__(self, parent, xnode)
+    def __new__(cls, parent: "CStmt", xnode: ET.Element) -> "CSwitchStmt":
+        self = super().__new__(cls, parent, xnode)
         self._stmts: Optional[Dict[int, "CStmt"]] = None
+        return self
 
     @property
     def stmts(self) -> Dict[int, "CStmt"]:
@@ -340,35 +343,36 @@ class CSwitchStmt(CStmt):
 
 class CBreakStmt(CStmt):
 
-    def __init__(self, parent: "CStmt", xnode: ET.Element) -> None:
-        CStmt.__init__(self, parent, xnode)
+    def __new__(cls, parent: "CStmt", xnode: ET.Element) -> "CBreakStmt":
+        return super().__new__(cls, parent, xnode)
 
 
 class CContinueStmt(CStmt):
 
-    def __init__(self, parent: "CStmt", xnode: ET.Element) -> None:
-        CStmt.__init__(self, parent, xnode)
+    def __new__(cls, parent: "CStmt", xnode: ET.Element) -> "CContinueStmt":
+        return super().__new__(cls, parent, xnode)
 
 
 class CGotoStmt(CStmt):
 
-    def __init__(self, parent: "CStmt", xnode: ET.Element) -> None:
-        CStmt.__init__(self, parent, xnode)
+    def __new__(cls, parent: "CStmt", xnode: ET.Element) -> "CGotoStmt":
+        return super().__new__(cls, parent, xnode)
 
 
 class CReturnStmt(CStmt):
     """Function return."""
 
-    def __init__(self, parent: "CStmt", xnode: ET.Element) -> None:
-        CStmt.__init__(self, parent, xnode)
+    def __new__(cls, parent: "CStmt", xnode: ET.Element) -> None:
+        return super().__new__(cls, parent, xnode)
 
 
 class CInstrsStmt(CStmt):
     """Sequence of instructions without control flow."""
 
-    def __init__(self, parent: "CStmt", xnode: ET.Element) -> None:
-        CStmt.__init__(self, parent, xnode)
+    def __new__(cls, parent: "CStmt", xnode: ET.Element) -> None:
+        self = super().__new__(cls, parent, xnode)
         self._instrs: Optional[List[CInstr]] = None
+        return self
 
     @property
     def is_instrs_stmt(self) -> bool:

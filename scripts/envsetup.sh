@@ -41,6 +41,7 @@ chc_demo () {(
 	chkc c-project parse ./ codehawk_demo
 	chkc c-project analyze ./ codehawk_demo
 	chkc c-project report ./ codehawk_demo
+	chkc c-project make-callgraph ./ codehawk_demo
 )}
 
 chc_tables () {(
