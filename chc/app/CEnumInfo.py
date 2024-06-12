@@ -28,42 +28,6 @@
 # ------------------------------------------------------------------------------
 """Enum declaration data."""
 
-from typing import cast, List, TYPE_CHECKING
-
-from chc.app.CDictionaryRecord import CDeclarationsRecord
-
-import chc.util.IndexedTable as IT
-
 import chc_rust
 
-if TYPE_CHECKING:
-    from chc.app.CAttributes import CAttributes
-    from chc.app.CEnumItem import CEnumItem
-    from chc.app.CFileDeclarations import CFileDeclarations
-
-
-class CEnumInfo(chc_rust.app.c_enum_info.CEnumInfo):
-    """Global enum definition."""
-
-    def __new__(cls, decls: "CFileDeclarations", ixval: IT.IndexedTableValue) -> "CEnumInfo":
-        return super().__new__(cls, decls, ixval)
-
-    @property
-    def ename(self) -> str:
-        return self.tags[0]
-
-    @property
-    def ikind(self) -> str:
-        return self.tags[1]
-
-    @property
-    def eattr(self) -> "CAttributes":
-        return self.dictionary.get_attributes(self.args[0])
-
-    @property
-    def eitems(self) -> List["CEnumItem"]:
-        decls = cast("CFileDeclarations", self.decls)
-        return [decls.get_enumitem(i) for i in self.args[1:]]
-
-    def __str__(self) -> str:
-        return self.ename + " (" + str(len(self.eitems)) + " items)"
+CEnumInfo = chc_rust.app.c_enum_info.CEnumInfo

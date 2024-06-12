@@ -30,10 +30,14 @@ SOFTWARE.
 */
 //! Enum declaration data.
 
-use pyo3::prelude::*;
+use pyo3::{intern, prelude::*};
 
 use crate::{
-    app::{c_declarations::CDeclarations, c_dictionary_record::CDeclarationsRecord},
+    app::{
+        c_attributes::CAttributes, c_declarations::CDeclarations,
+        c_dictionary_record::CDeclarationsRecord, c_enum_item::CEnumItem,
+        c_file_declarations::CFileDeclarations,
+    },
     util::indexed_table::IndexedTableValue,
 };
 
@@ -53,5 +57,56 @@ impl CEnumInfo {
     #[new]
     fn new(cd: Py<CDeclarations>, ixval: IndexedTableValue) -> PyClassInitializer<Self> {
         PyClassInitializer::from(CDeclarationsRecord::new(cd, ixval)).add_subclass(CEnumInfo {})
+    }
+
+    #[getter]
+    fn ename(slf: PyRef<Self>) -> String {
+        slf.into_super().into_super().tags()[0].clone()
+    }
+
+    // Unvalidated
+    #[getter]
+    fn ikind(slf: PyRef<Self>) -> String {
+        slf.into_super().into_super().tags()[1].clone()
+    }
+
+    // Unvalidated
+    #[getter]
+    fn eattr<'a, 'b>(slf: &'a Bound<'b, Self>) -> PyResult<Bound<'b, CAttributes>> {
+        let c_decl_record = slf.borrow().into_super();
+        let dictionary = c_decl_record.dictionary(slf.py())?;
+        let args_0 = c_decl_record.into_super().args()[0];
+        Ok(dictionary
+            .call_method1(slf.py(), intern!(slf.py(), "get_attributes"), (args_0,))?
+            .downcast_bound(slf.py())?
+            .clone())
+    }
+
+    #[getter]
+    fn eitems<'a, 'b>(slf: &'a Bound<'b, Self>) -> PyResult<Vec<Bound<'b, CEnumItem>>> {
+        let c_dict_record = slf.borrow().into_super();
+        let decls = c_dict_record
+            .decls()
+            .bind(slf.py())
+            .downcast::<CFileDeclarations>()?
+            .clone();
+        c_dict_record.into_super().args()[1..]
+            .iter()
+            .map(|i| {
+                Ok(decls
+                    .call_method1(intern!(slf.py(), "get_enumitem"), (*i,))?
+                    .downcast::<CEnumItem>()?
+                    .clone())
+            })
+            .collect()
+    }
+
+    #[pyo3(name = "__str__")]
+    fn str(slf: &Bound<Self>) -> PyResult<String> {
+        Ok(format!(
+            "{} ({} items)",
+            CEnumInfo::ename(slf.borrow()),
+            CEnumInfo::eitems(slf)?.len()
+        ))
     }
 }
