@@ -413,7 +413,7 @@ class CAttribute(CDictionaryRecord):
         return self.name + ": " + ",".join([str(p) for p in self.params])
 
 
-class CAttributes(CDictionaryRecord):
+class CAttributes(chc_rust.app.c_attributes.CAttributes):
 
     def __new__(cls, cd: "CDictionary", ixval: IT.IndexedTableValue) -> "CAttributes":
         return super().__new__(cls, cd, ixval)

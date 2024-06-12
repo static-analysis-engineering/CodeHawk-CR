@@ -41,6 +41,7 @@ pub fn module(py: Python) -> PyResult<Bound<PyModule>> {
     module.add_class::<CAttrCons>()?;
     module.add_class::<CAttrInt>()?;
     module.add_class::<CAttrStr>()?;
+    module.add_class::<CAttributes>()?;
     Ok(module)
 }
 
@@ -251,5 +252,17 @@ impl CAttrCons {
     #[pyo3(name = "__str__")]
     fn str(slf: PyRef<Self>) -> String {
         format!("acons({})", CAttrCons::name(slf))
+    }
+}
+
+#[derive(Clone)]
+#[pyclass(extends = CDictionaryRecord, frozen, subclass)]
+pub struct CAttributes {}
+
+#[pymethods]
+impl CAttributes {
+    #[new]
+    fn new(cd: Py<CDictionary>, ixval: IndexedTableValue) -> PyClassInitializer<Self> {
+        PyClassInitializer::from(CDictionaryRecord::new(cd, ixval)).add_subclass(CAttributes {})
     }
 }
