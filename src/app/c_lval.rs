@@ -28,6 +28,10 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ------------------------------------------------------------------------------
 */
+//! Left-hand side value.
+
+use std::collections::BTreeMap;
+
 use pyo3::{intern, prelude::*};
 
 use crate::{
@@ -49,7 +53,7 @@ pub fn module(py: Python) -> PyResult<Bound<PyModule>> {
 /// * args[0]: index of lhost in cdictionary
 /// * args[1]: index of offset in cdictionary
 #[derive(Clone)]
-#[pyclass(extends = CDictionaryRecord, frozen, subclass)]
+#[pyclass(extends = CDictionaryRecord, frozen)]
 pub struct CLval {}
 
 #[pymethods]
@@ -87,5 +91,77 @@ impl CLval {
         Ok(CLval::lhost(slf)?
             .call_method1(intern!(slf.py(), "has_variable"), (vid,))?
             .extract()?)
+    }
+
+    // Unvalidated
+    fn get_strings(slf: &Bound<Self>, vid: isize) -> PyResult<Vec<String>> {
+        // Method is overridden
+        let mut result: Vec<String> = CLval::lhost(slf)?
+            .call_method1(intern!(slf.py(), "get_strings"), (vid,))?
+            .extract()?;
+        // Method is overridden
+        result.append(
+            &mut CLval::offset(slf)?
+                .call_method1(intern!(slf.py(), "get_strings"), (vid,))?
+                .extract()?,
+        );
+        return Ok(result);
+    }
+
+    // Unvalidated
+    fn get_variable_uses(slf: &Bound<Self>, vid: isize) -> PyResult<Vec<String>> {
+        // Method is overridden
+        let mut result: Vec<String> = CLval::lhost(slf)?
+            .call_method1(intern!(slf.py(), "get_variable_uses"), (vid,))?
+            .extract()?;
+        // Method is overridden
+        result.append(
+            &mut CLval::offset(slf)?
+                .call_method1(intern!(slf.py(), "get_variable_uses"), (vid,))?
+                .extract()?,
+        );
+        return Ok(result);
+    }
+
+    // Unvalidated
+    fn has_variable_deref(slf: &Bound<Self>, vid: isize) -> PyResult<bool> {
+        // Method is overridden
+        Ok(CLval::lhost(slf)?
+            .call_method1(intern!(slf.py(), "has_variable_deref"), (vid,))?
+            .extract()?)
+    }
+
+    // Unvalidated
+    fn has_ref_type(slf: &Bound<Self>) -> PyResult<bool> {
+        // Method is overridden
+        Ok(CLval::lhost(slf)?
+            .call_method0(intern!(slf.py(), "has_ref_type"))?
+            .extract()?)
+    }
+
+    // Unvalidated
+    fn to_dict(slf: &Bound<Self>) -> PyResult<BTreeMap<String, Py<PyAny>>> {
+        Ok(BTreeMap::from([
+            // Method is overridden
+            (
+                "lhost".to_string(),
+                CLval::lhost(slf)?
+                    .call_method0(intern!(slf.py(), "to_dict"))?
+                    .unbind(),
+            ),
+            // Method is overridden
+            (
+                "lhost".to_string(),
+                CLval::offset(slf)?
+                    .call_method0(intern!(slf.py(), "to_dict"))?
+                    .unbind(),
+            ),
+        ]))
+    }
+
+    #[pyo3(name = "__str__")]
+    fn str(slf: &Bound<Self>) -> PyResult<String> {
+        Ok(CLval::lhost(slf)?.str()?.extract::<String>()?
+            + &CLval::offset(slf)?.str()?.extract::<String>()?)
     }
 }

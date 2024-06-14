@@ -28,54 +28,6 @@
 # ------------------------------------------------------------------------------
 """Left-hand side value."""
 
-from typing import Dict, List, Tuple, TYPE_CHECKING
-
-from chc.app.CDictionaryRecord import CDictionaryRecord
-
-import chc.util.IndexedTable as IT
-
 import chc_rust
 
-if TYPE_CHECKING:
-    from chc.app.CDictionary import CDictionary
-    from chc.app.CLHost import CLHost
-    from chc.app.COffset import COffset
-
-
-class CLval(chc_rust.app.c_lval.CLval):
-    """Left-hand side value.
-
-    * args[0]: index of lhost in cdictionary
-    * args[1]: index of offset in cdictionary
-    """
-
-    def __new__(cls, cd: "CDictionary", ixval: IT.IndexedTableValue) -> "CLval":
-        return super().__new__(cls, cd, ixval)
-
-    def get_strings(self) -> List[str]:
-        hostresult = self.lhost.get_strings()
-        offsetresult = self.offset.get_strings()
-        return hostresult + offsetresult
-
-    def get_variable_uses(self, vid: int) -> int:
-        hostresult = self.lhost.get_variable_uses(vid)
-        offsetresult = self.offset.get_variable_uses(vid)
-        return hostresult + offsetresult
-
-    def has_variable_deref(self, vid: int) -> bool:
-        return self.lhost.has_variable_deref(vid)
-
-    def has_ref_type(self) -> bool:
-        return self.lhost.has_ref_type()
-
-    def to_dict(self) -> Dict[str, object]:
-        return {
-            "lhost": self.lhost.to_dict(),
-            "offset": self.offset.to_dict(),
-        }
-
-    def to_idict(self) -> Dict[str, object]:
-        return {"t": self.tags, "a": self.args}
-
-    def __str__(self) -> str:
-        return str(self.lhost) + str(self.offset)
+CLval = chc_rust.app.c_lval.CLval
