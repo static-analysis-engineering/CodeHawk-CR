@@ -28,10 +28,16 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ------------------------------------------------------------------------------
 */
-use pyo3::prelude::*;
+//! Type and layout of a struct or union field.
+
+use pyo3::{intern, prelude::*};
 
 use crate::{
-    app::{c_declarations::CDeclarations, c_dictionary_record::CDeclarationsRecord},
+    app::{
+        c_attributes::CAttributes, c_declarations::CDeclarations,
+        c_dictionary_record::CDeclarationsRecord, c_file_declarations::CFileDeclarations,
+        c_location::CLocation, c_typ::CTyp,
+    },
     util::indexed_table::IndexedTableValue,
 };
 
@@ -59,5 +65,79 @@ impl CFieldInfo {
     #[new]
     fn new(cd: Py<CDeclarations>, ixval: IndexedTableValue) -> PyClassInitializer<Self> {
         PyClassInitializer::from(CDeclarationsRecord::new(cd, ixval)).add_subclass(CFieldInfo {})
+    }
+
+    #[getter]
+    fn fname(slf: PyRef<Self>) -> String {
+        slf.into_super().into_super().tags()[0].clone()
+    }
+
+    #[getter]
+    fn ftype<'a, 'b>(slf: &'a Bound<'b, Self>) -> PyResult<Bound<'b, CTyp>> {
+        let c_decl_record = slf.borrow().into_super();
+        let dictionary = c_decl_record.dictionary(slf.py())?;
+        let args_1 = c_decl_record.into_super().args()[1];
+        Ok(dictionary
+            .call_method1(slf.py(), intern!(slf.py(), "get_typ"), (args_1,))?
+            .extract(slf.py())?)
+    }
+
+    #[getter]
+    fn bitfield(slf: PyRef<Self>) -> isize {
+        slf.into_super().into_super().args()[2]
+    }
+
+    // Unvalidated
+    #[getter]
+    fn size(slf: &Bound<Self>) -> PyResult<isize> {
+        Ok(CFieldInfo::ftype(slf)?
+            .call_method0(intern!(slf.py(), "size"))?
+            .extract()?)
+    }
+
+    // Unvalidated
+    #[getter]
+    fn location<'a, 'b>(slf: &'a Bound<'b, Self>) -> PyResult<Option<Bound<'b, CLocation>>> {
+        let args_4 = slf.borrow().into_super().into_super().args()[4];
+        if args_4 < 0 {
+            return Ok(None);
+        }
+        let decls = slf
+            .borrow()
+            .into_super()
+            .decls()
+            .as_any()
+            .downcast_bound::<CFileDeclarations>(slf.py())?
+            .clone();
+        Ok(Some(
+            decls
+                .call_method1(intern!(slf.py(), "get_location"), (args_4,))?
+                .extract()?,
+        ))
+    }
+
+    // Unvalidated
+    #[getter]
+    fn attributes<'a, 'b>(slf: &'a Bound<'b, Self>) -> PyResult<Option<Bound<'b, CAttributes>>> {
+        let args_3 = slf.borrow().into_super().into_super().args()[3];
+        if args_3 < 0 {
+            return Ok(None);
+        }
+        let dictionary = slf.borrow().into_super().dictionary(slf.py())?;
+        Ok(Some(
+            dictionary
+                .call_method1(slf.py(), intern!(slf.py(), "get_attributes"), (args_3,))?
+                .extract(slf.py())?,
+        ))
+    }
+
+    // Unvalidated
+    #[pyo3(name = "__str__")]
+    fn str(slf: &Bound<Self>) -> PyResult<String> {
+        Ok(format!(
+            "{}:{}",
+            CFieldInfo::fname(slf.borrow()),
+            CFieldInfo::ftype(slf)?.str()?
+        ))
     }
 }

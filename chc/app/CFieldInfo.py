@@ -28,66 +28,6 @@
 # ------------------------------------------------------------------------------
 """Type and layout of a struct or union field."""
 
-from typing import cast, List, Optional, TYPE_CHECKING
-
-import chc.util.IndexedTable as IT
-
-from chc.app.CDictionaryRecord import CDeclarationsRecord
-
 import chc_rust
 
-if TYPE_CHECKING:
-    from chc.app.CAttributes import CAttributes
-    from chc.app.CDeclarations import CDeclarations
-    from chc.app.CFileDeclarations import CFileDeclarations
-    from chc.app.CLocation import CLocation
-    from chc.app.CTyp import CTyp
-
-
-class CFieldInfo(chc_rust.app.c_field_info.CFieldInfo):
-    """Definition of a struct field.
-
-    * tags[0] fname
-
-    * args[0]: fcomp.ckey  (-1 for global structs)
-    * args[1]: ftype
-    * args[2]: fbitfield
-    * args[3]: fattr       (-1 for global structs)
-    * args[4]: floc        (-1 for global structs)
-    """
-
-    def __new__(
-            cls, cdecls: "CDeclarations", ixval: IT.IndexedTableValue) -> "CFieldInfo":
-        return super().__new__(cls, cdecls, ixval)
-
-    @property
-    def fname(self) -> str:
-        return self.tags[0]
-
-    @property
-    def ftype(self) -> "CTyp":
-        return self.dictionary.get_typ(self.args[1])
-
-    @property
-    def bitfield(self) -> int:
-        return self.args[2]
-
-    @property
-    def size(self) -> int:
-        return self.ftype.size
-
-    @property
-    def location(self) -> Optional["CLocation"]:
-        if self.args[4] >= 0:
-            return cast(
-                "CFileDeclarations", self.decls).get_location(self.args[4])
-        return None
-
-    @property
-    def attributes(self) -> Optional["CAttributes"]:
-        if self.args[3] >= 0:
-            return self.dictionary.get_attributes(self.args[3])
-        return None
-
-    def __str__(self) -> str:
-        return self.fname + ":" + str(self.ftype)
+CFieldInfo = chc_rust.app.c_field_info.CFieldInfo
