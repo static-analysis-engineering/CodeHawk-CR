@@ -220,15 +220,10 @@ impl IndexedTableSuperclass {
     }
 
     fn values<'a, 'b>(slf: &'a Bound<'b, Self>) -> PyResult<Vec<Bound<'b, IndexedTableValue>>> {
-        let slf_borrow = slf.borrow();
-        let indextable = slf_borrow.indextable.bind_borrowed(slf.py());
-        let mut indexes: Vec<isize> = indextable.keys().extract()?;
-        indexes.sort();
-        indexes
+        Ok(IndexedTableSuperclass::items(slf)?
             .into_iter()
-            .map(|k| indextable.get_item(k).map(|v| v.unwrap()))
-            .map(|v| Ok(v?.downcast()?.clone()))
-            .collect()
+            .map(|p| p.1)
+            .collect())
     }
 
     fn items<'a, 'b>(
