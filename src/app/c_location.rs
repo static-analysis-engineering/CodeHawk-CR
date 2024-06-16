@@ -28,10 +28,15 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ------------------------------------------------------------------------------
 */
-use pyo3::prelude::*;
+//! Location in a C source file (filename, line number).
+
+use pyo3::{intern, prelude::*};
 
 use crate::{
-    app::{c_declarations::CDeclarations, c_dictionary_record::CDeclarationsRecord},
+    app::{
+        c_declarations::CDeclarations, c_dictionary_record::CDeclarationsRecord,
+        c_file_declarations::CFileDeclarations,
+    },
     util::indexed_table::IndexedTableValue,
 };
 
@@ -55,5 +60,84 @@ impl CLocation {
     #[new]
     fn new(cd: Py<CDeclarations>, ixval: IndexedTableValue) -> PyClassInitializer<Self> {
         PyClassInitializer::from(CDeclarationsRecord::new(cd, ixval)).add_subclass(CLocation {})
+    }
+
+    #[getter]
+    fn byte(slf: PyRef<Self>) -> isize {
+        slf.into_super().into_super().args()[1]
+    }
+
+    #[getter]
+    fn line(slf: PyRef<Self>) -> isize {
+        slf.into_super().into_super().args()[2]
+    }
+
+    #[getter]
+    fn file(slf: &Bound<Self>) -> PyResult<String> {
+        let args_0 = slf.borrow().into_super().into_super().args()[0];
+        let decls = slf
+            .borrow()
+            .into_super()
+            .decls()
+            .as_any()
+            .downcast_bound::<CFileDeclarations>(slf.py())?
+            .clone();
+        Ok(decls
+            .call_method1(intern!(slf.py(), "get_filename"), (args_0,))?
+            .extract()?)
+    }
+
+    // Unvalidated
+    fn get_loc(slf: &Bound<Self>) -> PyResult<(String, isize, isize)> {
+        Ok((
+            CLocation::file(slf)?,
+            CLocation::line(slf.borrow()),
+            CLocation::byte(slf.borrow()),
+        ))
+    }
+
+    // Unvalidated
+    #[pyo3(name = "__ge__")]
+    fn ge(slf: &Bound<Self>, loc: &Bound<Self>) -> PyResult<bool> {
+        Ok(CLocation::get_loc(slf)? >= CLocation::get_loc(loc)?)
+    }
+
+    // Unvalidated
+    #[pyo3(name = "__gt__")]
+    fn gt(slf: &Bound<Self>, loc: &Bound<Self>) -> PyResult<bool> {
+        Ok(CLocation::get_loc(slf)? > CLocation::get_loc(loc)?)
+    }
+
+    // Unvalidated
+    #[pyo3(name = "__le__")]
+    fn le(slf: &Bound<Self>, loc: &Bound<Self>) -> PyResult<bool> {
+        Ok(CLocation::get_loc(slf)? <= CLocation::get_loc(loc)?)
+    }
+
+    // Unvalidated
+    #[pyo3(name = "__lt__")]
+    fn lt(slf: &Bound<Self>, loc: &Bound<Self>) -> PyResult<bool> {
+        Ok(CLocation::get_loc(slf)? < CLocation::get_loc(loc)?)
+    }
+
+    // Unvalidated
+    #[pyo3(name = "__eq__")]
+    fn eq(slf: &Bound<Self>, loc: &Bound<Self>) -> PyResult<bool> {
+        Ok(CLocation::get_loc(slf)? == CLocation::get_loc(loc)?)
+    }
+
+    // Unvalidated
+    #[pyo3(name = "__ne__")]
+    fn ne(slf: &Bound<Self>, loc: &Bound<Self>) -> PyResult<bool> {
+        Ok(CLocation::get_loc(slf)? != CLocation::get_loc(loc)?)
+    }
+
+    #[pyo3(name = "__str__")]
+    fn str(slf: &Bound<Self>) -> PyResult<String> {
+        Ok(format!(
+            "{}:{}",
+            CLocation::file(slf)?,
+            CLocation::line(slf.borrow())
+        ))
     }
 }
