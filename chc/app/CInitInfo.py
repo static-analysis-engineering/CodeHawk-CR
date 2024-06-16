@@ -28,87 +28,16 @@
 # ------------------------------------------------------------------------------
 """Initializer of global variables."""
 
-from typing import List, TYPE_CHECKING
-
-from chc.app.CDictionaryRecord import CDeclarationsRecord
-
-import chc.util.IndexedTable as IT
-
 import chc_rust
-
-if TYPE_CHECKING:
-    from chc.app.CExp import CExp
-    from chc.app.CTyp import CTyp
-    from chc.app.CDeclarations import CDeclarations
-    from chc.app.COffset import COffset
 
 
 CInitInfo = chc_rust.app.c_init_info.CInitInfo
 
 
-class CSingleInitInfo(chc_rust.app.c_init_info.CSingleInitInfo):
-    """Initializer of a simple variable.
-
-    - args[0]: index of initialization expression in cdictionary
-    """
-
-    def __new__(cls, decls: "CDeclarations", ixval: IT.IndexedTableValue) -> "CSingleInitInfo":
-        return super().__new__(cls, decls, ixval)
-
-    @property
-    def exp(self) -> "CExp":
-        return self.dictionary.get_exp(self.args[0])
-
-    @property
-    def is_single(self) -> bool:
-        return True
-
-    def __str__(self) -> str:
-        return str(self.exp)
+CSingleInitInfo = chc_rust.app.c_init_info.CSingleInitInfo
 
 
-class CCompoundInitInfo(chc_rust.app.c_init_info.CCompoundInitInfo):
-    """Initializer of a struct or array.
-
-    - args[0]: index of type of initializer in cdictionary
-    """
-
-    def __new__(cls, decls: "CDeclarations", ixval: IT.IndexedTableValue) -> "CCompoundInitInfo":
-        return super().__new__(cls, decls, ixval)
-
-    @property
-    def typ(self) -> "CTyp":
-        return self.dictionary.get_typ(self.args[0])
-
-    @property
-    def offset_initializers(self) -> List["COffsetInitInfo"]:
-        return [self.decls.get_offset_init(x) for x in self.args[1:]]
-
-    @property
-    def is_compound(self) -> bool:
-        return True
-
-    def __str__(self) -> str:
-        return "\n".join([str(x) for x in self.offset_initializers])
+CCompoundInitInfo = chc_rust.app.c_init_info.CCompoundInitInfo
 
 
-class COffsetInitInfo(chc_rust.app.c_init_info.COffsetInitInfo):
-    """Component of a compound initializer.
-
-    - args[0]: index of offset expression in cdictionary
-    - args[1]: index of initinfo in cdeclarations
-    """
-
-    def __new__(cls, decls: "CDeclarations", ixval: IT.IndexedTableValue) -> "COffsetInitInfo":
-        return super().__new__(cls, decls, ixval)
-
-    @property
-    def offset(self) -> "COffset":
-        return self.dictionary.get_offset(self.args[0])
-
-    @property
-    def initializer(self) -> CInitInfo:
-        return self.decls.get_initinfo(self.args[1])
-
-    def __str__(self) -> str:
-        return str(self.offset) + ":=" + str(self.initializer)
+COffsetInitInfo = chc_rust.app.c_init_info.COffsetInitInfo

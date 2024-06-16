@@ -28,10 +28,15 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ------------------------------------------------------------------------------
 */
-use pyo3::prelude::*;
+//! Initializer of global variables.
+
+use pyo3::{intern, prelude::*};
 
 use crate::{
-    app::{c_declarations::CDeclarations, c_dictionary_record::CDeclarationsRecord},
+    app::{
+        c_declarations::CDeclarations, c_dictionary_record::CDeclarationsRecord, c_exp::CExp,
+        c_offset::COffset, c_typ::CTyp,
+    },
     util::indexed_table::IndexedTableValue,
 };
 
@@ -80,6 +85,27 @@ impl CSingleInitInfo {
     fn new(cd: Py<CDeclarations>, ixval: IndexedTableValue) -> PyClassInitializer<Self> {
         PyClassInitializer::from(CInitInfo::new(cd, ixval)).add_subclass(CSingleInitInfo {})
     }
+
+    #[getter]
+    fn exp<'a, 'b>(slf: &'a Bound<'b, CSingleInitInfo>) -> PyResult<Bound<'b, CExp>> {
+        let c_decl_record = slf.borrow().into_super().into_super();
+        let dictionary = c_decl_record.dictionary(slf.py())?;
+        let args_0 = c_decl_record.into_super().args()[0];
+        Ok(dictionary
+            .call_method1(slf.py(), intern!(slf.py(), "get_exp"), (args_0,))?
+            .downcast_bound(slf.py())?
+            .clone())
+    }
+
+    #[getter]
+    fn is_single(&self) -> bool {
+        true
+    }
+
+    #[pyo3(name = "__str__")]
+    fn str(slf: &Bound<Self>) -> PyResult<String> {
+        Ok(CSingleInitInfo::exp(slf)?.str()?.extract()?)
+    }
 }
 
 /// Initializer of a struct or array.
@@ -95,6 +121,48 @@ impl CCompoundInitInfo {
     #[new]
     fn new(cd: Py<CDeclarations>, ixval: IndexedTableValue) -> PyClassInitializer<Self> {
         PyClassInitializer::from(CInitInfo::new(cd, ixval)).add_subclass(CCompoundInitInfo {})
+    }
+
+    #[getter]
+    fn typ<'a, 'b>(slf: &'a Bound<'b, Self>) -> PyResult<Bound<'b, CTyp>> {
+        let c_decl_record = slf.borrow().into_super().into_super();
+        let dictionary = c_decl_record.dictionary(slf.py())?;
+        let args_0 = c_decl_record.into_super().args()[0];
+        Ok(dictionary
+            .call_method1(slf.py(), intern!(slf.py(), "get_typ"), (args_0,))?
+            .downcast_bound(slf.py())?
+            .clone())
+    }
+
+    #[getter]
+    fn offset_initializers<'a, 'b>(
+        slf: &'a Bound<'b, Self>,
+    ) -> PyResult<Vec<Bound<'b, COffsetInitInfo>>> {
+        let c_decl_record = slf.borrow().into_super().into_super();
+        let decls = c_decl_record.decls();
+        c_decl_record.into_super().args()[1..]
+            .iter()
+            .map(|x| {
+                Ok(decls
+                    .call_method1(slf.py(), intern!(slf.py(), "get_offset_init"), (*x,))?
+                    .downcast_bound(slf.py())?
+                    .clone())
+            })
+            .collect()
+    }
+
+    #[getter]
+    fn is_compound(&self) -> bool {
+        true
+    }
+
+    #[pyo3(name = "__str__")]
+    fn str(slf: &Bound<Self>) -> PyResult<String> {
+        Ok(CCompoundInitInfo::offset_initializers(slf)?
+            .into_iter()
+            .map(|x| Ok(x.str()?.extract()?))
+            .collect::<PyResult<Vec<String>>>()?
+            .join("\n"))
     }
 }
 
@@ -113,5 +181,34 @@ impl COffsetInitInfo {
     fn new(cd: Py<CDeclarations>, ixval: IndexedTableValue) -> PyClassInitializer<Self> {
         PyClassInitializer::from(CDeclarationsRecord::new(cd, ixval))
             .add_subclass(COffsetInitInfo {})
+    }
+
+    #[getter]
+    fn offset<'a, 'b>(slf: &'a Bound<'b, Self>) -> PyResult<Bound<'b, COffset>> {
+        let c_decl_record = slf.borrow().into_super();
+        let dictionary = c_decl_record.dictionary(slf.py())?;
+        let args_0 = c_decl_record.into_super().args()[0];
+        Ok(dictionary
+            .call_method1(slf.py(), intern!(slf.py(), "get_offset"), (args_0,))?
+            .downcast_bound(slf.py())?
+            .clone())
+    }
+
+    #[getter]
+    fn initializer<'a, 'b>(slf: &'a Bound<'b, Self>) -> PyResult<Bound<'b, CInitInfo>> {
+        let c_decl_record = slf.borrow().into_super();
+        let dictionary = c_decl_record.decls();
+        let args_0 = c_decl_record.into_super().args()[1];
+        Ok(dictionary
+            .call_method1(slf.py(), intern!(slf.py(), "get_initinfo"), (args_0,))?
+            .downcast_bound(slf.py())?
+            .clone())
+    }
+
+    #[pyo3(name = "__str__")]
+    fn str(slf: &Bound<Self>) -> PyResult<String> {
+        let offset: String = COffsetInitInfo::offset(slf)?.str()?.extract()?;
+        let initializer: String = COffsetInitInfo::initializer(slf)?.str()?.extract()?;
+        Ok(format!("{offset}:={initializer}"))
     }
 }
