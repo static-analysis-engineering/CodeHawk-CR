@@ -197,45 +197,54 @@ impl IndexedTableSuperclass {
     }
 
     // TODO: use python types to avoid allocating a String for every tag
-    fn add_tags_args<'a, 'py>(
-        &'a mut self,
-        py: Python<'py>,
+    fn add_tags_args<'a, 'b>(
+        slf: &'a Bound<'b, Self>,
         tags: Vec<String>,
         args: Vec<isize>,
-        f: Bound<'py, PyFunction>,
+        f: Bound<'b, PyFunction>,
     ) -> PyResult<isize> {
+        let mut slf_borrow = slf.borrow_mut();
+        let keytable = slf_borrow.keytable.bind_borrowed(slf.py());
         let key = get_key(tags.clone(), args.clone());
-        if let Some(item) = self.keytable.bind_borrowed(py).get_item(&key)? {
-            FromPyObject::extract_bound(&item)
+        if let Some(item) = keytable.get_item(&key)? {
+            Ok(item.extract()?)
         } else {
-            let index = self.next;
+            let index = slf_borrow.next;
             let obj = f.call1((index, tags, args))?;
-            self.keytable.bind_borrowed(py).set_item(&key, index)?;
-            self.indextable.bind_borrowed(py).set_item(&index, obj)?;
-            self.next += 1;
+            keytable.set_item(&key, index)?;
+            let indextable = slf_borrow.indextable.bind_borrowed(slf.py());
+            indextable.set_item(&index, obj)?;
+            slf_borrow.next += 1;
             Ok(index)
         }
     }
 
-    fn values<'a, 'py>(&'a self, py: Python<'py>) -> PyResult<Vec<Bound<'py, PyAny>>> {
-        let indextable = self.indextable.bind_borrowed(py);
+    fn values<'a, 'b>(slf: &'a Bound<'b, Self>) -> PyResult<Vec<Bound<'b, IndexedTableValue>>> {
+        let slf_borrow = slf.borrow();
+        let indextable = slf_borrow.indextable.bind_borrowed(slf.py());
         let mut indexes: Vec<isize> = indextable.keys().extract()?;
         indexes.sort();
         indexes
             .into_iter()
             .map(|k| indextable.get_item(k).map(|v| v.unwrap()))
+            .map(|v| Ok(v?.downcast()?.clone()))
             .collect()
     }
 
-    fn retrieve<'a, 'py>(&'a self, py: Python<'py>, index: isize) -> PyResult<Bound<'py, PyAny>> {
-        if let Some(item) = self.indextable.bind_borrowed(py).get_item(index)? {
-            Ok(item)
+    fn retrieve<'a, 'b>(
+        slf: &'a Bound<'b, Self>,
+        index: isize,
+    ) -> PyResult<Bound<'b, IndexedTableValue>> {
+        let slf_borrow = slf.borrow();
+        let indextable = slf_borrow.indextable.bind_borrowed(slf.py());
+        if let Some(item) = indextable.get_item(index)? {
+            Ok(item.downcast()?.clone())
         } else {
             let message = format!(
                 "Unable to retrieve item {} from table {} (size {})",
                 index,
-                self.name,
-                self.size()
+                slf_borrow.name,
+                slf_borrow.size()
             );
             Err(IndexedTableError::new_err(message))
         }
@@ -244,7 +253,7 @@ impl IndexedTableSuperclass {
     fn write_xml(
         &self,
         py: Python,
-        node: Bound<PyAny>,
+        node: Bound<PyAny>, // ET.Element
         f: Bound<PyFunction>,
         tag: Option<&str>,
     ) -> PyResult<()> {
