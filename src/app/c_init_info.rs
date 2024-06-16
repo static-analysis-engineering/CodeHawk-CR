@@ -37,7 +37,9 @@ use crate::{
 
 pub fn module(py: Python) -> PyResult<Bound<PyModule>> {
     let module = PyModule::new_bound(py, "c_init_info")?;
+    module.add_class::<CCompoundInitInfo>()?;
     module.add_class::<CInitInfo>()?;
+    module.add_class::<CSingleInitInfo>()?;
     module.add_class::<COffsetInitInfo>()?;
     Ok(module)
 }
@@ -62,6 +64,37 @@ impl CInitInfo {
     #[getter]
     fn is_compound(&self) -> bool {
         false
+    }
+}
+
+/// Initializer of a simple variable.
+///
+/// - args[0]: index of initialization expression in cdictionary
+#[derive(Clone)]
+#[pyclass(extends = CInitInfo, frozen, subclass)]
+pub struct CSingleInitInfo {}
+
+#[pymethods]
+impl CSingleInitInfo {
+    #[new]
+    fn new(cd: Py<CDeclarations>, ixval: IndexedTableValue) -> PyClassInitializer<Self> {
+        PyClassInitializer::from(CInitInfo::new(cd, ixval)).add_subclass(CSingleInitInfo {})
+    }
+}
+
+/// Initializer of a struct or array.
+///
+/// - args[0]: index of type of initializer in cdictionary
+#[derive(Clone)]
+#[pyclass(extends = CInitInfo, frozen, subclass)]
+pub struct CCompoundInitInfo {}
+
+// Unvalidated
+#[pymethods]
+impl CCompoundInitInfo {
+    #[new]
+    fn new(cd: Py<CDeclarations>, ixval: IndexedTableValue) -> PyClassInitializer<Self> {
+        PyClassInitializer::from(CInitInfo::new(cd, ixval)).add_subclass(CCompoundInitInfo {})
     }
 }
 

@@ -46,7 +46,7 @@ if TYPE_CHECKING:
 CInitInfo = chc_rust.app.c_init_info.CInitInfo
 
 
-class CSingleInitInfo(CInitInfo):
+class CSingleInitInfo(chc_rust.app.c_init_info.CSingleInitInfo):
     """Initializer of a simple variable.
 
     - args[0]: index of initialization expression in cdictionary
@@ -67,7 +67,7 @@ class CSingleInitInfo(CInitInfo):
         return str(self.exp)
 
 
-class CCompoundInitInfo(CInitInfo):
+class CCompoundInitInfo(chc_rust.app.c_init_info.CCompoundInitInfo):
     """Initializer of a struct or array.
 
     - args[0]: index of type of initializer in cdictionary
