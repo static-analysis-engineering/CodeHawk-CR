@@ -185,12 +185,6 @@ class IndexedTable(IndexedTableSuperclass):
         self.next += 1
         return index
 
-    def items(self) -> List[Tuple[int, IndexedTableValue]]:
-        result: List[Tuple[int, IndexedTableValue]] = []
-        for i in sorted(self.indextable):
-            result.append((i, self.indextable[i]))
-        return result
-
     def commit_reserved(
             self,
             index: int,

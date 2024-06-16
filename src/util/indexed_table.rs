@@ -231,6 +231,19 @@ impl IndexedTableSuperclass {
             .collect()
     }
 
+    fn items<'a, 'b>(
+        slf: &'a Bound<'b, Self>,
+    ) -> PyResult<Vec<(isize, Bound<'b, IndexedTableValue>)>> {
+        let slf_borrow = slf.borrow();
+        let indextable = slf_borrow.indextable.bind_borrowed(slf.py());
+        let mut elems = indextable
+            .iter()
+            .map(|(key, value)| Ok((key.extract()?, value.downcast()?.clone())))
+            .collect::<PyResult<Vec<(isize, Bound<'b, IndexedTableValue>)>>>()?;
+        elems.sort_by(|a, b| a.0.cmp(&b.0));
+        Ok(elems)
+    }
+
     fn retrieve<'a, 'b>(
         slf: &'a Bound<'b, Self>,
         index: isize,
