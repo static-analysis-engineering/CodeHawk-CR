@@ -144,27 +144,6 @@ class IndexedTable(IndexedTableSuperclass):
     def __new__(cls, name: str) -> "IndexedTable":
         return super().__new__(cls, name)
 
-    def iter(self, f: Callable[[int, IndexedTableValue], None]) -> None:
-        for (i, v) in self.items():
-            f(i, v)
-
-    def reset_to_checkpoint(self) -> int:
-        """Remove all entries added since the checkpoint was set."""
-        cp = self.checkpoint
-        if cp is None:
-            raise ValueError("Cannot reset non-existent checkpoint")
-        for i in range(cp, self.next):
-            if i in self.reserved:
-                continue
-            self.indextable.pop(i)
-        for k in self.keytable.keys():
-            if self.keytable[k] >= cp:
-                self.keytable.pop(k)
-        self.checkpoint = None
-        self.reserved.clear()
-        self.next = cp
-        return cp
-
     def add(
             self,
             key: Tuple[str, str],

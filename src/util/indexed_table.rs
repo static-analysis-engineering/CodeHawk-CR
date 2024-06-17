@@ -30,6 +30,7 @@ SOFTWARE.
 */
 use itertools::Itertools;
 use pyo3::{
+    exceptions::PyValueError,
     intern,
     prelude::*,
     types::{PyDict, PyFunction, PyList, PyString},
@@ -190,6 +191,44 @@ impl IndexedTableSuperclass {
             self.checkpoint = Some(self.next);
             Ok(self.next)
         }
+    }
+
+    fn iter(slf: &Bound<Self>, f: &Bound<PyFunction>) -> PyResult<()> {
+        IndexedTableSuperclass::items(slf)?
+            .into_iter()
+            .map(|p| f.call1(p))
+            .collect::<PyResult<Vec<_>>>()?;
+        Ok(())
+    }
+
+    // Unvalidated
+    /// Remove all entries added since the checkpoint was set.
+    fn reset_to_checkpoint(slf: &Bound<Self>) -> PyResult<isize> {
+        let mut slf_borrow = slf.borrow_mut();
+        let cp = slf_borrow.checkpoint;
+        let Some(cp) = cp else {
+            return Err(PyValueError::new_err(
+                "Cannot reset non-existent checkpoint",
+            ));
+        };
+        let reserved = slf_borrow.reserved.bind(slf.py());
+        let indextable = slf_borrow.indextable.bind(slf.py());
+        for i in cp..slf_borrow.next {
+            if !reserved.contains(i)? {
+                indextable.del_item(i)?;
+            }
+        }
+        let keytable = slf_borrow.keytable.bind(slf.py());
+        for p in keytable.items() {
+            let (k, v): (isize, isize) = p.extract()?;
+            if v >= cp {
+                keytable.del_item(k)?;
+            }
+        }
+        reserved.call_method0(intern!(slf.py(), "clear"))?;
+        slf_borrow.checkpoint.take();
+        slf_borrow.next = cp;
+        Ok(cp)
     }
 
     fn remove_checkpoint(&mut self) {
