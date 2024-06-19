@@ -193,15 +193,10 @@ fn element_tree_element<'a, 'py>(py: Python<'py>, tag: &'a str) -> PyResult<Boun
 struct IndexedTable {
     #[pyo3(get)]
     name: Py<PyString>,
-    #[pyo3(get)]
-    keytable: Py<PyDict>, // (str, str) -> int
-    #[pyo3(get)]
+    keytable: Py<PyDict>,   // (str, str) -> int
     indextable: Py<PyDict>, // int -> IndexedTableValue
-    #[pyo3(get, set)]
     next: isize,
-    #[pyo3(get)]
     reserved: Py<PyList>, // int list
-    #[pyo3(get)]
     checkpoint: Option<isize>,
 }
 
