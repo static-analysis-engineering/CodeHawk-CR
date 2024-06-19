@@ -35,10 +35,6 @@ import chc_rust
 from typing import Callable, Dict, List, Generic, Optional, Tuple, TypeVar
 
 
-get_key = chc_rust.util.IndexedTable.get_key
-IndexedTableSuperclass = chc_rust.util.IndexedTable.IndexedTableSuperclass
-
-
 class IndexedTableError(UF.CHCError):
     def __init__(
             self,
@@ -98,102 +94,16 @@ def get_attribute_int_list(node: ET.Element, attr: str) -> List[int]:
         return [int(x) for x in xattr.split(",")]
 
 
-def get_rep(node: ET.Element) -> Tuple[int, List[str], List[int]]:
-    tags = node.get("t")
-    args = node.get("a")
-    try:
-        if tags is None:
-            taglist = []
-        else:
-            taglist = tags.split(",")
-        if args is None or args == "":
-            arglist = []
-        else:
-            arglist = [int(x) for x in args.split(",")]
-        index_str = node.get("ix")
-        if index_str is None:
-            raise Exception("node " + str(node) + " did not have an ix element")
-        index = int(index_str)
-        return (index, taglist, arglist)
-    except Exception as e:
-        print("tags: " + str(tags))
-        print("args: " + str(args))
-        print(e)
-        raise
+get_rep = chc_rust.util.indexed_table.get_rep
 
 
-IndexedTableValue = chc_rust.util.IndexedTable.IndexedTableValue
+get_key = chc_rust.util.indexed_table.get_key
 
 
-def get_value(node: ET.Element) -> IndexedTableValue:
-    rep = get_rep(node)
-    return IndexedTableValue(*rep)
+IndexedTableValue = chc_rust.util.indexed_table.IndexedTableValue
 
 
-class IndexedTable(IndexedTableSuperclass):
-    """Table to provide unique indices to objects represented by a key string.
+get_value = chc_rust.util.indexed_table.get_value
 
-    The table can be checkpointed and reset to that checkpoint with
-    - set_checkpoint
-    - reset_to_checkpoint
 
-    Note: the string encodings use the comma as a concatenation character, hence
-          the comma character cannot be used in any string representation.
-    """
-
-    def __new__(cls, name: str) -> "IndexedTable":
-        return super().__new__(cls, name)
-
-    def retrieve_by_key(
-        self, f: Callable[[Tuple[str, str]], bool]
-    ) -> List[Tuple[Tuple[str, str], IndexedTableValue]]:
-        result: List[Tuple[Tuple[str, str], IndexedTableValue]] = []
-        for key in self.keytable:
-            if f(key):
-                result.append((key, self.indextable[self.keytable[key]]))
-        return result
-
-    def read_xml(
-        self,
-        node: Optional[ET.Element],
-        tag: str,
-        get_value: Callable[
-            [ET.Element], IndexedTableValue] = lambda x: get_value(x),
-        get_key: Callable[
-            [IndexedTableValue], Tuple[str, str]] = lambda x: x.key,
-        get_index: Callable[
-            [IndexedTableValue], int] = lambda x: x.index,
-    ) -> None:
-        if node is None:
-            print("Xml node not present in " + self.name)
-            raise IndexedTableError(self.name)
-        for snode in node.findall(tag):
-            obj = get_value(snode)
-            key = get_key(obj)
-            index = get_index(obj)
-            self.keytable[key] = index
-            self.indextable[index] = obj
-            if index >= self.next:
-                self.next = index + 1
-
-    def objectmap(
-            self,
-            p: Callable[[int], IndexedTableValue]) -> Dict[int, IndexedTableValue]:
-        result: Dict[int, IndexedTableValue] = {}
-
-        def f(ix: int, v: IndexedTableValue) -> None:
-            result[ix] = p(ix)
-
-        self.iter(f)
-        return result
-
-    def __str__(self) -> str:
-        lines: List[str] = []
-        lines.append("\n" + self.name)
-        for ix in sorted(self.indextable):
-            lines.append(str(ix).rjust(4) + "  " + str(self.indextable[ix]))
-        if len(self.reserved) > 0:
-            lines.append("Reserved: " + str(self.reserved))
-        if self.checkpoint is not None:
-            lines.append("Checkpoint: " + str(self.checkpoint))
-        return "\n".join(lines)
+IndexedTable = chc_rust.util.indexed_table.IndexedTableSuperclass

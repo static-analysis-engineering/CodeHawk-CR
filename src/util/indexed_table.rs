@@ -28,24 +28,59 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ------------------------------------------------------------------------------
 */
+use std::collections::BTreeMap;
+
 use itertools::Itertools;
 use pyo3::{
-    exceptions::PyValueError,
+    exceptions::{PyException, PyValueError},
     intern,
     prelude::*,
     types::{PyDict, PyFunction, PyList, PyString},
 };
 
 pub fn module(py: Python) -> PyResult<Bound<PyModule>> {
-    let module = PyModule::new_bound(py, "IndexedTable")?;
+    let module = PyModule::new_bound(py, "indexed_table")?;
     module.add_class::<IndexedTableSuperclass>()?;
     module.add_class::<IndexedTableValue>()?;
     module.add_function(wrap_pyfunction!(get_key, &module)?)?;
+    module.add_function(wrap_pyfunction!(get_rep, &module)?)?;
+    module.add_function(wrap_pyfunction!(get_value, &module)?)?;
     Ok(module)
 }
 
 pyo3::import_exception!(chc.util.IndexedTable, IndexedTableError);
 pyo3::import_exception!(chc.util.IndexedTable, IndexedTableValueMismatchError);
+
+#[pyfunction]
+fn get_rep(node: &Bound<PyAny>, /* ET.Element */) -> PyResult<(isize, Vec<String>, Vec<isize>)> {
+    let tags = node.call_method1(intern!(node.py(), "get"), (intern!(node.py(), "t"),))?;
+    let args = node.call_method1(intern!(node.py(), "get"), (intern!(node.py(), "a"),))?;
+    let taglist = if tags.is_none() {
+        Vec::new()
+    } else {
+        tags.extract::<String>()?
+            .split(",")
+            .map(|x| x.to_string())
+            .collect()
+    };
+    let arglist = if args.is_none() || args.eq("")? {
+        Vec::new()
+    } else {
+        args.extract::<String>()?
+            .split(",")
+            .map(|x| Ok(x.parse::<isize>()?))
+            .collect::<PyResult<Vec<isize>>>()?
+    };
+    let index_str = node.call_method1(intern!(node.py(), "get"), (intern!(node.py(), "ix"),))?;
+    if index_str.is_none() {
+        return Err(PyException::new_err(format!(
+            "node {} did not have an ix element",
+            node
+        )));
+    }
+    let index = index_str.extract::<String>()?.parse::<isize>()?;
+    Ok((index, taglist, arglist))
+}
 
 // TODO: use python types to avoid allocating a String for every tag
 #[pyfunction]
@@ -131,25 +166,41 @@ impl IndexedTableValue {
     }
 }
 
+#[pyfunction]
+fn get_value<'a, 'b>(
+    node: &'a Bound<'b, PyAny>, /* ET.Element */
+) -> PyResult<Bound<'b, IndexedTableValue>> {
+    let rep = get_rep(node)?;
+    Bound::new(node.py(), IndexedTableValue::new(rep.0, rep.1, rep.2))
+}
+
 fn element_tree_element<'a, 'py>(py: Python<'py>, tag: &'a str) -> PyResult<Bound<'py, PyAny>> {
     let module = PyModule::import_bound(py, "xml.etree.ElementTree")?;
     let tag_pystr = PyString::new_bound(py, tag);
     module.getattr("Element")?.call1((tag_pystr,))
 }
 
+/// Table to provide unique indices to objects represented by a key string.
+///
+/// The table can be checkpointed and reset to that checkpoint with
+/// - set_checkpoint
+/// - reset_to_checkpoint
+///
+/// Note: the string encodings use the comma as a concatenation character, hence
+///       the comma character cannot be used in any string representation.
 #[derive(Clone)]
 #[pyclass(subclass)]
 struct IndexedTableSuperclass {
     #[pyo3(get)]
     name: Py<PyString>,
     #[pyo3(get)]
-    keytable: Py<PyDict>,
+    keytable: Py<PyDict>, // (str, str) -> int
     #[pyo3(get)]
-    indextable: Py<PyDict>,
+    indextable: Py<PyDict>, // int -> IndexedTableValue
     #[pyo3(get, set)]
     next: isize,
     #[pyo3(get)]
-    reserved: Py<PyList>,
+    reserved: Py<PyList>, // int list
     #[pyo3(get)]
     checkpoint: Option<isize>,
 }
@@ -341,6 +392,30 @@ impl IndexedTableSuperclass {
         }
     }
 
+    fn retrieve_by_key<'a, 'b>(
+        slf: &'a Bound<'b, Self>,
+        f: &'a Bound<'b, PyFunction>,
+    ) -> PyResult<Vec<((String, String), Bound<'b, IndexedTableValue>)>> {
+        let slf_borrow = slf.borrow();
+        let mut result = Vec::new();
+        for (key, index) in slf_borrow.keytable.bind(slf.py()).iter() {
+            let (key, index): ((String, String), isize) = (key.extract()?, index.extract()?);
+            if f.call1((key.clone(),))?.extract()? {
+                result.push((
+                    key,
+                    slf_borrow
+                        .indextable
+                        .bind(slf.py())
+                        .as_any()
+                        .get_item(index)?
+                        .downcast::<IndexedTableValue>()?
+                        .clone(),
+                ));
+            }
+        }
+        Ok(result)
+    }
+
     fn write_xml(
         &self,
         py: Python,
@@ -358,5 +433,81 @@ impl IndexedTableSuperclass {
             node.call_method1("append", (snode,))?;
         }
         Ok(())
+    }
+
+    fn read_xml(
+        slf: &Bound<Self>,
+        node: &Bound<PyAny>, // Optional[ET.Element]
+        tag: String,
+        get_value: Option<Bound<PyFunction>>, // ET.Element -> IndexedTableValue
+        get_key: Option<Bound<PyFunction>>,   // IndexedTableValue -> (String, String)
+        get_index: Option<Bound<PyFunction>>, // IndexedTableValue -> int
+    ) -> PyResult<()> {
+        let mut slf_borrow = slf.borrow_mut();
+        if node.is_none() {
+            return Err(IndexedTableError::new_err(format!(
+                "Xml node not present in {}",
+                slf_borrow.name
+            )));
+        }
+        for snode in node
+            .call_method1(intern!(slf.py(), "findall"), (tag,))?
+            .extract::<Vec<Bound<PyAny>>>()?
+        {
+            let obj = if let Some(get_value) = get_value.as_ref() {
+                get_value.call1((snode,))?
+            } else {
+                self::get_value(&snode)?.downcast()?.clone()
+            };
+            let key: (String, String) = if let Some(get_key) = get_key.as_ref() {
+                get_key.call1((obj.clone(),))?
+            } else {
+                obj.getattr(intern!(slf.py(), "key"))?
+            }
+            .extract()?;
+            let index: isize = if let Some(get_index) = get_index.as_ref() {
+                get_index.call1((obj.clone(),))?
+            } else {
+                obj.getattr(intern!(slf.py(), "index"))?
+            }
+            .extract()?;
+            slf_borrow.keytable.bind(slf.py()).set_item(key, index)?;
+            slf_borrow.indextable.bind(slf.py()).set_item(index, obj)?;
+            if index >= slf_borrow.next {
+                slf_borrow.next = index + 1
+            }
+        }
+        Ok(())
+    }
+
+    fn objectmap<'a, 'b>(
+        slf: &'a Bound<'b, Self>,
+        p: &'a Bound<'b, PyAny>, // int -> IndexedTableValue, but sometimes non-PyFunction
+    ) -> PyResult<BTreeMap<isize, Bound<'b, IndexedTableValue>>> {
+        IndexedTableSuperclass::items(slf)?
+            .into_iter()
+            .map(|(ix, _)| Ok((ix, p.call1((ix,))?.downcast()?.clone())))
+            .collect()
+    }
+
+    // Unvalidated
+    #[pyo3(name = "__str__")]
+    fn str(slf: &Bound<Self>) -> PyResult<String> {
+        let slf_borrow = slf.borrow();
+        let mut lines = Vec::new();
+        lines.push(format!("\n{}", slf_borrow.name));
+        let reserved = slf_borrow.reserved.bind(slf.py());
+        for (ix, obj) in slf_borrow.indextable.bind(slf.py()).iter() {
+            let ix: isize = ix.extract()?;
+            let obj = obj.downcast::<IndexedTableValue>()?;
+            lines.push(format!("{ix:>4} {obj}"));
+        }
+        if reserved.len() > 0 {
+            lines.push(format!("Reserved: {}", reserved.str()?));
+        }
+        if let Some(cp) = slf_borrow.checkpoint {
+            lines.push(format!("Checkpoint: {cp}"));
+        }
+        Ok(lines.join("\n"))
     }
 }
