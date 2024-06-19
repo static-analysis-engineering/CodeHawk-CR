@@ -106,4 +106,4 @@ IndexedTableValue = chc_rust.util.indexed_table.IndexedTableValue
 get_value = chc_rust.util.indexed_table.get_value
 
 
-IndexedTable = chc_rust.util.indexed_table.IndexedTableSuperclass
+IndexedTable = chc_rust.util.indexed_table.IndexedTable

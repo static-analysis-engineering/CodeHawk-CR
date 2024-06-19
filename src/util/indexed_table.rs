@@ -40,7 +40,7 @@ use pyo3::{
 
 pub fn module(py: Python) -> PyResult<Bound<PyModule>> {
     let module = PyModule::new_bound(py, "indexed_table")?;
-    module.add_class::<IndexedTableSuperclass>()?;
+    module.add_class::<IndexedTable>()?;
     module.add_class::<IndexedTableValue>()?;
     module.add_function(wrap_pyfunction!(get_key, &module)?)?;
     module.add_function(wrap_pyfunction!(get_rep, &module)?)?;
@@ -190,7 +190,7 @@ fn element_tree_element<'a, 'py>(py: Python<'py>, tag: &'a str) -> PyResult<Boun
 ///       the comma character cannot be used in any string representation.
 #[derive(Clone)]
 #[pyclass(subclass)]
-struct IndexedTableSuperclass {
+struct IndexedTable {
     #[pyo3(get)]
     name: Py<PyString>,
     #[pyo3(get)]
@@ -206,10 +206,10 @@ struct IndexedTableSuperclass {
 }
 
 #[pymethods]
-impl IndexedTableSuperclass {
+impl IndexedTable {
     #[new]
     fn new(py: Python, name: Py<PyString>) -> Self {
-        IndexedTableSuperclass {
+        IndexedTable {
             name,
             keytable: PyDict::new_bound(py).into(),
             indextable: PyDict::new_bound(py).into(),
@@ -245,7 +245,7 @@ impl IndexedTableSuperclass {
     }
 
     fn iter(slf: &Bound<Self>, f: &Bound<PyFunction>) -> PyResult<()> {
-        IndexedTableSuperclass::items(slf)?
+        IndexedTable::items(slf)?
             .into_iter()
             .map(|p| f.call1(p))
             .collect::<PyResult<Vec<_>>>()?;
@@ -335,10 +335,7 @@ impl IndexedTableSuperclass {
     }
 
     fn values<'a, 'b>(slf: &'a Bound<'b, Self>) -> PyResult<Vec<Bound<'b, IndexedTableValue>>> {
-        Ok(IndexedTableSuperclass::items(slf)?
-            .into_iter()
-            .map(|p| p.1)
-            .collect())
+        Ok(IndexedTable::items(slf)?.into_iter().map(|p| p.1).collect())
     }
 
     fn items<'a, 'b>(
@@ -484,7 +481,7 @@ impl IndexedTableSuperclass {
         slf: &'a Bound<'b, Self>,
         p: &'a Bound<'b, PyAny>, // int -> IndexedTableValue, but sometimes non-PyFunction
     ) -> PyResult<BTreeMap<isize, Bound<'b, IndexedTableValue>>> {
-        IndexedTableSuperclass::items(slf)?
+        IndexedTable::items(slf)?
             .into_iter()
             .map(|(ix, _)| Ok((ix, p.call1((ix,))?.downcast()?.clone())))
             .collect()
