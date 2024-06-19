@@ -235,6 +235,23 @@ impl IndexedTableSuperclass {
         self.checkpoint.take();
     }
 
+    // Unvalidated
+    fn add(slf: &Bound<Self>, key: (String, String), f: &Bound<PyFunction>) -> PyResult<isize> {
+        let mut slf_borrow = slf.borrow_mut();
+        let keytable = slf_borrow.keytable.bind(slf.py());
+        if let Some(value) = keytable.get_item(&key)? {
+            return Ok(value.extract()?);
+        }
+        let index = slf_borrow.next;
+        let obj = f
+            .call1((index, key.clone()))?
+            .downcast_into::<IndexedTableValue>()?;
+        keytable.set_item(key, index)?;
+        slf_borrow.indextable.bind(slf.py()).set_item(index, obj)?;
+        slf_borrow.next += 1;
+        Ok(index)
+    }
+
     // TODO: use python types to avoid allocating a String for every tag
     fn add_tags_args<'a, 'b>(
         slf: &'a Bound<'b, Self>,
@@ -258,6 +275,14 @@ impl IndexedTableSuperclass {
         }
     }
 
+    fn reserve(slf: &Bound<Self>) -> PyResult<isize> {
+        let mut slf_borrow = slf.borrow_mut();
+        let index = slf_borrow.next;
+        slf_borrow.reserved.bind(slf.py()).append(index)?;
+        slf_borrow.next += 1;
+        Ok(index)
+    }
+
     fn values<'a, 'b>(slf: &'a Bound<'b, Self>) -> PyResult<Vec<Bound<'b, IndexedTableValue>>> {
         Ok(IndexedTableSuperclass::items(slf)?
             .into_iter()
@@ -276,6 +301,25 @@ impl IndexedTableSuperclass {
             .collect::<PyResult<Vec<(isize, Bound<'b, IndexedTableValue>)>>>()?;
         elems.sort_by(|a, b| a.0.cmp(&b.0));
         Ok(elems)
+    }
+
+    fn commit_reserved(
+        slf: &Bound<Self>,
+        index: isize,
+        key: (String, String),
+        obj: &Bound<IndexedTableValue>,
+    ) -> PyResult<()> {
+        let slf_borrow = slf.borrow();
+        let reserved = slf_borrow.reserved.bind(slf.py());
+        if !reserved.contains(index)? {
+            return Err(IndexedTableError::new_err(format!(
+                "Trying to commit nonexisting index: {index}"
+            )));
+        }
+        slf_borrow.keytable.bind(slf.py()).set_item(key, index)?;
+        slf_borrow.indextable.bind(slf.py()).set_item(index, obj)?;
+        reserved.call_method1(intern!(slf.py(), "remove"), (index,))?;
+        Ok(())
     }
 
     fn retrieve<'a, 'b>(

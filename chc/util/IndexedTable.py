@@ -144,37 +144,6 @@ class IndexedTable(IndexedTableSuperclass):
     def __new__(cls, name: str) -> "IndexedTable":
         return super().__new__(cls, name)
 
-    def add(
-            self,
-            key: Tuple[str, str],
-            f: Callable[[int, Tuple[str, str]], IndexedTableValue]) -> int:
-        if key in self.keytable:
-            return self.keytable[key]
-        else:
-            index = self.next
-            obj = f(index, key)
-            self.keytable[key] = index
-            self.indextable[index] = obj
-            self.next += 1
-            return index
-
-    def reserve(self) -> int:
-        index = self.next
-        self.reserved.append(index)
-        self.next += 1
-        return index
-
-    def commit_reserved(
-            self,
-            index: int,
-            key: Tuple[str, str], obj: IndexedTableValue) -> None:
-        if index in self.reserved:
-            self.keytable[key] = index
-            self.indextable[index] = obj
-            self.reserved.remove(index)
-        else:
-            raise IndexedTableError("Trying to commit nonexisting index: " + str(index))
-
     def retrieve_by_key(
         self, f: Callable[[Tuple[str, str]], bool]
     ) -> List[Tuple[Tuple[str, str], IndexedTableValue]]:
