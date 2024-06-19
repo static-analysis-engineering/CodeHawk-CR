@@ -35,7 +35,7 @@ use pyo3::{
     exceptions::{PyException, PyValueError},
     intern,
     prelude::*,
-    types::{PyDict, PyFunction, PyList, PyString},
+    types::{PyDict, PyFunction, PyString},
 };
 
 pub fn module(py: Python) -> PyResult<Bound<PyModule>> {
@@ -196,7 +196,7 @@ struct IndexedTable {
     keytable: Py<PyDict>,   // (str, str) -> int
     indextable: Py<PyDict>, // int -> IndexedTableValue
     next: isize,
-    reserved: Py<PyList>, // int list
+    reserved: Vec<isize>,
     checkpoint: Option<isize>,
 }
 
@@ -209,7 +209,7 @@ impl IndexedTable {
             keytable: PyDict::new_bound(py).into(),
             indextable: PyDict::new_bound(py).into(),
             next: 1,
-            reserved: PyList::empty_bound(py).into(),
+            reserved: Vec::new(),
             checkpoint: None,
         }
     }
@@ -222,9 +222,7 @@ impl IndexedTable {
         self.keytable.bind_borrowed(py).clear();
         self.indextable.bind_borrowed(py).clear();
         self.next = 1;
-        self.reserved
-            .bind_borrowed(py)
-            .call_method0(intern!(py, "clear"))?;
+        self.reserved.clear();
         self.checkpoint = None;
         Ok(())
     }
@@ -257,10 +255,9 @@ impl IndexedTable {
                 "Cannot reset non-existent checkpoint",
             ));
         };
-        let reserved = slf_borrow.reserved.bind(slf.py());
         let indextable = slf_borrow.indextable.bind(slf.py());
         for i in cp..slf_borrow.next {
-            if !reserved.contains(i)? {
+            if !slf_borrow.reserved.contains(&i) {
                 indextable.del_item(i)?;
             }
         }
@@ -271,7 +268,7 @@ impl IndexedTable {
                 keytable.del_item(k)?;
             }
         }
-        reserved.call_method0(intern!(slf.py(), "clear"))?;
+        slf_borrow.reserved.clear();
         slf_borrow.checkpoint.take();
         slf_borrow.next = cp;
         Ok(cp)
@@ -324,7 +321,7 @@ impl IndexedTable {
     fn reserve(slf: &Bound<Self>) -> PyResult<isize> {
         let mut slf_borrow = slf.borrow_mut();
         let index = slf_borrow.next;
-        slf_borrow.reserved.bind(slf.py()).append(index)?;
+        slf_borrow.reserved.push(index);
         slf_borrow.next += 1;
         Ok(index)
     }
@@ -352,16 +349,21 @@ impl IndexedTable {
         key: (String, String),
         obj: &Bound<IndexedTableValue>,
     ) -> PyResult<()> {
-        let slf_borrow = slf.borrow();
-        let reserved = slf_borrow.reserved.bind(slf.py());
-        if !reserved.contains(index)? {
+        let mut slf_borrow = slf.borrow_mut();
+        if !slf_borrow.reserved.contains(&index) {
             return Err(IndexedTableError::new_err(format!(
                 "Trying to commit nonexisting index: {index}"
             )));
         }
         slf_borrow.keytable.bind(slf.py()).set_item(key, index)?;
         slf_borrow.indextable.bind(slf.py()).set_item(index, obj)?;
-        reserved.call_method1(intern!(slf.py(), "remove"), (index,))?;
+        let reserved = &mut slf_borrow.reserved;
+        reserved.remove(
+            reserved
+                .iter()
+                .position(|x| *x == index)
+                .ok_or_else(|| PyException::new_err("{index} not in `reserved`"))?,
+        );
         Ok(())
     }
 
@@ -488,14 +490,13 @@ impl IndexedTable {
         let slf_borrow = slf.borrow();
         let mut lines = Vec::new();
         lines.push(format!("\n{}", slf_borrow.name));
-        let reserved = slf_borrow.reserved.bind(slf.py());
         for (ix, obj) in slf_borrow.indextable.bind(slf.py()).iter() {
             let ix: isize = ix.extract()?;
             let obj = obj.downcast::<IndexedTableValue>()?;
             lines.push(format!("{ix:>4} {obj}"));
         }
-        if reserved.len() > 0 {
-            lines.push(format!("Reserved: {}", reserved.str()?));
+        if !slf_borrow.reserved.is_empty() {
+            lines.push(format!("Reserved: {:?}", slf_borrow.reserved));
         }
         if let Some(cp) = slf_borrow.checkpoint {
             lines.push(format!("Checkpoint: {cp}"));
