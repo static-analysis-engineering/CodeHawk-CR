@@ -192,7 +192,7 @@ fn element_tree_element<'a, 'py>(py: Python<'py>, tag: &'a str) -> PyResult<Boun
 #[pyclass(subclass)]
 struct IndexedTable {
     #[pyo3(get)]
-    name: Py<PyString>,
+    name: String,
     keytable: Py<PyDict>,   // (str, str) -> int
     indextable: Py<PyDict>, // int -> IndexedTableValue
     next: isize,
@@ -203,7 +203,7 @@ struct IndexedTable {
 #[pymethods]
 impl IndexedTable {
     #[new]
-    fn new(py: Python, name: Py<PyString>) -> Self {
+    fn new(py: Python, name: String) -> Self {
         IndexedTable {
             name,
             keytable: PyDict::new_bound(py).into(),
