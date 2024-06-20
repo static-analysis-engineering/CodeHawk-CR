@@ -236,36 +236,33 @@ impl IndexedTable {
         }
     }
 
-    fn iter(slf: &Bound<Self>, f: &Bound<PyFunction>) -> PyResult<()> {
-        IndexedTable::items(slf)?
-            .into_iter()
-            .map(|p| f.call1(p))
+    fn iter(&self, f: &Bound<PyFunction>) -> PyResult<()> {
+        self.indextable
+            .iter()
+            .map(|(k, v)| f.call1((*k, v)))
             .collect::<PyResult<Vec<_>>>()?;
         Ok(())
     }
 
     // Unvalidated
     /// Remove all entries added since the checkpoint was set.
-    fn reset_to_checkpoint(slf: &Bound<Self>) -> PyResult<isize> {
-        let mut slf_borrow = slf.borrow_mut();
-        let cp = slf_borrow.checkpoint;
+    fn reset_to_checkpoint(&mut self) -> PyResult<isize> {
+        let cp = self.checkpoint;
         let Some(cp) = cp else {
             return Err(PyValueError::new_err(
                 "Cannot reset non-existent checkpoint",
             ));
         };
-        let next = slf_borrow.next;
-        let reserved = slf_borrow.reserved.clone();
-        slf_borrow.indextable.retain(|k, _| {
-            if !(cp <= *k && *k < next) {
+        self.indextable.retain(|k, _| {
+            if !(cp <= *k && *k < self.next) {
                 return true;
             }
-            reserved.contains(k)
+            self.reserved.contains(k)
         });
-        slf_borrow.keytable.retain(|_, v| *v < cp);
-        slf_borrow.reserved.clear();
-        slf_borrow.checkpoint.take();
-        slf_borrow.next = cp;
+        self.keytable.retain(|_, v| *v < cp);
+        self.reserved.clear();
+        self.checkpoint.take();
+        self.next = cp;
         Ok(cp)
     }
 
@@ -274,84 +271,72 @@ impl IndexedTable {
     }
 
     // Unvalidated
-    fn add(slf: &Bound<Self>, key: (String, String), f: &Bound<PyFunction>) -> PyResult<isize> {
-        let mut slf_borrow = slf.borrow_mut();
-        if let Some(value) = slf_borrow.keytable.get(&key) {
+    fn add(&mut self, key: (String, String), f: &Bound<PyFunction>) -> PyResult<isize> {
+        if let Some(value) = self.keytable.get(&key) {
             return Ok(*value);
         }
-        let index = slf_borrow.next;
+        let index = self.next;
         let obj = f
             .call1((index, key.clone()))?
             .downcast_into::<IndexedTableValue>()?;
-        slf_borrow.keytable.insert(key, index);
-        slf_borrow.indextable.insert(index, obj.unbind());
-        slf_borrow.next += 1;
+        self.keytable.insert(key, index);
+        self.indextable.insert(index, obj.unbind());
+        self.next += 1;
         Ok(index)
     }
 
-    // TODO: use python types to avoid allocating a String for every tag
-    fn add_tags_args<'a, 'b>(
-        slf: &'a Bound<'b, Self>,
+    fn add_tags_args(
+        &mut self,
         tags: Vec<String>,
         args: Vec<isize>,
-        f: Bound<'b, PyFunction>,
+        f: Bound<PyFunction>,
     ) -> PyResult<isize> {
-        let mut slf_borrow = slf.borrow_mut();
         let key = get_key(tags.clone(), args.clone());
-        if let Some(item) = slf_borrow.keytable.get(&key) {
+        if let Some(item) = self.keytable.get(&key) {
             Ok(*item)
         } else {
-            let index = slf_borrow.next;
+            let index = self.next;
             let obj = f.call1((index, tags, args))?.downcast()?.clone();
-            slf_borrow.keytable.insert(key, index);
-            slf_borrow.indextable.insert(index, obj.unbind());
-            slf_borrow.next += 1;
+            self.keytable.insert(key, index);
+            self.indextable.insert(index, obj.unbind());
+            self.next += 1;
             Ok(index)
         }
     }
 
-    fn reserve(slf: &Bound<Self>) -> PyResult<isize> {
-        let mut slf_borrow = slf.borrow_mut();
-        let index = slf_borrow.next;
-        slf_borrow.reserved.push(index);
-        slf_borrow.next += 1;
-        Ok(index)
+    fn reserve(&mut self) -> isize {
+        let index = self.next;
+        self.reserved.push(index);
+        self.next += 1;
+        index
     }
 
-    fn values<'a, 'b>(slf: &'a Bound<'b, Self>) -> PyResult<Vec<Bound<'b, IndexedTableValue>>> {
-        Ok(IndexedTable::items(slf)?.into_iter().map(|p| p.1).collect())
+    fn values(&self) -> Vec<Py<IndexedTableValue>> {
+        self.indextable.values().cloned().collect()
     }
 
-    fn items<'a, 'b>(
-        slf: &'a Bound<'b, Self>,
-    ) -> PyResult<Vec<(isize, Bound<'b, IndexedTableValue>)>> {
-        let slf_borrow = slf.borrow();
-        let mut elems = slf_borrow
-            .indextable
+    fn items(&self) -> Vec<(isize, Py<IndexedTableValue>)> {
+        self.indextable
             .iter()
-            .map(|(k, v)| (*k, v.bind(slf.py()).clone()))
-            .collect::<Vec<(isize, Bound<'b, IndexedTableValue>)>>();
-        elems.sort_by(|a, b| a.0.cmp(&b.0));
-        Ok(elems)
+            .map(|(k, v)| (k.clone(), v.clone()))
+            .collect()
     }
 
     fn commit_reserved(
-        slf: &Bound<Self>,
+        &mut self,
         index: isize,
         key: (String, String),
         obj: &Bound<IndexedTableValue>,
     ) -> PyResult<()> {
-        let mut slf_borrow = slf.borrow_mut();
-        if !slf_borrow.reserved.contains(&index) {
+        if !self.reserved.contains(&index) {
             return Err(IndexedTableError::new_err(format!(
                 "Trying to commit nonexisting index: {index}"
             )));
         }
-        slf_borrow.keytable.insert(key, index);
-        slf_borrow.indextable.insert(index, obj.clone().unbind());
-        let reserved = &mut slf_borrow.reserved;
-        reserved.remove(
-            reserved
+        self.keytable.insert(key, index);
+        self.indextable.insert(index, obj.clone().unbind());
+        self.reserved.remove(
+            self.reserved
                 .iter()
                 .position(|x| *x == index)
                 .ok_or_else(|| PyException::new_err("{index} not in `reserved`"))?,
@@ -359,39 +344,31 @@ impl IndexedTable {
         Ok(())
     }
 
-    fn retrieve<'a, 'b>(
-        slf: &'a Bound<'b, Self>,
-        index: isize,
-    ) -> PyResult<Bound<'b, IndexedTableValue>> {
-        let slf_borrow = slf.borrow();
-        if let Some(item) = slf_borrow.indextable.get(&index) {
-            Ok(item.bind(slf.py()).clone())
-        } else {
-            let message = format!(
-                "Unable to retrieve item {} from table {} (size {})",
-                index,
-                slf_borrow.name,
-                slf_borrow.size()
-            );
-            Err(IndexedTableError::new_err(message))
+    fn retrieve(&self, index: isize) -> PyResult<Py<IndexedTableValue>> {
+        if let Some(item) = self.indextable.get(&index) {
+            return Ok(item.clone());
         }
+        let message = format!(
+            "Unable to retrieve item {} from table {} (size {})",
+            index,
+            self.name,
+            self.size()
+        );
+        Err(IndexedTableError::new_err(message))
     }
 
-    fn retrieve_by_key<'a, 'b>(
-        slf: &'a Bound<'b, Self>,
-        f: &'a Bound<'b, PyFunction>,
-    ) -> PyResult<Vec<((String, String), Bound<'b, IndexedTableValue>)>> {
-        let slf_borrow = slf.borrow();
+    fn retrieve_by_key(
+        &self,
+        f: &Bound<PyFunction>,
+    ) -> PyResult<Vec<((String, String), Py<IndexedTableValue>)>> {
         let mut result = Vec::new();
-        for (key, index) in slf_borrow.keytable.iter() {
+        for (key, index) in self.keytable.iter() {
             if f.call1((key.clone(),))?.extract()? {
                 result.push((
                     key.clone(),
-                    slf_borrow
-                        .indextable
+                    self.indextable
                         .get(&index)
                         .ok_or_else(|| PyException::new_err("No element at {index}"))?
-                        .bind(slf.py())
                         .clone(),
                 ));
             }
@@ -401,14 +378,13 @@ impl IndexedTable {
 
     fn write_xml(
         &self,
-        py: Python,
         node: Bound<PyAny>, // ET.Element
         f: Bound<PyFunction>,
         tag: Option<&str>,
     ) -> PyResult<()> {
         let tag = tag.unwrap_or("n");
         for value in self.indextable.values() {
-            let snode = element_tree_element(py, tag)?;
+            let snode = element_tree_element(node.py(), tag)?;
             f.call1((&snode, value))?;
             node.call_method1("append", (snode,))?;
         }
@@ -416,22 +392,21 @@ impl IndexedTable {
     }
 
     fn read_xml(
-        slf: &Bound<Self>,
+        &mut self,
         node: &Bound<PyAny>, // Optional[ET.Element]
         tag: String,
         get_value: Option<Bound<PyFunction>>, // ET.Element -> IndexedTableValue
         get_key: Option<Bound<PyFunction>>,   // IndexedTableValue -> (String, String)
         get_index: Option<Bound<PyFunction>>, // IndexedTableValue -> int
     ) -> PyResult<()> {
-        let mut slf_borrow = slf.borrow_mut();
         if node.is_none() {
             return Err(IndexedTableError::new_err(format!(
                 "Xml node not present in {}",
-                slf_borrow.name
+                self.name
             )));
         }
         for snode in node
-            .call_method1(intern!(slf.py(), "findall"), (tag,))?
+            .call_method1(intern!(node.py(), "findall"), (tag,))?
             .extract::<Vec<Bound<PyAny>>>()?
         {
             let obj = if let Some(get_value) = get_value.as_ref() {
@@ -442,33 +417,32 @@ impl IndexedTable {
             let key: (String, String) = if let Some(get_key) = get_key.as_ref() {
                 get_key.call1((obj.clone(),))?
             } else {
-                obj.getattr(intern!(slf.py(), "key"))?
+                obj.getattr(intern!(node.py(), "key"))?
             }
             .extract()?;
             let index: isize = if let Some(get_index) = get_index.as_ref() {
                 get_index.call1((obj.clone(),))?
             } else {
-                obj.getattr(intern!(slf.py(), "index"))?
+                obj.getattr(intern!(node.py(), "index"))?
             }
             .extract()?;
-            slf_borrow.keytable.insert(key, index);
-            slf_borrow
-                .indextable
+            self.keytable.insert(key, index);
+            self.indextable
                 .insert(index, obj.downcast()?.clone().unbind());
-            if index >= slf_borrow.next {
-                slf_borrow.next = index + 1
+            if index >= self.next {
+                self.next = index + 1
             }
         }
         Ok(())
     }
 
     fn objectmap<'a, 'b>(
-        slf: &'a Bound<'b, Self>,
+        &self,
         p: &'a Bound<'b, PyAny>, // int -> IndexedTableValue, but sometimes non-PyFunction
     ) -> PyResult<BTreeMap<isize, Bound<'b, IndexedTableValue>>> {
-        IndexedTable::items(slf)?
-            .into_iter()
-            .map(|(ix, _)| Ok((ix, p.call1((ix,))?.downcast()?.clone())))
+        self.indextable
+            .keys()
+            .map(|ix| Ok((*ix, p.call1((*ix,))?.downcast()?.clone())))
             .collect()
     }
 
