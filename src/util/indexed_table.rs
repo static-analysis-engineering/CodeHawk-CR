@@ -193,7 +193,7 @@ fn element_tree_element<'a, 'py>(py: Python<'py>, tag: &'a str) -> PyResult<Boun
 struct IndexedTable {
     #[pyo3(get)]
     name: String,
-    keytable: Py<PyDict>,   // (str, str) -> int
+    keytable: BTreeMap<(String, String), isize>,
     indextable: Py<PyDict>, // int -> IndexedTableValue
     next: isize,
     reserved: Vec<isize>,
@@ -206,7 +206,7 @@ impl IndexedTable {
     fn new(py: Python, name: String) -> Self {
         IndexedTable {
             name,
-            keytable: PyDict::new_bound(py).into(),
+            keytable: BTreeMap::new(),
             indextable: PyDict::new_bound(py).into(),
             next: 1,
             reserved: Vec::new(),
@@ -219,7 +219,7 @@ impl IndexedTable {
     }
 
     fn reset(&mut self, py: Python) -> PyResult<()> {
-        self.keytable.bind_borrowed(py).clear();
+        self.keytable.clear();
         self.indextable.bind_borrowed(py).clear();
         self.next = 1;
         self.reserved.clear();
@@ -261,13 +261,7 @@ impl IndexedTable {
                 indextable.del_item(i)?;
             }
         }
-        let keytable = slf_borrow.keytable.bind(slf.py());
-        for p in keytable.items() {
-            let (k, v): (isize, isize) = p.extract()?;
-            if v >= cp {
-                keytable.del_item(k)?;
-            }
-        }
+        slf_borrow.keytable.retain(|_, v| *v < cp);
         slf_borrow.reserved.clear();
         slf_borrow.checkpoint.take();
         slf_borrow.next = cp;
@@ -281,15 +275,14 @@ impl IndexedTable {
     // Unvalidated
     fn add(slf: &Bound<Self>, key: (String, String), f: &Bound<PyFunction>) -> PyResult<isize> {
         let mut slf_borrow = slf.borrow_mut();
-        let keytable = slf_borrow.keytable.bind(slf.py());
-        if let Some(value) = keytable.get_item(&key)? {
-            return Ok(value.extract()?);
+        if let Some(value) = slf_borrow.keytable.get(&key) {
+            return Ok(*value);
         }
         let index = slf_borrow.next;
         let obj = f
             .call1((index, key.clone()))?
             .downcast_into::<IndexedTableValue>()?;
-        keytable.set_item(key, index)?;
+        slf_borrow.keytable.insert(key, index);
         slf_borrow.indextable.bind(slf.py()).set_item(index, obj)?;
         slf_borrow.next += 1;
         Ok(index)
@@ -303,14 +296,13 @@ impl IndexedTable {
         f: Bound<'b, PyFunction>,
     ) -> PyResult<isize> {
         let mut slf_borrow = slf.borrow_mut();
-        let keytable = slf_borrow.keytable.bind_borrowed(slf.py());
         let key = get_key(tags.clone(), args.clone());
-        if let Some(item) = keytable.get_item(&key)? {
-            Ok(item.extract()?)
+        if let Some(item) = slf_borrow.keytable.get(&key) {
+            Ok(*item)
         } else {
             let index = slf_borrow.next;
             let obj = f.call1((index, tags, args))?;
-            keytable.set_item(&key, index)?;
+            slf_borrow.keytable.insert(key, index);
             let indextable = slf_borrow.indextable.bind_borrowed(slf.py());
             indextable.set_item(&index, obj)?;
             slf_borrow.next += 1;
@@ -355,7 +347,7 @@ impl IndexedTable {
                 "Trying to commit nonexisting index: {index}"
             )));
         }
-        slf_borrow.keytable.bind(slf.py()).set_item(key, index)?;
+        slf_borrow.keytable.insert(key, index);
         slf_borrow.indextable.bind(slf.py()).set_item(index, obj)?;
         let reserved = &mut slf_borrow.reserved;
         reserved.remove(
@@ -392,11 +384,10 @@ impl IndexedTable {
     ) -> PyResult<Vec<((String, String), Bound<'b, IndexedTableValue>)>> {
         let slf_borrow = slf.borrow();
         let mut result = Vec::new();
-        for (key, index) in slf_borrow.keytable.bind(slf.py()).iter() {
-            let (key, index): ((String, String), isize) = (key.extract()?, index.extract()?);
+        for (key, index) in slf_borrow.keytable.iter() {
             if f.call1((key.clone(),))?.extract()? {
                 result.push((
-                    key,
+                    key.clone(),
                     slf_borrow
                         .indextable
                         .bind(slf.py())
@@ -465,7 +456,7 @@ impl IndexedTable {
                 obj.getattr(intern!(slf.py(), "index"))?
             }
             .extract()?;
-            slf_borrow.keytable.bind(slf.py()).set_item(key, index)?;
+            slf_borrow.keytable.insert(key, index);
             slf_borrow.indextable.bind(slf.py()).set_item(index, obj)?;
             if index >= slf_borrow.next {
                 slf_borrow.next = index + 1
