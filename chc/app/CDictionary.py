@@ -87,34 +87,7 @@ class CDictionary(chc_rust.app.c_dictionary.CDictionary):
 
     def __new__(cls) -> "CDictionary":
         self = super().__new__(cls)
-        self.attrparam_table = IndexedTable("attrparam-table")
-        self.attribute_table = IndexedTable("attribute-table")
-        self.attributes_table = IndexedTable("attributes-table")
-        self.constant_table = IndexedTable("constant-table")
-        self.exp_table = IndexedTable("exp-table")
-        self.funarg_table = IndexedTable("funarg-table")
-        self.funargs_table = IndexedTable("funargs-table")
-        self.lhost_table = IndexedTable("lhost-table")
-        self.lval_table = IndexedTable("lval-table")
-        self.offset_table = IndexedTable("offset-table")
-        self.typ_table = IndexedTable("typ-table")
-        self.typsig_table = IndexedTable("typsig-table")
-        self.typsiglist_table = IndexedTable("typsiglist-table")
         self.string_table = StringIndexedTable("string-table")
-        self.tables = [
-            self.attrparam_table,
-            self.attribute_table,
-            self.attributes_table,
-            self.constant_table,
-            self.exp_table,
-            self.funarg_table,
-            self.funargs_table,
-            self.lhost_table,
-            self.lval_table,
-            self.offset_table,
-            self.typ_table,
-            self.typsig_table,
-            self.typsiglist_table]
         self._objmaps: Dict[
             str, Callable[[], Mapping[int, IndexedTableValue]]] = {
             "attrparam": self.get_attrparam_map,

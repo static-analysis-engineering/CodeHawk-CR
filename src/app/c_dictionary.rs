@@ -30,6 +30,8 @@ SOFTWARE.
 */
 use pyo3::prelude::*;
 
+use crate::util::indexed_table::IndexedTable;
+
 pub fn module(py: Python) -> PyResult<Bound<PyModule>> {
     let module = PyModule::new_bound(py, "c_dictionary")?;
     module.add_class::<CDictionary>()?;
@@ -43,13 +45,60 @@ pub fn module(py: Python) -> PyResult<Bound<PyModule>> {
 /// - CFileDictionary: Corresponds with cchlib/cCHDictionary.
 /// - CGlobalDictionary: constructed in the python api
 #[derive(Clone)]
-#[pyclass(subclass)]
-pub struct CDictionary {}
+#[pyclass(get_all, subclass)]
+pub struct CDictionary {
+    attrparam_table: Py<IndexedTable>,
+    attribute_table: Py<IndexedTable>,
+    attributes_table: Py<IndexedTable>,
+    constant_table: Py<IndexedTable>,
+    exp_table: Py<IndexedTable>,
+    funarg_table: Py<IndexedTable>,
+    funargs_table: Py<IndexedTable>,
+    lhost_table: Py<IndexedTable>,
+    lval_table: Py<IndexedTable>,
+    offset_table: Py<IndexedTable>,
+    typ_table: Py<IndexedTable>,
+    typsig_table: Py<IndexedTable>,
+    typsiglist_table: Py<IndexedTable>,
+}
 
 #[pymethods]
 impl CDictionary {
     #[new]
-    fn new() -> CDictionary {
-        CDictionary {}
+    fn new(py: Python) -> PyResult<CDictionary> {
+        Ok(CDictionary {
+            attrparam_table: Py::new(py, IndexedTable::new("attrparam-table".to_string()))?,
+            attribute_table: Py::new(py, IndexedTable::new("attribute-table".to_string()))?,
+            attributes_table: Py::new(py, IndexedTable::new("attributes-table".to_string()))?,
+            constant_table: Py::new(py, IndexedTable::new("constant-table".to_string()))?,
+            exp_table: Py::new(py, IndexedTable::new("exp-table".to_string()))?,
+            funarg_table: Py::new(py, IndexedTable::new("funarg-table".to_string()))?,
+            funargs_table: Py::new(py, IndexedTable::new("funargs-table".to_string()))?,
+            lhost_table: Py::new(py, IndexedTable::new("lhost-table".to_string()))?,
+            lval_table: Py::new(py, IndexedTable::new("lval-table".to_string()))?,
+            offset_table: Py::new(py, IndexedTable::new("offset-table".to_string()))?,
+            typ_table: Py::new(py, IndexedTable::new("typ-table".to_string()))?,
+            typsig_table: Py::new(py, IndexedTable::new("typsig-table".to_string()))?,
+            typsiglist_table: Py::new(py, IndexedTable::new("typsiglist-table".to_string()))?,
+        })
+    }
+
+    #[getter]
+    fn tables(&self) -> Vec<Py<IndexedTable>> {
+        vec![
+            self.attrparam_table.clone(),
+            self.attribute_table.clone(),
+            self.attributes_table.clone(),
+            self.constant_table.clone(),
+            self.exp_table.clone(),
+            self.funarg_table.clone(),
+            self.funargs_table.clone(),
+            self.lhost_table.clone(),
+            self.lval_table.clone(),
+            self.offset_table.clone(),
+            self.typ_table.clone(),
+            self.typsig_table.clone(),
+            self.typsiglist_table.clone(),
+        ]
     }
 }

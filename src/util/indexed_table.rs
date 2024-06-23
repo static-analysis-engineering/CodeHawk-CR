@@ -189,7 +189,7 @@ fn element_tree_element<'a, 'py>(py: Python<'py>, tag: &'a str) -> PyResult<Boun
 ///       the comma character cannot be used in any string representation.
 #[derive(Clone)]
 #[pyclass(subclass)]
-struct IndexedTable {
+pub struct IndexedTable {
     #[pyo3(get)]
     name: String,
     keytable: BTreeMap<(String, String), isize>,
@@ -202,7 +202,7 @@ struct IndexedTable {
 #[pymethods]
 impl IndexedTable {
     #[new]
-    fn new(name: String) -> Self {
+    pub fn new(name: String) -> Self {
         IndexedTable {
             name,
             keytable: BTreeMap::new(),
