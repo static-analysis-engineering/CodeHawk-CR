@@ -68,7 +68,7 @@ impl CFieldInfo {
     }
 
     #[getter]
-    fn fname(slf: PyRef<Self>) -> String {
+    pub fn fname(slf: PyRef<Self>) -> String {
         slf.into_super().into_super().tags()[0].clone()
     }
 
@@ -89,7 +89,7 @@ impl CFieldInfo {
 
     // Unvalidated
     #[getter]
-    fn size(slf: &Bound<Self>) -> PyResult<isize> {
+    pub fn size(slf: &Bound<Self>) -> PyResult<isize> {
         Ok(CFieldInfo::ftype(slf)?
             .call_method0(intern!(slf.py(), "size"))?
             .extract()?)

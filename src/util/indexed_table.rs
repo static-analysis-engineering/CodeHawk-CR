@@ -164,6 +164,10 @@ impl IndexedTableValue {
     pub fn args(&self) -> &[isize] {
         &self.args[..]
     }
+
+    pub fn index(&self) -> isize {
+        self.index
+    }
 }
 
 #[pyfunction]
