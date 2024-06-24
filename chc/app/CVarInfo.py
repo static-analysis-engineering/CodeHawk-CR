@@ -36,6 +36,8 @@ import chc.util.fileutil as UF
 import chc.util.IndexedTable as IT
 from chc.util.loggingutil import chklogger
 
+import chc_rust
+
 if TYPE_CHECKING:
     from chc.app.CDeclarations import CDeclarations
     from chc.app.CFileDeclarations import CFileDeclarations
@@ -44,7 +46,7 @@ if TYPE_CHECKING:
     from chc.app.CTyp import CTyp
 
 
-class CVarInfo(CDeclarationsRecord):
+class CVarInfo(chc_rust.app.c_var_info.CVarInfo):
     """Local or global variable.
 
     * tags[0]: vname

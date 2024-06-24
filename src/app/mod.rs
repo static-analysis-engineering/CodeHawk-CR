@@ -25,6 +25,7 @@ mod c_offset;
 mod c_stmt;
 mod c_typ;
 mod c_type_info;
+mod c_var_info;
 mod index_manager;
 
 pub fn module(py: Python) -> PyResult<Bound<PyModule>> {
@@ -54,6 +55,7 @@ pub fn module(py: Python) -> PyResult<Bound<PyModule>> {
     module.add_submodule(&c_stmt::module(py)?)?;
     module.add_submodule(&c_typ::module(py)?)?;
     module.add_submodule(&c_type_info::module(py)?)?;
+    module.add_submodule(&c_var_info::module(py)?)?;
     module.add_submodule(&index_manager::module(py)?)?;
     Ok(module)
 }
