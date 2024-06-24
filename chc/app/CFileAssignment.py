@@ -36,6 +36,8 @@ from chc.app.AssignDictionaryRecord import AssignDictionaryRecord, adregistry
 import chc.util.fileutil as UF
 import chc.util.IndexedTable as IT
 
+import chc_rust
+
 if TYPE_CHECKING:
     from chc.app.CExp import CExp
     from chc.app.CFileAssignmentDictionary import CFileAssignmentDictionary
@@ -44,7 +46,7 @@ if TYPE_CHECKING:
     from chc.app.CVarInfo import CVarInfo
 
 
-class CFileAssignment(AssignDictionaryRecord):
+class CFileAssignment(chc_rust.app.c_file_assignment.CFileAssignment):
     """Base class for all assignment objects."""
 
     def __new__(
