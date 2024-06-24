@@ -1,5 +1,6 @@
 use pyo3::prelude::*;
 
+mod assign_dictionary_record;
 mod c_application;
 mod c_attributes;
 mod c_comp_info;
@@ -30,6 +31,7 @@ mod index_manager;
 
 pub fn module(py: Python) -> PyResult<Bound<PyModule>> {
     let module = PyModule::new_bound(py, "app")?;
+    module.add_submodule(&assign_dictionary_record::module(py)?)?;
     module.add_submodule(&c_application::module(py)?)?;
     module.add_submodule(&c_attributes::module(py)?)?;
     module.add_submodule(&c_const::module(py)?)?;

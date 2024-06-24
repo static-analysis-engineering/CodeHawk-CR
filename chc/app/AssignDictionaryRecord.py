@@ -32,6 +32,8 @@ from typing import cast, Callable, Dict, List, Tuple, Type, TypeVar, TYPE_CHECKI
 import chc.util.fileutil as UF
 import chc.util.IndexedTable as IT
 
+import chc_rust
+
 if TYPE_CHECKING:
     from chc.app.CFile import CFile
     from chc.app.CFileDeclarations import CFileDeclarations
@@ -39,32 +41,7 @@ if TYPE_CHECKING:
     from chc.app.CFileAssignmentDictionary import CFileAssignmentDictionary
 
 
-class AssignDictionaryRecord(IT.IndexedTableValue):
-    """Base class for all objects kept in the CFileAssignmentDictionary."""
-
-    def __new__(
-            cls,
-            ad: "CFileAssignmentDictionary",
-            ixval: IT.IndexedTableValue) -> None:
-        self = super().__new__(cls, ixval.index, ixval.tags, ixval.args)
-        self._ad = ad
-        return self
-
-    @property
-    def ad(self) -> "CFileAssignmentDictionary":
-        return self._ad
-
-    @property
-    def cfile(self) -> "CFile":
-        return self.ad.cfile
-
-    @property
-    def cd(self) -> "CFileDictionary":
-        return self.cfile.dictionary
-
-    @property
-    def cdecls(self) -> "CFileDeclarations":
-        return self.cfile.declarations
+AssignDictionaryRecord = chc_rust.app.assign_dictionary_record.AssignDictionaryRecord
 
 
 ADiR = TypeVar("ADiR", bound=AssignDictionaryRecord, covariant=True)
