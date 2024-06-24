@@ -38,16 +38,19 @@ import chc.util.IndexedTable as IT
 from chc.app.AssignDictionaryRecord import AssignDictionaryRecord, adregistry
 from chc.app.CFileAssignment import CFileAssignment
 
+import chc_rust
+
 if TYPE_CHECKING:
     from chc.app.CFile import CFile
     from chc.app.CFileDeclarations import CFileDeclarations
     from chc.app.CFileDictionary import CFileDictionary
 
 
-class CFileAssignmentDictionary(object):
+class CFileAssignmentDictionary(chc_rust.app.c_file_assignment_dictionary.CFileAssignmentDictionary):
     """Dictionary of assignments to global and static variables and fields."""
 
-    def __init__(self, cfile: "CFile", xnode: Optional[ET.Element]) -> None:
+    def __new__(cls, cfile: "CFile", xnode: Optional[ET.Element]) -> "CFileAssignmentDictionary":
+        self = super().__new__(cls)
         self._cfile = cfile
         self.assignment_table = IT.IndexedTable("assignment-table")
         self.function_name_table = IT.IndexedTable("function-name-table")
@@ -56,6 +59,7 @@ class CFileAssignmentDictionary(object):
             self.assignment_table
         ]
         self._initialize(xnode)
+        return self
 
     @property
     def cfile(self) -> "CFile":
