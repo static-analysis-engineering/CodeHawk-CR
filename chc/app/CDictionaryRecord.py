@@ -51,7 +51,7 @@ CDeclarationsRecord = chc_rust.app.c_dictionary_record.CDeclarationsRecord
 CDictionaryRegistry = chc_rust.app.c_dictionary_record.CDictionaryRegistry
 
 
-cdregistry: CDictionaryRegistry = CDictionaryRegistry()
+cdregistry = chc_rust.app.c_dictionary_record.cdregistry
 
 
 CDecR = TypeVar("CDecR", bound=CDeclarationsRecord, covariant=True)

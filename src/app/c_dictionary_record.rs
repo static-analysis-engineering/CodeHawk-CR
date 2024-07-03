@@ -28,6 +28,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ------------------------------------------------------------------------------
 */
+use once_cell::sync::OnceCell;
 use pyo3::{
     intern,
     prelude::*,
@@ -45,6 +46,7 @@ pub fn module(py: Python) -> PyResult<Bound<PyModule>> {
     let module = PyModule::new_bound(py, "c_dictionary_record")?;
     module.add_class::<CDictionaryRecord>()?;
     module.add_class::<CDictionaryRegistry>()?;
+    module.add("cdregistry", cdregistry(py)?)?;
     module.add_class::<CDeclarationsRecord>()?;
     Ok(module)
 }
@@ -179,4 +181,12 @@ impl CDictionaryRegistry {
         };
         Ok(item.call1((cd, ixval))?.downcast()?.clone())
     }
+}
+
+static CDREGISTRY: OnceCell<Py<CDictionaryRegistry>> = OnceCell::new();
+
+pub fn cdregistry(py: Python) -> PyResult<Py<CDictionaryRegistry>> {
+    CDREGISTRY
+        .get_or_try_init(|| Py::new(py, CDictionaryRegistry::new(py)))
+        .cloned()
 }
