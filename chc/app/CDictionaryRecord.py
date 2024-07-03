@@ -48,35 +48,7 @@ CDictionaryRecord = chc_rust.app.c_dictionary_record.CDictionaryRecord
 CDeclarationsRecord = chc_rust.app.c_dictionary_record.CDeclarationsRecord
 
 
-# __c_dictionary_record_types: Dict[Tuple[type, str], Type[CDictionaryRecord]] = {}
-CDiR = TypeVar("CDiR", bound=CDictionaryRecord, covariant=True)
-
-
-class CDictionaryRegistry(chc_rust.app.c_dictionary_record.CDictionaryRegistry):
-
-    def __new__(cls) -> "CDictionaryRegistry":
-        self = super().__new__(cls)
-        return self
-
-    def register_tag(
-            self,
-            tag: str,
-            anchor: type) -> Callable[[type], type]:
-        def handler(t: type) -> type:
-            self.register[(anchor, tag)] = t
-            return t
-        return handler
-
-    def mk_instance(
-            self,
-            cd: "CDictionary",
-            ixval: IT.IndexedTableValue,
-            anchor: Type[CDiR]) -> CDiR:
-        tag = ixval.tags[0]
-        if (anchor, tag) not in self.register:
-            raise UF.CHCError("Unknown cdictionary type: " + tag)
-        instance = self.register[(anchor, tag)](cd, ixval)
-        return cast(CDiR, instance)
+CDictionaryRegistry = chc_rust.app.c_dictionary_record.CDictionaryRegistry
 
 
 cdregistry: CDictionaryRegistry = CDictionaryRegistry()

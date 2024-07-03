@@ -39,6 +39,8 @@ use crate::{
     util::indexed_table::IndexedTableValue,
 };
 
+pyo3::import_exception!(chc.util.fileutil, CHCError);
+
 pub fn module(py: Python) -> PyResult<Bound<PyModule>> {
     let module = PyModule::new_bound(py, "c_dictionary_record")?;
     module.add_class::<CDictionaryRecord>()?;
@@ -108,6 +110,30 @@ impl CDeclarationsRecord {
 }
 
 #[derive(Clone)]
+#[pyclass(frozen)]
+pub struct CDictionaryRegistryHandler {
+    registry: Py<CDictionaryRegistry>,
+    tag: String,
+    anchor: Py<PyType>,
+}
+
+#[pymethods]
+impl CDictionaryRegistryHandler {
+    #[pyo3(name = "__call__")]
+    fn call(slf: &Bound<Self>, t: Py<PyType>) -> PyResult<Py<PyType>> {
+        let slf_get = slf.get();
+        slf_get
+            .registry
+            .bind(slf.py())
+            .borrow()
+            .register
+            .bind(slf.py())
+            .set_item((slf_get.anchor.clone(), slf_get.tag.as_str()), t.clone())?;
+        Ok(t)
+    }
+}
+
+#[derive(Clone)]
 #[pyclass(get_all, subclass)]
 pub struct CDictionaryRegistry {
     register: Py<PyDict>,
@@ -120,5 +146,37 @@ impl CDictionaryRegistry {
         CDictionaryRegistry {
             register: PyDict::new_bound(py).unbind(),
         }
+    }
+
+    fn register_tag(
+        registry: Py<Self>,
+        tag: String,
+        anchor: Py<PyType>,
+    ) -> CDictionaryRegistryHandler {
+        CDictionaryRegistryHandler {
+            registry,
+            tag,
+            anchor,
+        }
+    }
+
+    fn mk_instance<'a, 'b, 'c, 'd, 'e>(
+        slf: &'b Bound<'a, Self>,
+        cd: &'c Bound<'a, CDictionary>,
+        ixval: &'d Bound<'a, IndexedTableValue>,
+        anchor: &'e Bound<'a, PyType>,
+    ) -> PyResult<Bound<'a, CDictionaryRecord>> {
+        let tag = ixval.get().tags()[0].clone();
+        let Some(item) = slf
+            .borrow()
+            .register
+            .bind(slf.py())
+            .get_item((anchor, tag.as_str()))?
+        else {
+            return Err(CHCError::new_err(format!(
+                "Unknown cdictionary type: {tag}"
+            )));
+        };
+        Ok(item.call1((cd, ixval))?.downcast()?.clone())
     }
 }
