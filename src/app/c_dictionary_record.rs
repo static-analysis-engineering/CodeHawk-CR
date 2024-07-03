@@ -32,6 +32,7 @@ use once_cell::sync::OnceCell;
 use pyo3::{
     intern,
     prelude::*,
+    type_object::PyTypeInfo,
     types::{PyDict, PyType},
 };
 
@@ -183,9 +184,30 @@ impl CDictionaryRegistry {
     }
 }
 
-pub struct CDictionaryRegistryEntry(
-    pub &'static (dyn Sync + Fn(Python) -> (Py<PyType>, &'static str, Py<PyType>)),
-);
+pub struct CDictionaryRegistryEntry {
+    tag: &'static str,
+    create: &'static (dyn Sync + Fn(Python) -> (Py<PyType>, Py<PyType>)),
+}
+
+fn create_entry_types<Anchor: PyTypeInfo + 'static, T: PyTypeInfo + 'static>(
+    py: Python,
+) -> (Py<PyType>, Py<PyType>) {
+    (
+        PyType::new_bound::<Anchor>(py).unbind(),
+        PyType::new_bound::<T>(py).unbind(),
+    )
+}
+
+impl CDictionaryRegistryEntry {
+    pub const fn new<Anchor: PyTypeInfo + 'static, T: PyTypeInfo + 'static>(
+        tag: &'static str,
+    ) -> CDictionaryRegistryEntry {
+        CDictionaryRegistryEntry {
+            tag,
+            create: &create_entry_types::<Anchor, T>,
+        }
+    }
+}
 
 inventory::collect!(CDictionaryRegistryEntry);
 
@@ -196,8 +218,11 @@ pub fn cdregistry(py: Python) -> PyResult<Py<CDictionaryRegistry>> {
         .get_or_try_init(|| {
             let registry = CDictionaryRegistry::new(py);
             for entry in inventory::iter::<CDictionaryRegistryEntry>() {
-                let (anchor, tag, t) = (entry.0)(py);
-                registry.register.bind(py).set_item((anchor, tag), t)?;
+                let (anchor, t) = (entry.create)(py);
+                registry
+                    .register
+                    .bind(py)
+                    .set_item((anchor, entry.tag), t)?;
             }
             Py::new(py, registry)
         })

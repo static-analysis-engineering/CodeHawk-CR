@@ -32,7 +32,7 @@ SOFTWARE.
 
 use std::collections::BTreeMap;
 
-use pyo3::{intern, prelude::*, types::PyType};
+use pyo3::{intern, prelude::*};
 
 use crate::{
     app::{
@@ -131,15 +131,7 @@ impl CNoOffset {
     }
 }
 
-fn no_offset_entry(py: Python) -> (Py<PyType>, &'static str, Py<PyType>) {
-    (
-        PyType::new_bound::<COffset>(py).unbind(),
-        "n",
-        PyType::new_bound::<CNoOffset>(py).unbind(),
-    )
-}
-
-inventory::submit! { CDictionaryRegistryEntry(&no_offset_entry) }
+inventory::submit! { CDictionaryRegistryEntry::new::<COffset, CNoOffset>("n") }
 
 /// Field offset
 ///
@@ -225,15 +217,7 @@ impl CFieldOffset {
     }
 }
 
-fn field_offset_entry(py: Python) -> (Py<PyType>, &'static str, Py<PyType>) {
-    (
-        PyType::new_bound::<COffset>(py).unbind(),
-        "f",
-        PyType::new_bound::<CFieldOffset>(py).unbind(),
-    )
-}
-
-inventory::submit! { CDictionaryRegistryEntry(&field_offset_entry) }
+inventory::submit! { CDictionaryRegistryEntry::new::<COffset, CFieldOffset>("f") }
 
 /// Index offset into an array.
 ///
@@ -342,12 +326,4 @@ impl CIndexOffset {
     }
 }
 
-fn index_offset_entry(py: Python) -> (Py<PyType>, &'static str, Py<PyType>) {
-    (
-        PyType::new_bound::<COffset>(py).unbind(),
-        "i",
-        PyType::new_bound::<CIndexOffset>(py).unbind(),
-    )
-}
-
-inventory::submit! { CDictionaryRegistryEntry(&index_offset_entry) }
+inventory::submit! { CDictionaryRegistryEntry::new::<COffset, CIndexOffset>("i") }
