@@ -28,18 +28,16 @@
 # ------------------------------------------------------------------------------
 """Object representation for CIL offset sum type."""
 
-from chc.app.CDictionaryRecord import cdregistry
-
 import chc_rust
 
 
 COffset = chc_rust.app.c_offset.COffset
 
 
-CNoOffset = cdregistry.register_tag("n", COffset)(chc_rust.app.c_offset.CNoOffset)
+CNoOffset = chc_rust.app.c_offset.CNoOffset
 
 
-CFieldOffset = cdregistry.register_tag("f", COffset)(chc_rust.app.c_offset.CFieldOffset)
+CFieldOffset = chc_rust.app.c_offset.CFieldOffset
 
 
-CIndexOffset = cdregistry.register_tag("i", COffset)(chc_rust.app.c_offset.CIndexOffset)
+CIndexOffset = chc_rust.app.c_offset.CIndexOffset
