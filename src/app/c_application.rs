@@ -85,6 +85,7 @@ pub struct CApplication {
 #[pymethods]
 impl CApplication {
     #[new]
+    #[pyo3(signature = (projectpath, projectname, targetpath, contractpath, singlefile=None, excludefiles=None))]
     fn new(
         py: Python,
         projectpath: String,

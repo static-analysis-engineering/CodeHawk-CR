@@ -380,6 +380,7 @@ impl IndexedTable {
         Ok(result)
     }
 
+    #[pyo3(signature = (node, f, tag=None))]
     fn write_xml(
         &self,
         node: Bound<PyAny>, // ET.Element
@@ -395,6 +396,7 @@ impl IndexedTable {
         Ok(())
     }
 
+    #[pyo3(signature = (node, tag, get_value=None, get_key=None, get_index=None))]
     fn read_xml(
         &mut self,
         node: &Bound<PyAny>, // Optional[ET.Element]
