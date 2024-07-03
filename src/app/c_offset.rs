@@ -139,7 +139,7 @@ fn no_offset_entry(py: Python) -> (Py<PyType>, &'static str, Py<PyType>) {
     )
 }
 
-inventory::submit! { CDictionaryRegistryEntry { make: &no_offset_entry } }
+inventory::submit! { CDictionaryRegistryEntry(&no_offset_entry) }
 
 /// Field offset
 ///
@@ -233,7 +233,7 @@ fn field_offset_entry(py: Python) -> (Py<PyType>, &'static str, Py<PyType>) {
     )
 }
 
-inventory::submit! { CDictionaryRegistryEntry { make: &field_offset_entry } }
+inventory::submit! { CDictionaryRegistryEntry(&field_offset_entry) }
 
 /// Index offset into an array.
 ///
@@ -350,4 +350,4 @@ fn index_offset_entry(py: Python) -> (Py<PyType>, &'static str, Py<PyType>) {
     )
 }
 
-inventory::submit! { CDictionaryRegistryEntry { make: &index_offset_entry } }
+inventory::submit! { CDictionaryRegistryEntry(&index_offset_entry) }

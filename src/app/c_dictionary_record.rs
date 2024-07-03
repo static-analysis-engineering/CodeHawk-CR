@@ -183,9 +183,9 @@ impl CDictionaryRegistry {
     }
 }
 
-pub struct CDictionaryRegistryEntry {
-    pub make: &'static (dyn Sync + Fn(Python) -> (Py<PyType>, &'static str, Py<PyType>)),
-}
+pub struct CDictionaryRegistryEntry(
+    pub &'static (dyn Sync + Fn(Python) -> (Py<PyType>, &'static str, Py<PyType>)),
+);
 
 inventory::collect!(CDictionaryRegistryEntry);
 
@@ -196,7 +196,7 @@ pub fn cdregistry(py: Python) -> PyResult<Py<CDictionaryRegistry>> {
         .get_or_try_init(|| {
             let registry = CDictionaryRegistry::new(py);
             for entry in inventory::iter::<CDictionaryRegistryEntry>() {
-                let (anchor, tag, t) = (entry.make)(py);
+                let (anchor, tag, t) = (entry.0)(py);
                 registry.register.bind(py).set_item((anchor, tag), t)?;
             }
             Py::new(py, registry)
