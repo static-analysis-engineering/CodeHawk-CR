@@ -28,7 +28,11 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ------------------------------------------------------------------------------
 */
-use pyo3::{intern, prelude::*};
+use pyo3::{
+    intern,
+    prelude::*,
+    types::{PyDict, PyType},
+};
 
 use crate::{
     app::{c_declarations::CDeclarations, c_dictionary::CDictionary},
@@ -38,6 +42,7 @@ use crate::{
 pub fn module(py: Python) -> PyResult<Bound<PyModule>> {
     let module = PyModule::new_bound(py, "c_dictionary_record")?;
     module.add_class::<CDictionaryRecord>()?;
+    module.add_class::<CDictionaryRegistry>()?;
     module.add_class::<CDeclarationsRecord>()?;
     Ok(module)
 }
@@ -99,5 +104,21 @@ impl CDeclarationsRecord {
 impl CDeclarationsRecord {
     pub fn decls(&self) -> Py<CDeclarations> {
         self.decls.clone()
+    }
+}
+
+#[derive(Clone)]
+#[pyclass(get_all, subclass)]
+pub struct CDictionaryRegistry {
+    register: Py<PyDict>,
+}
+
+#[pymethods]
+impl CDictionaryRegistry {
+    #[new]
+    pub fn new(py: Python) -> CDictionaryRegistry {
+        CDictionaryRegistry {
+            register: PyDict::new_bound(py).unbind(),
+        }
     }
 }

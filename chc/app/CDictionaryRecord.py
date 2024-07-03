@@ -52,10 +52,11 @@ CDeclarationsRecord = chc_rust.app.c_dictionary_record.CDeclarationsRecord
 CDiR = TypeVar("CDiR", bound=CDictionaryRecord, covariant=True)
 
 
-class CDictionaryRegistry:
+class CDictionaryRegistry(chc_rust.app.c_dictionary_record.CDictionaryRegistry):
 
-    def __init__(self) -> None:
-        self.register: Dict[Tuple[type, str], Type[CDictionaryRecord]] = {}
+    def __new__(cls) -> "CDictionaryRegistry":
+        self = super().__new__(cls)
+        return self
 
     def register_tag(
             self,
