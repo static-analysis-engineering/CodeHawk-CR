@@ -34,6 +34,8 @@ from typing import Callable, Dict, List, Optional, TYPE_CHECKING
 
 import chc.util.fileutil as UF
 
+import chc_rust
+
 if TYPE_CHECKING:
     from chc.app.CExp import CExp
     from chc.app.CFile import CFile
@@ -43,12 +45,14 @@ if TYPE_CHECKING:
     from chc.app.CStmt import CStmt
 
 
-class CInstr:
+class CInstr(chc_rust.app.c_instr.CInstr):
     """Base class for instructions."""
 
-    def __init__(self, parent: "CStmt", xnode: ET.Element) -> None:
+    def __new__(cls, parent: "CStmt", xnode: ET.Element) -> "CInstr":
+        self = super().__new__(cls)
         self._parent = parent
         self.xnode = xnode
+        return self
 
     @property
     def parent(self) -> "CStmt":
@@ -85,11 +89,12 @@ class CInstr:
 class CCallInstr(CInstr):
     """Call instruction."""
 
-    def __init__(self, parent: "CStmt", xnode: ET.Element) -> None:
-        CInstr.__init__(self, parent, xnode)
+    def __new__(cls, parent: "CStmt", xnode: ET.Element) -> "CCallInstr":
+        self = super().__new__(cls, parent, xnode)
         self._lhs: Optional["CLval"] = None
         self._callee: Optional["CExp"] = None
         self._callargs: Optional[List["CExp"]] = None
+        return self
 
     @property
     def is_call(self) -> bool:
@@ -153,10 +158,11 @@ class CCallInstr(CInstr):
 class CAssignInstr(CInstr):
     """Assignment instruction."""
 
-    def __init__(self, parent: "CStmt", xnode: ET.Element) -> None:
-        CInstr.__init__(self, parent, xnode)
+    def __new__(cls, parent: "CStmt", xnode: ET.Element) -> "CAssignInstr":
+        self = super().__new__(cls, parent, xnode)
         self._lhs: Optional["CLval"] = None
         self._rhs: Optional["CExp"] = None
+        return self
 
     @property
     def is_assign(self) -> bool:
@@ -200,11 +206,12 @@ class CAssignInstr(CInstr):
 class CAsmInstr(CInstr):
     """Instruction representing inserted assembly code."""
 
-    def __init__(self, parent: "CStmt", xnode: ET.Element) -> None:
-        CInstr.__init__(self, parent, xnode)
+    def __new__(cls, parent: "CStmt", xnode: ET.Element) -> "CAsmInstr":
+        self = super().__new__(cls, parent, xnode)
         self._asminputs: Optional[List["CAsmInput"]] = None
         self._asmoutputs: Optional[List["CAsmOutput"]] = None
         self._templates: Optional[List[str]] = None
+        return self
 
     @property
     def is_asm(self) -> bool:
@@ -256,10 +263,12 @@ class CAsmInstr(CInstr):
 
 class CAsmOutput:
 
-    def __init__(self, parent: CAsmInstr, xnode: ET.Element) -> None:
+    def __new__(cls, parent: CAsmInstr, xnode: ET.Element) -> "CAsmOutput":
+        self = super().__new__(cls, parent, xnode)
         self._parent = parent
         self.xnode = xnode
         self._lhs: Optional["CLval"] = None
+        return self
 
     @property
     def parent(self) -> CAsmInstr:
@@ -285,10 +294,12 @@ class CAsmOutput:
 
 class CAsmInput:
 
-    def __init__(self, parent: CAsmInstr, xnode: ET.Element) -> None:
+    def __new__(cls, parent: CAsmInstr, xnode: ET.Element) -> "CAsmInput":
+        self = super().__new__(cls, parent, xnode)
         self._parent = parent
         self.xnode = xnode
         self._exp: Optional["CExp"] = None
+        return self
 
     @property
     def parent(self) -> CAsmInstr:
