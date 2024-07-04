@@ -45,6 +45,7 @@ from chc.invariants.CVConstantValueVariable import CVConstantValueVariable
 from chc.invariants.CVMemoryBase import CVMemoryBase
 from chc.invariants.CVMemoryReferenceData import CVMemoryReferenceData
 
+import chc_rust
 
 if TYPE_CHECKING:
     from chc.app.CApplication import CApplication
@@ -55,10 +56,11 @@ if TYPE_CHECKING:
     from chc.app.CFunDeclarations import CFunDeclarations
 
 
-class CFunVarDictionary:
+class CFunVarDictionary(chc_rust.invariants.c_fun_var_dictionary.CFunVarDictionary):
     """Indexed analysis variables."""
 
-    def __init__(self, cfun: "CFunction", xnode: ET.Element) -> None:
+    def __new__(cls, cfun: "CFunction", xnode: ET.Element) -> None:
+        self = super().__new__(cls)
         self._cfun = cfun
         self.xnode = xnode
         self._xd: Optional[CFunXprDictionary] = None
@@ -81,6 +83,7 @@ class CFunVarDictionary:
             "cvv": self.get_constant_value_variable_map,
             "cvd": self.get_c_variable_denotation_map}
         self.initialize(xnode)
+        return self
 
     @property
     def cfun(self) -> "CFunction":
