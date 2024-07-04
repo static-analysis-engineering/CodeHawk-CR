@@ -59,17 +59,24 @@ enum COffsetType {
     ///
     /// * args[0]: ckey of the containing struct
     /// * args[1]: index of sub-offset in cdictionary
-    CFieldOffset,
+    CFieldOffset {
+        fieldname: String,
+        ckey: isize,
+        index: isize,
+    },
     /// Index offset into an array.
     ///
     /// * args[0]: index of base of index expression in cdictionary
     /// * args[1]: index of sub-offset in cdictionary
-    CIndexOffset,
+    CIndexOffset {
+        base_index: isize,
+        sub_offset_index: isize,
+    },
 }
 
 /// Base class for an expression offset.
 #[derive(Clone)]
-#[pyclass(extends = CDictionaryRecord, frozen, subclass)]
+#[pyclass(extends = CDictionaryRecord, frozen)]
 pub struct COffset {
     typ: COffsetType,
 }
@@ -97,17 +104,17 @@ impl COffset {
 
     #[getter]
     fn is_field(&self) -> bool {
-        matches!(self.typ, COffsetType::CFieldOffset)
+        matches!(self.typ, COffsetType::CFieldOffset { .. })
     }
 
     #[getter]
     fn is_index(&self) -> bool {
-        matches!(self.typ, COffsetType::CIndexOffset)
+        matches!(self.typ, COffsetType::CIndexOffset { .. })
     }
 
     fn get_strings(slf: &Bound<Self>) -> PyResult<Vec<String>> {
         Ok(match slf.borrow().typ {
-            COffsetType::CIndexOffset => {
+            COffsetType::CIndexOffset { .. } => {
                 let index_exp = Self::index_exp(slf)?;
                 // Resolve with python interpreter in case this method is overridden
                 index_exp
@@ -120,7 +127,7 @@ impl COffset {
 
     fn get_variable_uses(slf: &Bound<Self>, vid: isize) -> PyResult<isize> {
         Ok(match slf.borrow().typ {
-            COffsetType::CIndexOffset => {
+            COffsetType::CIndexOffset { .. } => {
                 let index_exp = Self::index_exp(slf)?;
                 // Resolve with python interpreter in case this method is overridden
                 index_exp
@@ -138,23 +145,19 @@ impl COffset {
             COffsetType::CNoOffset => {
                 BTreeMap::from([("base".to_string(), "no-offset".to_string().to_object(py))])
             }
-            COffsetType::CFieldOffset => {
+            COffsetType::CFieldOffset { .. } => {
                 let mut map = BTreeMap::from([
                     ("base".to_string(), "field-offset".to_object(py)),
-                    ("field".to_string(), Self::fieldname(slf)?.to_object(py)),
+                    ("field".to_string(), slf.get().fieldname()?.to_object(py)),
                 ]);
                 let offset = Self::offset(slf)?;
-                // Resolve call with python interpreter for possible override
-                if offset
-                    .call_method0(intern!(slf.py(), "has_offset"))?
-                    .extract()?
-                {
-                    let inner = offset.call_method0(intern!(slf.py(), "to_dict"))?;
-                    map.insert("offset".to_string(), inner.unbind());
+                if offset.get().has_offset() {
+                    let inner = COffset::to_dict(&offset)?;
+                    map.insert("offset".to_string(), inner.to_object(py));
                 }
                 map
             }
-            COffsetType::CIndexOffset => {
+            COffsetType::CIndexOffset { .. } => {
                 let mut map = BTreeMap::from([
                     ("base".to_string(), "field-offset".to_object(py)),
                     (
@@ -165,13 +168,9 @@ impl COffset {
                     ),
                 ]);
                 let offset = Self::offset(slf)?;
-                // Resolve call with python interpreter for possible override
-                if offset
-                    .call_method0(intern!(slf.py(), "has_offset"))?
-                    .extract()?
-                {
-                    let inner = offset.call_method0(intern!(slf.py(), "to_dict"))?;
-                    map.insert("offset".to_string(), inner.unbind());
+                if offset.get().has_offset() {
+                    let inner = COffset::to_dict(&offset)?;
+                    map.insert("offset".to_string(), inner.to_object(py));
                 }
                 map
             }
@@ -184,16 +183,15 @@ impl COffset {
         let c_dict_record = slf.borrow().into_super();
         let cd = c_dict_record.cd();
         Ok(match slf.borrow().typ {
-            COffsetType::CFieldOffset => {
-                let arg_1 = c_dict_record.into_super().args()[1];
-                cd.call_method1(py, intern!(py, "get_offset"), (arg_1,))?
-                    .downcast_bound(py)?
-                    .clone()
-            }
-            COffsetType::CIndexOffset => {
-                let arg_1 = c_dict_record.into_super().args()[1];
+            COffsetType::CFieldOffset { index, .. } => cd
+                .call_method1(py, intern!(py, "get_offset"), (index,))?
+                .downcast_bound(py)?
+                .clone(),
+            COffsetType::CIndexOffset {
+                sub_offset_index, ..
+            } => {
                 // Resolve with python interpreter in case this method is overridden
-                cd.call_method1(py, intern!(py, "get_offset"), (arg_1,))?
+                cd.call_method1(py, intern!(py, "get_offset"), (sub_offset_index,))?
                     .downcast_bound(py)?
                     .clone()
             }
@@ -204,41 +202,40 @@ impl COffset {
     // Unvalidated
     #[getter]
     fn index_exp<'a, 'b>(slf: &'a Bound<'b, Self>) -> PyResult<Bound<'b, CExp>> {
-        if !matches!(slf.borrow().typ, COffsetType::CIndexOffset) {
+        let COffsetType::CIndexOffset { base_index, .. } = slf.borrow().typ else {
             return Err(PyException::new_err("wrong type"));
-        }
+        };
         let py = slf.py();
         let c_dict_record = slf.borrow().into_super();
         let cd = c_dict_record.cd();
-        let arg_0 = c_dict_record.into_super().args()[0];
         // Resolve with python interpreter in case this method is overridden
         Ok(cd
-            .call_method1(py, intern!(py, "get_exp"), (arg_0,))?
+            .call_method1(py, intern!(py, "get_exp"), (base_index,))?
             .downcast_bound(py)?
             .clone())
     }
 
     #[getter]
-    fn fieldname(slf: &Bound<Self>) -> PyResult<String> {
-        if !matches!(slf.borrow().typ, COffsetType::CFieldOffset) {
+    fn fieldname(&self) -> PyResult<String> {
+        let COffsetType::CFieldOffset { fieldname, .. } = &self.typ else {
             return Err(PyException::new_err("wrong type"));
-        }
-        Ok(slf.borrow().into_super().into_super().tags()[1].clone())
+        };
+        Ok(fieldname.clone())
     }
 
     #[getter]
-    fn ckey(slf: &Bound<Self>) -> PyResult<isize> {
-        if !matches!(slf.borrow().typ, COffsetType::CFieldOffset) {
+    fn ckey(&self) -> PyResult<isize> {
+        let COffsetType::CFieldOffset { ckey, .. } = &self.typ else {
             return Err(PyException::new_err("wrong type"));
-        }
-        Ok(slf.borrow().into_super().into_super().args()[0])
+        };
+        Ok(*ckey)
     }
 
     #[pyo3(name = "__str__")]
     fn str(slf: &Bound<Self>) -> PyResult<String> {
         match slf.borrow().typ {
             COffsetType::CNoOffset => Ok("".to_string()),
-            COffsetType::CFieldOffset => {
+            COffsetType::CFieldOffset { .. } => {
                 // Resolve call with python interpret for possible override
                 let offset = if slf
                     .call_method0(intern!(slf.py(), "has_offset"))?
@@ -248,9 +245,9 @@ impl COffset {
                 } else {
                     "".to_string()
                 };
-                Ok(format!(".{}{offset}", Self::fieldname(slf)?))
+                Ok(format!(".{}{offset}", slf.get().fieldname()?))
             }
-            COffsetType::CIndexOffset => {
+            COffsetType::CIndexOffset { .. } => {
                 // Resolve call with python interpret for possible override
                 let offset = if slf
                     .call_method0(intern!(slf.py(), "has_offset"))?
@@ -289,10 +286,17 @@ fn create_field_offset(
     cd: &Bound<CDictionary>,
     ixval: &Bound<IndexedTableValue>,
 ) -> PyResult<Py<CDictionaryRecord>> {
+    let fieldname = ixval.get().tags()[1].clone();
+    let ckey = ixval.get().args()[0];
+    let index = ixval.get().args()[1];
     Ok(Bound::new(
         cd.py(),
         COffset::new(
-            COffsetType::CFieldOffset,
+            COffsetType::CFieldOffset {
+                fieldname,
+                ckey,
+                index,
+            },
             cd.clone().unbind(),
             ixval.clone().unbind().get().clone(),
         ),
@@ -308,10 +312,15 @@ fn create_index_offset(
     cd: &Bound<CDictionary>,
     ixval: &Bound<IndexedTableValue>,
 ) -> PyResult<Py<CDictionaryRecord>> {
+    let base_index = ixval.get().args()[0];
+    let sub_offset_index = ixval.get().args()[1];
     Ok(Bound::new(
         cd.py(),
         COffset::new(
-            COffsetType::CIndexOffset,
+            COffsetType::CIndexOffset {
+                base_index,
+                sub_offset_index,
+            },
             cd.clone().unbind(),
             ixval.clone().unbind().get().clone(),
         ),
