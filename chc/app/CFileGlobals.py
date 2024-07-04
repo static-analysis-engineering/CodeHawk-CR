@@ -40,6 +40,8 @@ from typing import Dict, List, Optional, TYPE_CHECKING
 import chc.util.fileutil as UF
 from chc.util.loggingutil import chklogger
 
+import chc_rust
+
 if TYPE_CHECKING:
     from chc.app.CCompInfo import CCompInfo
     from chc.app.CEnumInfo import CEnumInfo
@@ -151,9 +153,10 @@ class CGVarDef:
             return f"{self.varinfo}"
 
 
-class CFileGlobals:
+class CFileGlobals(chc_rust.app.c_file_globals.CFileGlobals):
 
-    def __init__(self, cfile: "CFile", xnode: ET.Element) -> None:
+    def __new__(cls, cfile: "CFile", xnode: ET.Element) -> "CFileGlobals":
+        self = super().__new__(cls)
         self._cfile = cfile
         self._xnode = xnode
 
@@ -169,6 +172,7 @@ class CFileGlobals:
         self._globalcompinfockeys: Optional[Dict[int, "CCompInfo"]] = None
         self._globalvarinfonames: Optional[Dict[str, "CVarInfo"]] = None
         self._globalvarinfovids: Optional[Dict[int, "CVarInfo"]] = None
+        return self
 
     @property
     def cfile(self) -> "CFile":

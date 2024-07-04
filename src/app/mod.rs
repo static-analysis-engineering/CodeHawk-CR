@@ -18,6 +18,7 @@ mod c_file;
 mod c_file_assignment;
 mod c_file_assignment_dictionary;
 mod c_file_declarations;
+mod c_file_globals;
 mod c_function;
 mod c_global_declarations;
 mod c_init_info;
@@ -52,6 +53,7 @@ pub fn module(py: Python) -> PyResult<Bound<PyModule>> {
     module.add_submodule(&c_file_assignment::module(py)?)?;
     module.add_submodule(&c_file_assignment_dictionary::module(py)?)?;
     module.add_submodule(&c_file_declarations::module(py)?)?;
+    module.add_submodule(&c_file_globals::module(py)?)?;
     module.add_submodule(&c_function::module(py)?)?;
     module.add_submodule(&c_global_declarations::module(py)?)?;
     module.add_submodule(&c_init_info::module(py)?)?;
