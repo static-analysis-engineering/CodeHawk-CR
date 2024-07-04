@@ -137,20 +137,25 @@ impl CDictionaryRegistryHandler {
 }
 
 #[derive(Clone)]
-#[pyclass(get_all, subclass)]
+#[pyclass]
 pub struct CDictionaryRegistry {
+    #[pyo3(get)]
     register: Py<PyDict>,
+    // TODO figure out how to use `anchor` as a key
+    rust_register: Vec<CDictionaryRegistryEntry>,
+}
+
+impl CDictionaryRegistry {
+    pub fn new(py: Python, rust_register: Vec<CDictionaryRegistryEntry>) -> CDictionaryRegistry {
+        CDictionaryRegistry {
+            register: PyDict::new_bound(py).unbind(),
+            rust_register,
+        }
+    }
 }
 
 #[pymethods]
 impl CDictionaryRegistry {
-    #[new]
-    pub fn new(py: Python) -> CDictionaryRegistry {
-        CDictionaryRegistry {
-            register: PyDict::new_bound(py).unbind(),
-        }
-    }
-
     fn register_tag(
         registry: Py<Self>,
         tag: String,
@@ -170,6 +175,11 @@ impl CDictionaryRegistry {
         anchor: &'e Bound<'a, PyType>,
     ) -> PyResult<Bound<'a, CDictionaryRecord>> {
         let tag = ixval.get().tags()[0].clone();
+        for entry in &slf.borrow().rust_register {
+            if entry.matches(slf.py(), anchor, tag.as_str())? {
+                return entry.mk_instance(cd, ixval);
+            }
+        }
         let Some(item) = slf
             .borrow()
             .register
@@ -184,12 +194,24 @@ impl CDictionaryRegistry {
     }
 }
 
-pub struct CDictionaryRegistryEntry {
-    tag: &'static str,
-    create: &'static (dyn Sync + Fn(Python) -> (Py<PyType>, Py<PyType>)),
+#[derive(Clone)]
+pub enum CDictionaryRegistryEntry {
+    PythonType {
+        tag: &'static str,
+        create: &'static (dyn Sync + Fn(Python) -> (Py<PyType>, Py<PyType>)),
+    },
+    RustType {
+        tag: &'static str,
+        anchor: &'static (dyn Sync + Fn(Python) -> Py<PyType>),
+        create: &'static (dyn Sync
+                      + Fn(
+            &Bound<CDictionary>,
+            &Bound<IndexedTableValue>,
+        ) -> PyResult<Py<CDictionaryRecord>>),
+    },
 }
 
-fn create_entry_types<Anchor: PyTypeInfo + 'static, T: PyTypeInfo + 'static>(
+fn create_entry_python_types<Anchor: PyTypeInfo + 'static, T: PyTypeInfo + 'static>(
     py: Python,
 ) -> (Py<PyType>, Py<PyType>) {
     (
@@ -198,14 +220,60 @@ fn create_entry_types<Anchor: PyTypeInfo + 'static, T: PyTypeInfo + 'static>(
     )
 }
 
+fn create_entry_anchor<Anchor: PyTypeInfo + 'static>(py: Python) -> Py<PyType> {
+    PyType::new_bound::<Anchor>(py).unbind()
+}
+
 impl CDictionaryRegistryEntry {
-    pub const fn new<Anchor: PyTypeInfo + 'static, T: PyTypeInfo + 'static>(
+    pub const fn python_type<Anchor: PyTypeInfo + 'static, T: PyTypeInfo + 'static>(
         tag: &'static str,
     ) -> CDictionaryRegistryEntry {
-        CDictionaryRegistryEntry {
+        CDictionaryRegistryEntry::PythonType {
             tag,
-            create: &create_entry_types::<Anchor, T>,
+            create: &create_entry_python_types::<Anchor, T>,
         }
+    }
+
+    pub const fn rust_type<Anchor: PyTypeInfo + 'static>(
+        tag: &'static str,
+        create: &'static (dyn Sync
+                      + Fn(
+            &Bound<CDictionary>,
+            &Bound<IndexedTableValue>,
+        ) -> PyResult<Py<CDictionaryRecord>>),
+    ) -> CDictionaryRegistryEntry {
+        CDictionaryRegistryEntry::RustType {
+            tag,
+            anchor: &create_entry_anchor::<Anchor>,
+            create,
+        }
+    }
+
+    fn matches(&self, py: Python, anchor_in: &Bound<PyType>, tag_in: &str) -> PyResult<bool> {
+        Ok(match self {
+            Self::PythonType { tag, create } => {
+                *tag == tag_in && create(py).0.bind(py).eq(anchor_in)?
+            }
+            Self::RustType { tag, anchor, .. } => {
+                *tag == tag_in && anchor(py).bind(py).eq(anchor_in)?
+            }
+        })
+    }
+
+    fn mk_instance<'a, 'b, 'c, 'd>(
+        &self,
+        cd: &'b Bound<'a, CDictionary>,
+        ixval: &'c Bound<'a, IndexedTableValue>,
+    ) -> PyResult<Bound<'a, CDictionaryRecord>> {
+        Ok(match self {
+            Self::PythonType { create, .. } => create(cd.py())
+                .1
+                .bind(cd.py())
+                .call1((cd, ixval))?
+                .downcast()?
+                .clone(),
+            Self::RustType { create, .. } => create(cd, ixval)?.bind(cd.py()).downcast()?.clone(),
+        })
     }
 }
 
@@ -216,14 +284,10 @@ static CDREGISTRY: OnceCell<Py<CDictionaryRegistry>> = OnceCell::new();
 pub fn cdregistry(py: Python) -> PyResult<Py<CDictionaryRegistry>> {
     CDREGISTRY
         .get_or_try_init(|| {
-            let registry = CDictionaryRegistry::new(py);
-            for entry in inventory::iter::<CDictionaryRegistryEntry>() {
-                let (anchor, t) = (entry.create)(py);
-                registry
-                    .register
-                    .bind(py)
-                    .set_item((anchor, entry.tag), t)?;
-            }
+            let entries = inventory::iter::<CDictionaryRegistryEntry>()
+                .cloned()
+                .collect();
+            let registry = CDictionaryRegistry::new(py, entries);
             Py::new(py, registry)
         })
         .cloned()

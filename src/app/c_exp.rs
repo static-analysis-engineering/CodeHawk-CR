@@ -223,4 +223,4 @@ impl CExpConst {
     }
 }
 
-inventory::submit! { CDictionaryRegistryEntry::new::<CExp, CExpConst>("const") }
+inventory::submit! { CDictionaryRegistryEntry::python_type::<CExp, CExpConst>("const") }

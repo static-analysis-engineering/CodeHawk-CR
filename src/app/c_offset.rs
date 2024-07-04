@@ -128,7 +128,7 @@ impl CNoOffset {
     }
 }
 
-inventory::submit! { CDictionaryRegistryEntry::new::<COffset, CNoOffset>("n") }
+inventory::submit! { CDictionaryRegistryEntry::python_type::<COffset, CNoOffset>("n") }
 
 /// Field offset
 ///
@@ -214,7 +214,7 @@ impl CFieldOffset {
     }
 }
 
-inventory::submit! { CDictionaryRegistryEntry::new::<COffset, CFieldOffset>("f") }
+inventory::submit! { CDictionaryRegistryEntry::python_type::<COffset, CFieldOffset>("f") }
 
 /// Index offset into an array.
 ///
@@ -323,4 +323,4 @@ impl CIndexOffset {
     }
 }
 
-inventory::submit! { CDictionaryRegistryEntry::new::<COffset, CIndexOffset>("i") }
+inventory::submit! { CDictionaryRegistryEntry::python_type::<COffset, CIndexOffset>("i") }

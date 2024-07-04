@@ -176,7 +176,7 @@ impl CAttrInt {
     }
 }
 
-inventory::submit! { CDictionaryRegistryEntry::new::<CAttr, CAttrInt>("aint") }
+inventory::submit! { CDictionaryRegistryEntry::python_type::<CAttr, CAttrInt>("aint") }
 
 /// String attribute.
 ///
@@ -215,7 +215,7 @@ impl CAttrStr {
     }
 }
 
-inventory::submit! { CDictionaryRegistryEntry::new::<CAttr, CAttrStr>("astr") }
+inventory::submit! { CDictionaryRegistryEntry::python_type::<CAttr, CAttrStr>("astr") }
 
 /// Constructed attributes.
 ///
@@ -262,7 +262,7 @@ impl CAttrCons {
     }
 }
 
-inventory::submit! { CDictionaryRegistryEntry::new::<CAttr, CAttrCons>("acons") }
+inventory::submit! { CDictionaryRegistryEntry::python_type::<CAttr, CAttrCons>("acons") }
 
 #[derive(Clone)]
 #[pyclass(extends = CDictionaryRecord, frozen, subclass)]

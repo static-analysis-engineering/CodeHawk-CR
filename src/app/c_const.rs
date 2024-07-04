@@ -147,7 +147,7 @@ impl CConstInt {
     }
 }
 
-inventory::submit! { CDictionaryRegistryEntry::new::<CConst, CConstInt>("int") }
+inventory::submit! { CDictionaryRegistryEntry::python_type::<CConst, CConstInt>("int") }
 
 /// Constant string
 ///
@@ -193,7 +193,7 @@ impl CConstStr {
     }
 }
 
-inventory::submit! { CDictionaryRegistryEntry::new::<CConst, CConstStr>("str") }
+inventory::submit! { CDictionaryRegistryEntry::python_type::<CConst, CConstStr>("str") }
 
 /// Constant wide string (represented as a sequence of int64 integers)
 ///
@@ -227,7 +227,7 @@ impl CConstWStr {
     }
 }
 
-inventory::submit! { CDictionaryRegistryEntry::new::<CConst, CConstWStr>("wstr") }
+inventory::submit! { CDictionaryRegistryEntry::python_type::<CConst, CConstWStr>("wstr") }
 
 /// Constant character.
 ///
@@ -259,7 +259,7 @@ impl CConstChr {
     }
 }
 
-inventory::submit! { CDictionaryRegistryEntry::new::<CConst, CConstChr>("chr") }
+inventory::submit! { CDictionaryRegistryEntry::python_type::<CConst, CConstChr>("chr") }
 
 /// Constant real number.
 ///
@@ -297,7 +297,7 @@ impl CConstReal {
     }
 }
 
-inventory::submit! { CDictionaryRegistryEntry::new::<CConst, CConstReal>("real") }
+inventory::submit! { CDictionaryRegistryEntry::python_type::<CConst, CConstReal>("real") }
 
 /// Constant enumeration value.
 ///
@@ -347,7 +347,7 @@ impl CConstEnum {
     }
 }
 
-inventory::submit! { CDictionaryRegistryEntry::new::<CConst, CConstEnum>("enum") }
+inventory::submit! { CDictionaryRegistryEntry::python_type::<CConst, CConstEnum>("enum") }
 
 // Seems unused
 /// Constant string value
