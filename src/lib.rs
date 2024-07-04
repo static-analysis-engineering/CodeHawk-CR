@@ -1,6 +1,7 @@
 mod api;
 mod app;
 mod cmdline;
+mod invariants;
 mod proof;
 mod source;
 mod util;
@@ -12,6 +13,7 @@ fn chc_rust(py: Python, module: &Bound<PyModule>) -> PyResult<()> {
     module.add_submodule(&api::module(py)?)?;
     module.add_submodule(&app::module(py)?)?;
     module.add_submodule(&cmdline::module(py)?)?;
+    module.add_submodule(&invariants::module(py)?)?;
     module.add_submodule(&proof::module(py)?)?;
     module.add_submodule(&source::module(py)?)?;
     module.add_submodule(&util::module(py)?)?;

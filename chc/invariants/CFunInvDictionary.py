@@ -39,6 +39,8 @@ from chc.invariants.CNonRelationalValue import CNonRelationalValue
 import chc.util.fileutil as UF
 import chc.util.IndexedTable as IT
 
+import chc_rust
+
 if TYPE_CHECKING:
     from chc.app.CFile import CFile
     from chc.app.CFunction import CFunction
@@ -46,10 +48,11 @@ if TYPE_CHECKING:
     from chc.invariants.CFunXprDictionary import CFunXprDictionary
 
 
-class CFunInvDictionary(object):
+class CFunInvDictionary(chc_rust.invariants.c_fun_inv_dictionary.CFunInvDictionary):
     """Indexed function invariants."""
 
-    def __init__(self, cfun: "CFunction", xnode: ET.Element) -> None:
+    def __new__(cls, cfun: "CFunction", xnode: ET.Element) -> "CFunInvDictionary":
+        self = super().__new__(cls)
         self._cfun = cfun
         self.non_relational_value_table = IT.IndexedTable(
             "non-relational-value-table")
@@ -66,6 +69,7 @@ class CFunInvDictionary(object):
                 "invfact": self.get_invariant_fact_map
             }
         self.initialize(xnode)
+        return self
 
     @property
     def cfun(self) -> "CFunction":
