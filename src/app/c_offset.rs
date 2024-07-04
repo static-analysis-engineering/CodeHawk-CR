@@ -45,10 +45,7 @@ use crate::{
 
 pub fn module(py: Python) -> PyResult<Bound<PyModule>> {
     let module = PyModule::new_bound(py, "c_offset")?;
-    module.add_class::<CFieldOffset>()?;
-    module.add_class::<CIndexOffset>()?;
     module.add_class::<COffset>()?;
-    module.add_class::<CNoOffset>()?;
     Ok(module)
 }
 

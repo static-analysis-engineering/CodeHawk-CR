@@ -71,7 +71,6 @@ if TYPE_CHECKING:
     from chc.app.CFile import CFile
     from chc.app.CFileDictionary import CFileDictionary
     from chc.app.CLHost import CLHostVar, CLHostMem
-    from chc.app.COffset import CFieldOffset, CIndexOffset
     from chc.app.CTyp import CTypPtr, CTypComp, CTypArray, CTypFun
     from chc.app.CVarInfo import CVarInfo
 
@@ -691,20 +690,17 @@ class CDictionary(chc_rust.app.c_dictionary.CDictionary):
         return self.mk_lval_index(lval.tags, args)
 
     def index_offset(self, o: COffset, fid: int = -1) -> int:
-
         args: List[int]
 
         if not o.has_offset():
             return self.mk_offset_index(o.tags, o.args)
 
         if o.is_field:
-            o = cast("CFieldOffset", o)
             ckey = self.convert_ckey(o.ckey, cast(Any, o.cd).cfile.index)
             args = [ckey, self.index_offset(o.offset, fid)]
             return self.mk_offset_index(o.tags, args)
 
         if o.is_index:
-            o = cast("CIndexOffset", o)
             args = [
                 self.index_exp(o.index_exp),
                 self.index_offset(o.offset, fid)]

@@ -32,12 +32,3 @@ import chc_rust
 
 
 COffset = chc_rust.app.c_offset.COffset
-
-
-CNoOffset = chc_rust.app.c_offset.CNoOffset
-
-
-CFieldOffset = chc_rust.app.c_offset.CFieldOffset
-
-
-CIndexOffset = chc_rust.app.c_offset.CIndexOffset
