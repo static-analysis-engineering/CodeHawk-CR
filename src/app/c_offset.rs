@@ -116,27 +116,25 @@ impl COffset {
     }
 
     fn get_strings(&self, py: Python) -> PyResult<Vec<String>> {
-        Ok(match self.typ {
-            COffsetType::CIndexOffset { .. } => {
-                // Resolve with python interpreter in case this method is overridden
-                self.index_exp(py)?
-                    .call_method0(intern!(py, "get_strings"))?
-                    .extract()?
-            }
-            _ => vec![],
-        })
+        if !matches!(self.typ, COffsetType::CIndexOffset { .. }) {
+            return Ok(vec![]);
+        }
+        // Resolve with python interpreter in case this method is overridden
+        Ok(self
+            .index_exp(py)?
+            .call_method0(intern!(py, "get_strings"))?
+            .extract()?)
     }
 
     fn get_variable_uses(&self, py: Python, vid: isize) -> PyResult<isize> {
-        Ok(match self.typ {
-            COffsetType::CIndexOffset { .. } => {
-                // Resolve with python interpreter in case this method is overridden
-                self.index_exp(py)?
-                    .call_method1(intern!(py, "get_variable_uses"), (vid,))?
-                    .extract()?
-            }
-            _ => 0,
-        })
+        if !matches!(self.typ, COffsetType::CIndexOffset { .. }) {
+            return Ok(0);
+        }
+        // Resolve with python interpreter in case this method is overridden
+        Ok(self
+            .index_exp(py)?
+            .call_method1(intern!(py, "get_variable_uses"), (vid,))?
+            .extract()?)
     }
 
     // Unvalidated
@@ -171,23 +169,19 @@ impl COffset {
 
     #[getter]
     fn offset<'a, 'b>(&'a self, py: Python<'b>) -> PyResult<Bound<'b, COffset>> {
-        Ok(match self.typ {
-            COffsetType::CFieldOffset { index, .. } => self
-                .cd
-                .call_method1(py, intern!(py, "get_offset"), (index,))?
-                .downcast_bound(py)?
-                .clone(),
+        let index = match self.typ {
+            COffsetType::CFieldOffset { index, .. } => index,
             COffsetType::CIndexOffset {
                 sub_offset_index, ..
-            } => {
-                // Resolve with python interpreter in case this method is overridden
-                self.cd
-                    .call_method1(py, intern!(py, "get_offset"), (sub_offset_index,))?
-                    .downcast_bound(py)?
-                    .clone()
-            }
+            } => sub_offset_index,
             _ => return Err(PyException::new_err("wrong type")),
-        })
+        };
+        // Resolve with python interpreter in case this method is overridden
+        Ok(self
+            .cd
+            .call_method1(py, intern!(py, "get_offset"), (index,))?
+            .downcast_bound(py)?
+            .clone())
     }
 
     // Unvalidated
@@ -225,11 +219,7 @@ impl COffset {
         match self.typ {
             COffsetType::CNoOffset => Ok("".to_string()),
             COffsetType::CFieldOffset { .. } => {
-                let offset = if self.has_offset() {
-                    self.offset(py)?.str()?.extract()?
-                } else {
-                    "".to_string()
-                };
+                let offset: String = self.offset(py)?.str()?.extract()?;
                 Ok(format!(".{}{offset}", self.fieldname()?))
             }
             COffsetType::CIndexOffset { .. } => {
