@@ -78,6 +78,7 @@ enum COffsetType {
 #[derive(Clone)]
 #[pyclass(extends = CDictionaryRecord, frozen)]
 pub struct COffset {
+    cd: Py<CDictionary>,
     typ: COffsetType,
 }
 
@@ -87,7 +88,8 @@ impl COffset {
         cd: Py<CDictionary>,
         ixval: IndexedTableValue,
     ) -> PyClassInitializer<Self> {
-        PyClassInitializer::from(CDictionaryRecord::new(cd, ixval)).add_subclass(COffset { typ })
+        PyClassInitializer::from(CDictionaryRecord::new(cd.clone(), ixval))
+            .add_subclass(COffset { cd, typ })
     }
 }
 
@@ -180,10 +182,10 @@ impl COffset {
     #[getter]
     fn offset<'a, 'b>(slf: &'a Bound<'b, Self>) -> PyResult<Bound<'b, COffset>> {
         let py = slf.py();
-        let c_dict_record = slf.borrow().into_super();
-        let cd = c_dict_record.cd();
         Ok(match slf.borrow().typ {
-            COffsetType::CFieldOffset { index, .. } => cd
+            COffsetType::CFieldOffset { index, .. } => slf
+                .get()
+                .cd
                 .call_method1(py, intern!(py, "get_offset"), (index,))?
                 .downcast_bound(py)?
                 .clone(),
@@ -191,7 +193,9 @@ impl COffset {
                 sub_offset_index, ..
             } => {
                 // Resolve with python interpreter in case this method is overridden
-                cd.call_method1(py, intern!(py, "get_offset"), (sub_offset_index,))?
+                slf.get()
+                    .cd
+                    .call_method1(py, intern!(py, "get_offset"), (sub_offset_index,))?
                     .downcast_bound(py)?
                     .clone()
             }
@@ -206,10 +210,10 @@ impl COffset {
             return Err(PyException::new_err("wrong type"));
         };
         let py = slf.py();
-        let c_dict_record = slf.borrow().into_super();
-        let cd = c_dict_record.cd();
         // Resolve with python interpreter in case this method is overridden
-        Ok(cd
+        Ok(slf
+            .get()
+            .cd
             .call_method1(py, intern!(py, "get_exp"), (base_index,))?
             .downcast_bound(py)?
             .clone())
