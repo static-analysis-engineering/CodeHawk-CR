@@ -91,5 +91,7 @@ chc_tables () {(
 		chkc c-file file-table typsig-list $FILE
 		chkc c-file file-table varinfo $FILE
 		chkc c-file file-table xpredicate $FILE
+
+		chkc c-file investigate $FILE
 	done
 )}
