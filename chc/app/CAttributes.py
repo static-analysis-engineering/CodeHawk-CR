@@ -47,13 +47,13 @@ if TYPE_CHECKING:
 CAttr = chc_rust.app.c_attributes.CAttr
 
 
-CAttrInt = cdregistry.register_tag("aint", CAttr)(chc_rust.app.c_attributes.CAttrInt)
+CAttrInt = chc_rust.app.c_attributes.CAttrInt
 
 
-CAttrStr = cdregistry.register_tag("astr", CAttr)(chc_rust.app.c_attributes.CAttrStr)
+CAttrStr = chc_rust.app.c_attributes.CAttrStr
 
 
-CAttrCons = cdregistry.register_tag("acons", CAttr)(chc_rust.app.c_attributes.CAttrCons)
+CAttrCons = chc_rust.app.c_attributes.CAttrCons
 
 
 @cdregistry.register_tag("asizeof", CAttr)

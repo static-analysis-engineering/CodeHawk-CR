@@ -28,29 +28,28 @@
 # ------------------------------------------------------------------------------
 """Object representation of CIL constant sum type."""
 
-from chc.app.CDictionaryRecord import cdregistry
-
 import chc_rust
+
 
 CConst = chc_rust.app.c_const.CConst
 
 
-CConstInt = cdregistry.register_tag("int", CConst)(chc_rust.app.c_const.CConstInt)
+CConstInt = chc_rust.app.c_const.CConstInt
 
 
-CConstStr = cdregistry.register_tag("str", CConst)(chc_rust.app.c_const.CConstStr)
+CConstStr = chc_rust.app.c_const.CConstStr
 
 
-CConstWStr = cdregistry.register_tag("wstr", CConst)(chc_rust.app.c_const.CConstWStr)
+CConstWStr = chc_rust.app.c_const.CConstWStr
 
 
-CConstChr = cdregistry.register_tag("chr", CConst)(chc_rust.app.c_const.CConstChr)
+CConstChr = chc_rust.app.c_const.CConstChr
 
 
-CConstReal = cdregistry.register_tag("real", CConst)(chc_rust.app.c_const.CConstReal)
+CConstReal = chc_rust.app.c_const.CConstReal
 
 
-CConstReal = cdregistry.register_tag("enum", CConst)(chc_rust.app.c_const.CConstEnum)
+CConstEnum = chc_rust.app.c_const.CConstEnum
 
 
 CStringConstant = chc_rust.app.c_const.CStringConstant

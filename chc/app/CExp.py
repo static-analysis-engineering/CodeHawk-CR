@@ -74,7 +74,7 @@ unoperatorstrings = {"neg": "-", "bnot": "~", "lnot": "!"}
 CExp = chc_rust.app.c_exp.CExp
 
 
-CExpConst = cdregistry.register_tag("const", CExp)(chc_rust.app.c_exp.CExpConst)
+CExpConst = chc_rust.app.c_exp.CExpConst
 
 
 @cdregistry.register_tag("lval", CExp)

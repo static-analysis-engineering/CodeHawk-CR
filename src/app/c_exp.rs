@@ -33,7 +33,11 @@ use std::collections::BTreeMap;
 use pyo3::{intern, prelude::*};
 
 use crate::{
-    app::{c_const::CConst, c_dictionary::CDictionary, c_dictionary_record::CDictionaryRecord},
+    app::{
+        c_const::CConst,
+        c_dictionary::CDictionary,
+        c_dictionary_record::{CDictionaryRecord, CDictionaryRegistryEntry},
+    },
     util::indexed_table::IndexedTableValue,
 };
 
@@ -218,3 +222,5 @@ impl CExpConst {
         Ok(CExpConst::constant(slf)?.str()?.extract()?)
     }
 }
+
+inventory::submit! { CDictionaryRegistryEntry::new::<CExp, CExpConst>("const") }

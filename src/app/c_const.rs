@@ -32,7 +32,10 @@ use itertools::Itertools;
 use pyo3::{intern, prelude::*};
 
 use crate::{
-    app::{c_dictionary::CDictionary, c_dictionary_record::CDictionaryRecord},
+    app::{
+        c_dictionary::CDictionary,
+        c_dictionary_record::{CDictionaryRecord, CDictionaryRegistryEntry},
+    },
     util::indexed_table::IndexedTableValue,
 };
 
@@ -144,6 +147,8 @@ impl CConstInt {
     }
 }
 
+inventory::submit! { CDictionaryRegistryEntry::new::<CConst, CConstInt>("int") }
+
 /// Constant string
 ///
 /// - args[0]: string index
@@ -188,6 +193,8 @@ impl CConstStr {
     }
 }
 
+inventory::submit! { CDictionaryRegistryEntry::new::<CConst, CConstStr>("str") }
+
 /// Constant wide string (represented as a sequence of int64 integers)
 ///
 /// - tags[1..]: string representation of int64 integers
@@ -220,6 +227,8 @@ impl CConstWStr {
     }
 }
 
+inventory::submit! { CDictionaryRegistryEntry::new::<CConst, CConstWStr>("wstr") }
+
 /// Constant character.
 ///
 /// - args[0]: char code
@@ -249,6 +258,8 @@ impl CConstChr {
         format!("chr({})", CConstChr::chrvalue(slf))
     }
 }
+
+inventory::submit! { CDictionaryRegistryEntry::new::<CConst, CConstChr>("chr") }
 
 /// Constant real number.
 ///
@@ -285,6 +296,8 @@ impl CConstReal {
         Ok(format!("{}", CConstReal::realvalue(slf)?))
     }
 }
+
+inventory::submit! { CDictionaryRegistryEntry::new::<CConst, CConstReal>("real") }
 
 /// Constant enumeration value.
 ///
@@ -333,6 +346,8 @@ impl CConstEnum {
         Ok(format!("{}: {}({})", enum_name, item_name, exp))
     }
 }
+
+inventory::submit! { CDictionaryRegistryEntry::new::<CConst, CConstEnum>("enum") }
 
 // Seems unused
 /// Constant string value

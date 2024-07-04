@@ -31,7 +31,10 @@ SOFTWARE.
 use pyo3::{intern, prelude::*};
 
 use crate::{
-    app::{c_dictionary::CDictionary, c_dictionary_record::CDictionaryRecord},
+    app::{
+        c_dictionary::CDictionary,
+        c_dictionary_record::{CDictionaryRecord, CDictionaryRegistryEntry},
+    },
     util::indexed_table::IndexedTableValue,
 };
 
@@ -173,6 +176,8 @@ impl CAttrInt {
     }
 }
 
+inventory::submit! { CDictionaryRegistryEntry::new::<CAttr, CAttrInt>("aint") }
+
 /// String attribute.
 ///
 /// * args[0]: index in string table of string attribute
@@ -209,6 +214,8 @@ impl CAttrStr {
         Ok(format!("astr({})", CAttrStr::stringvalue(slf, py)?))
     }
 }
+
+inventory::submit! { CDictionaryRegistryEntry::new::<CAttr, CAttrStr>("astr") }
 
 /// Constructed attributes.
 ///
@@ -254,6 +261,8 @@ impl CAttrCons {
         format!("acons({})", CAttrCons::name(slf))
     }
 }
+
+inventory::submit! { CDictionaryRegistryEntry::new::<CAttr, CAttrCons>("acons") }
 
 #[derive(Clone)]
 #[pyclass(extends = CDictionaryRecord, frozen, subclass)]
