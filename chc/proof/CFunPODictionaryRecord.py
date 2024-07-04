@@ -31,6 +31,8 @@ from typing import Callable, cast, Dict, List, Tuple, Type, TypeVar, TYPE_CHECKI
 import chc.util.fileutil as UF
 from chc.util.IndexedTable import IndexedTableValue
 
+import chc_rust
+
 if TYPE_CHECKING:
     from chc.api.InterfaceDictionary import InterfaceDictionary
     from chc.app.CApplication import CApplication
@@ -45,16 +47,10 @@ if TYPE_CHECKING:
     from chc.proof.CPOPredicate import CPOPredicate
 
 
-class CFunPODictionaryRecord(IndexedTableValue):
+class CFunPODictionaryRecord(chc_rust.proof.c_fun_po_dictionary_record.CFunPODictionaryRecord):
 
     def __new__(cls, pod: "CFunPODictionary", ixval: IndexedTableValue) -> "CFunPODictionaryRecord":
-        self = super().__new__(cls, ixval.index, ixval.tags, ixval.args)
-        self._pod = pod
-        return self
-
-    @property
-    def pod(self) -> "CFunPODictionary":
-        return self._pod
+        return super().__new__(cls, pod, ixval)
 
     @property
     def pd(self) -> "CFilePredicateDictionary":
