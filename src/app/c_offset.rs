@@ -85,9 +85,10 @@ pub struct COffset {
 impl COffset {
     fn new(
         typ: COffsetType,
-        cd: Py<CDictionary>,
+        cd: &Bound<CDictionary>,
         ixval: IndexedTableValue,
     ) -> PyClassInitializer<Self> {
+        let cd = cd.clone().unbind();
         PyClassInitializer::from(CDictionaryRecord::new(cd.clone(), ixval))
             .add_subclass(COffset { cd, typ })
     }
@@ -224,7 +225,6 @@ impl COffset {
         match self.typ {
             COffsetType::CNoOffset => Ok("".to_string()),
             COffsetType::CFieldOffset { .. } => {
-                // Resolve call with python interpret for possible override
                 let offset = if self.has_offset() {
                     self.offset(py)?.str()?.extract()?
                 } else {
@@ -233,7 +233,6 @@ impl COffset {
                 Ok(format!(".{}{offset}", self.fieldname()?))
             }
             COffsetType::CIndexOffset { .. } => {
-                // Resolve call with python interpret for possible override
                 let offset = if self.has_offset() {
                     self.offset(py)?.str()?.extract()?
                 } else {
@@ -245,71 +244,46 @@ impl COffset {
     }
 }
 
-fn create_no_offset(
-    cd: &Bound<CDictionary>,
-    ixval: &Bound<IndexedTableValue>,
-) -> PyResult<Py<CDictionaryRecord>> {
-    Ok(Bound::new(
-        cd.py(),
-        COffset::new(
-            COffsetType::CNoOffset,
-            cd.clone().unbind(),
-            ixval.clone().unbind().get().clone(),
-        ),
-    )?
-    .downcast()?
-    .clone()
-    .unbind())
+fn create_no_offset<'a, 'b>(
+    cd: &'a Bound<'b, CDictionary>,
+    ixval: IndexedTableValue,
+) -> PyResult<Bound<'b, CDictionaryRecord>> {
+    Ok(
+        Bound::new(cd.py(), COffset::new(COffsetType::CNoOffset, cd, ixval))?
+            .downcast()?
+            .clone(),
+    )
 }
 
 inventory::submit! { CDictionaryRegistryEntry::rust_type::<COffset>("n", &create_no_offset) }
 
-fn create_field_offset(
-    cd: &Bound<CDictionary>,
-    ixval: &Bound<IndexedTableValue>,
-) -> PyResult<Py<CDictionaryRecord>> {
-    let fieldname = ixval.get().tags()[1].clone();
-    let ckey = ixval.get().args()[0];
-    let index = ixval.get().args()[1];
-    Ok(Bound::new(
-        cd.py(),
-        COffset::new(
-            COffsetType::CFieldOffset {
-                fieldname,
-                ckey,
-                index,
-            },
-            cd.clone().unbind(),
-            ixval.clone().unbind().get().clone(),
-        ),
-    )?
-    .downcast()?
-    .clone()
-    .unbind())
+fn create_field_offset<'a, 'b>(
+    cd: &'a Bound<'b, CDictionary>,
+    ixval: IndexedTableValue,
+) -> PyResult<Bound<'b, CDictionaryRecord>> {
+    let typ = COffsetType::CFieldOffset {
+        fieldname: ixval.tags()[1].clone(),
+        ckey: ixval.args()[0],
+        index: ixval.args()[1],
+    };
+    Ok(Bound::new(cd.py(), COffset::new(typ, cd, ixval))?
+        .downcast()?
+        .clone())
 }
 
 inventory::submit! { CDictionaryRegistryEntry::rust_type::<COffset>("f", &create_field_offset) }
 
-fn create_index_offset(
-    cd: &Bound<CDictionary>,
-    ixval: &Bound<IndexedTableValue>,
-) -> PyResult<Py<CDictionaryRecord>> {
-    let base_index = ixval.get().args()[0];
-    let sub_offset_index = ixval.get().args()[1];
-    Ok(Bound::new(
-        cd.py(),
-        COffset::new(
-            COffsetType::CIndexOffset {
-                base_index,
-                sub_offset_index,
-            },
-            cd.clone().unbind(),
-            ixval.clone().unbind().get().clone(),
-        ),
-    )?
-    .downcast()?
-    .clone()
-    .unbind())
+fn create_index_offset<'a, 'b>(
+    cd: &'a Bound<'b, CDictionary>,
+    ixval: IndexedTableValue,
+) -> PyResult<Bound<'b, CDictionaryRecord>> {
+    let typ = COffsetType::CIndexOffset {
+        base_index: ixval.args()[0],
+        sub_offset_index: ixval.args()[1],
+    };
+    Ok(Bound::new(cd.py(), COffset::new(typ, cd, ixval))?
+        .downcast()?
+        .clone())
 }
 
 inventory::submit! { CDictionaryRegistryEntry::rust_type::<COffset>("i", &create_index_offset) }

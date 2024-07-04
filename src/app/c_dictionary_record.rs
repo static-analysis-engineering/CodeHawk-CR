@@ -204,10 +204,10 @@ pub enum CDictionaryRegistryEntry {
         tag: &'static str,
         anchor: &'static (dyn Sync + Fn(Python) -> Py<PyType>),
         create: &'static (dyn Sync
-                      + Fn(
-            &Bound<CDictionary>,
-            &Bound<IndexedTableValue>,
-        ) -> PyResult<Py<CDictionaryRecord>>),
+                      + for<'a, 'b> Fn(
+            &'a Bound<'b, CDictionary>,
+            IndexedTableValue,
+        ) -> PyResult<Bound<'b, CDictionaryRecord>>),
     },
 }
 
@@ -237,10 +237,10 @@ impl CDictionaryRegistryEntry {
     pub const fn rust_type<Anchor: PyTypeInfo + 'static>(
         tag: &'static str,
         create: &'static (dyn Sync
-                      + Fn(
-            &Bound<CDictionary>,
-            &Bound<IndexedTableValue>,
-        ) -> PyResult<Py<CDictionaryRecord>>),
+                      + for<'a, 'b> Fn(
+            &'a Bound<'b, CDictionary>,
+            IndexedTableValue,
+        ) -> PyResult<Bound<'b, CDictionaryRecord>>),
     ) -> CDictionaryRegistryEntry {
         CDictionaryRegistryEntry::RustType {
             tag,
@@ -272,7 +272,10 @@ impl CDictionaryRegistryEntry {
                 .call1((cd, ixval))?
                 .downcast()?
                 .clone(),
-            Self::RustType { create, .. } => create(cd, ixval)?.bind(cd.py()).downcast()?.clone(),
+            Self::RustType { create, .. } => {
+                let ixval = ixval.get().clone();
+                create(cd, ixval)?
+            }
         })
     }
 }
