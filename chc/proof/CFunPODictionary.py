@@ -43,6 +43,8 @@ from chc.proof.SPOType import SPOType
 import chc.util.fileutil as UF
 from chc.util.IndexedTable import IndexedTable, IndexedTableValue
 
+import chc_rust
+
 
 if TYPE_CHECKING:
     from chc.api.InterfaceDictionary import InterfaceDictionary
@@ -58,13 +60,14 @@ importlib.import_module("chc.proof.PPOType")
 importlib.import_module("chc.proof.SPOType")
 
 
-class CFunPODictionary(object):
+class CFunPODictionary(chc_rust.proof.c_fun_po_dictionary.CFunPODictionary):
     """Indexed function proof obligations."""
 
-    def __init__(
-            self,
+    def __new__(
+            cls,
             cfun: "CFunction",
-            xnode: ET.Element) -> None:
+            xnode: ET.Element) -> "CFunPODictionary":
+        self = super().__new__(cls)
         self._cfun = cfun
         self.assumption_type_table = IndexedTable("assumption-table")
         self.ppo_type_table = IndexedTable("ppo-type-table")
@@ -79,6 +82,7 @@ class CFunPODictionary(object):
             "ppo": self.get_ppo_type_map,
             "spo": self.get_spo_type_map}
         self.initialize(xnode)
+        return self
 
     @property
     def cfun(self) -> "CFunction":

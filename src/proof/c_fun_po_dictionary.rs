@@ -30,27 +30,20 @@ SOFTWARE.
 */
 use pyo3::prelude::*;
 
-use crate::{proof::c_fun_po_dictionary::CFunPODictionary, util::indexed_table::IndexedTableValue};
-
 pub fn module(py: Python) -> PyResult<Bound<PyModule>> {
-    let module = PyModule::new_bound(py, "c_fun_po_dictionary_record")?;
-    module.add_class::<CFunPODictionaryRecord>()?;
+    let module = PyModule::new_bound(py, "c_fun_po_dictionary")?;
+    module.add_class::<CFunPODictionary>()?;
     Ok(module)
 }
 
 #[derive(Clone)]
-#[pyclass(extends = IndexedTableValue, get_all, frozen, subclass)]
-pub struct CFunPODictionaryRecord {
-    pod: Py<CFunPODictionary>,
-}
+#[pyclass(get_all, subclass)]
+pub struct CFunPODictionary {}
 
 #[pymethods]
-impl CFunPODictionaryRecord {
+impl CFunPODictionary {
     #[new]
-    pub fn new(
-        pod: Py<CFunPODictionary>,
-        ixval: IndexedTableValue,
-    ) -> (CFunPODictionaryRecord, IndexedTableValue) {
-        (CFunPODictionaryRecord { pod }, ixval)
+    fn new() -> CFunPODictionary {
+        CFunPODictionary {}
     }
 }
