@@ -85,9 +85,6 @@ class CTyp(chc_rust.app.c_typ.CTyp):
     def __new__(cls, cd: "CDictionary", ixval: IT.IndexedTableValue) -> "CTyp":
         return super().__new__(cls, cd, ixval)
 
-    def expand(self) -> "CTyp":
-        return self
-
     def strip_attributes(self) -> "CTyp":
         aindex = attribute_index[self.tags[0]]
         if aindex >= len(self.args):
@@ -116,10 +113,6 @@ class CTyp(chc_rust.app.c_typ.CTyp):
         return self.cd.get_exp_opt(ix)
 
     @property
-    def size(self) -> int:
-        return -1000
-
-    @property
     def attributes(self) -> "CAttributes":
         aindex = attribute_index[self.tags[0]]
         if len(self.args) > aindex:
@@ -140,54 +133,6 @@ class CTyp(chc_rust.app.c_typ.CTyp):
 
     def equal(self, other: "CTyp") -> bool:
         return self.expand().index == other.expand().index
-
-    @property
-    def is_array(self) -> bool:
-        return False
-
-    @property
-    def is_builtin_vaargs(self) -> bool:
-        return False
-
-    @property
-    def is_comp(self) -> bool:
-        return False
-
-    @property
-    def is_enum(self) -> bool:
-        return False
-
-    @property
-    def is_float(self) -> bool:
-        return False
-
-    @property
-    def is_function(self) -> bool:
-        return False
-
-    @property
-    def is_int(self) -> bool:
-        return False
-
-    @property
-    def is_named_type(self) -> bool:
-        return False
-
-    @property
-    def is_pointer(self) -> bool:
-        return False
-
-    @property
-    def is_struct(self) -> bool:
-        return False
-
-    @property
-    def is_void(self) -> bool:
-        return False
-
-    @property
-    def is_default_function_prototype(self) -> bool:
-        return False
 
     def writexml(self, cnode: ET.Element) -> None:
         cnode.set("ix", str(self.index))

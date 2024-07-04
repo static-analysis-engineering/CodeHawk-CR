@@ -52,4 +52,73 @@ impl CTyp {
     fn new(cd: Py<CDictionary>, ixval: IndexedTableValue) -> PyClassInitializer<Self> {
         PyClassInitializer::from(CDictionaryRecord::new(cd, ixval)).add_subclass(CTyp {})
     }
+
+    fn expand<'a, 'b>(slf: &'a Bound<'b, Self>) -> &'a Bound<'b, Self> {
+        slf
+    }
+
+    #[getter]
+    fn size(&self) -> isize {
+        -1000
+    }
+
+    #[getter]
+    fn is_array(&self) -> bool {
+        false
+    }
+
+    #[getter]
+    fn is_builtin_vaargs(&self) -> bool {
+        false
+    }
+
+    #[getter]
+    fn is_comp(&self) -> bool {
+        false
+    }
+
+    #[getter]
+    fn is_enum(&self) -> bool {
+        false
+    }
+
+    #[getter]
+    fn is_float(&self) -> bool {
+        false
+    }
+
+    #[getter]
+    fn is_function(&self) -> bool {
+        false
+    }
+
+    #[getter]
+    fn is_int(&self) -> bool {
+        false
+    }
+
+    #[getter]
+    fn is_named_type(&self) -> bool {
+        false
+    }
+
+    #[getter]
+    fn is_pointer(&self) -> bool {
+        false
+    }
+
+    #[getter]
+    fn is_struct(&self) -> bool {
+        false
+    }
+
+    #[getter]
+    fn is_void(&self) -> bool {
+        false
+    }
+
+    #[getter]
+    fn is_default_function_prototype(&self) -> bool {
+        false
+    }
 }
