@@ -44,6 +44,8 @@ from chc.util.loggingutil import chklogger
 from chc.util.UnionFind import UnionFind
 import chc.util.xmlutil as UX
 
+import chc_rust
+
 if TYPE_CHECKING:
     from chc.app.CApplication import CApplication
     from chc.app.CFile import CFile
@@ -65,16 +67,13 @@ Goal: produce equivalence classes of (fileindex,compinfo key) pairs that
 """
 
 
-class CLinker:
-    def __init__(self, capp: "CApplication") -> None:
-        self._capp = capp
+class CLinker(chc_rust.linker.c_linker.CLinker):
+    def __new__(cls, capp: "CApplication") -> None:
+        self = super().__new__(cls, capp)
         self._compinfos: List["CCompInfo"] = []
         self._compinfoxrefs: Dict[Tuple[int, int], int] = {}
         self._varinfoxrefs: Dict[Tuple[int, int], int] = {}
-
-    @property
-    def capp(self) -> "CApplication":
-        return self._capp
+        return self
 
     @property
     def indexmanager(self) -> "IndexManager":
