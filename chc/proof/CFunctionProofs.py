@@ -40,13 +40,15 @@ from chc.proof.CFunctionSPOs import CFunctionSPOs
 
 import chc.util.fileutil as UF
 
+import chc_rust
+
 if TYPE_CHECKING:
     from chc.app.CApplication import CApplication
     from chc.app.CFile import CFile
     from chc.app.CFunction import CFunction
 
 
-class CFunctionProofs:
+class CFunctionProofs(chc_rust.proof.c_function_proofs.CFunctionProofs):
     """
 
     CFunctionProofs is the root of a data structure that provides access to
@@ -66,16 +68,18 @@ class CFunctionProofs:
       - id -> CFunctionReturnsiteSPO
     """
 
-    def __init__(
-            self,
+    def __new__(
+            cls,
             cfun: "CFunction",
             xpponode: ET.Element,
-            xsponode: ET.Element) -> None:
+            xsponode: ET.Element) -> "CFunctionProofs":
+        self = super().__new__(cls)
         self._cfun = cfun
         self.xpponode = xpponode
         self.xsponode = xsponode
         self._ppos: Optional[CFunctionPPOs] = None
         self._spos: Optional[CFunctionSPOs] = None
+        return self
 
     @property
     def cfun(self) -> "CFunction":
