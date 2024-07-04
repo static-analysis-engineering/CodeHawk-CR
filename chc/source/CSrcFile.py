@@ -33,27 +33,19 @@ from typing import Dict, TYPE_CHECKING, Optional
 import chc.util.fileutil as UF
 from chc.util.loggingutil import chklogger
 
+import chc_rust
+
 if TYPE_CHECKING:
     from chc.app.CApplication import CApplication
 
 
-class CSrcFile:
+class CSrcFile(chc_rust.source.c_src_file.CSrcFile):
     """Represents the text file that holds the C source code."""
 
-    def __init__(self, capp: "CApplication", fname: str) -> None:
-        self._capp = capp
-        self._fname = fname
+    def __new__(cls, capp: "CApplication", fname: str) -> "CSrcFile":
+        self = super().__new__(cls, capp, fname)
         self._lines: Optional[Dict[int, str]] = None
-
-    @property
-    def capp(self) -> "CApplication":
-        return self._capp
-
-    @property
-    def fname(self) -> str:
-        """Returns the absolute c filename relative to the project directory."""
-
-        return self._fname
+        return self
 
     @property
     def lines(self) -> Dict[int, str]:

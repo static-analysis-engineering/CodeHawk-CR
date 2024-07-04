@@ -1,7 +1,7 @@
 use pyo3::prelude::*;
 
 mod assign_dictionary_record;
-mod c_application;
+pub mod c_application;
 mod c_attributes;
 mod c_comp_info;
 mod c_const;
