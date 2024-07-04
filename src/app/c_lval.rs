@@ -54,114 +54,126 @@ pub fn module(py: Python) -> PyResult<Bound<PyModule>> {
 /// * args[1]: index of offset in cdictionary
 #[derive(Clone)]
 #[pyclass(extends = CDictionaryRecord, frozen)]
-pub struct CLval {}
+pub struct CLval {
+    cd: Py<CDictionary>,
+    lhost_index: isize,
+    offset_index: isize,
+}
 
 #[pymethods]
 impl CLval {
     #[new]
     fn new(cd: Py<CDictionary>, ixval: IndexedTableValue) -> PyClassInitializer<Self> {
-        PyClassInitializer::from(CDictionaryRecord::new(cd, ixval)).add_subclass(CLval {})
+        let lval = CLval {
+            cd: cd.clone(),
+            lhost_index: ixval.args()[0],
+            offset_index: ixval.args()[1],
+        };
+        PyClassInitializer::from(CDictionaryRecord::new(cd, ixval)).add_subclass(lval)
     }
 
     #[getter]
-    fn lhost<'a, 'b>(slf: &'a Bound<'b, Self>) -> PyResult<Bound<'b, CLHost>> {
-        let c_dict_entry = slf.borrow().into_super();
-        let cd = c_dict_entry.cd();
-        let arg_0 = c_dict_entry.into_super().args()[0];
-        Ok(cd
-            .call_method1(slf.py(), intern!(slf.py(), "get_lhost"), (arg_0,))?
-            .downcast_bound::<CLHost>(slf.py())?
+    fn lhost<'a, 'b>(&'a self, py: Python<'b>) -> PyResult<Bound<'b, CLHost>> {
+        Ok(self
+            .cd
+            .call_method1(py, intern!(py, "get_lhost"), (self.lhost_index,))?
+            .downcast_bound::<CLHost>(py)?
             .clone())
     }
 
     #[getter]
-    fn offset<'a, 'b>(slf: &'a Bound<'b, Self>) -> PyResult<Bound<'b, COffset>> {
-        let c_dict_entry = slf.borrow().into_super();
-        let cd = c_dict_entry.cd();
-        let arg_1 = c_dict_entry.into_super().args()[1];
-        Ok(cd
-            .call_method1(slf.py(), intern!(slf.py(), "get_offset"), (arg_1,))?
-            .downcast_bound::<COffset>(slf.py())?
+    fn offset<'a, 'b>(&'a self, py: Python<'b>) -> PyResult<Bound<'b, COffset>> {
+        Ok(self
+            .cd
+            .call_method1(py, intern!(py, "get_offset"), (self.offset_index,))?
+            .downcast_bound::<COffset>(py)?
             .clone())
     }
 
     // Unvalidated
-    fn has_variable(slf: &Bound<Self>, vid: isize) -> PyResult<bool> {
+    fn has_variable(&self, py: Python, vid: isize) -> PyResult<bool> {
         // Method is overridden
-        Ok(CLval::lhost(slf)?
-            .call_method1(intern!(slf.py(), "has_variable"), (vid,))?
+        Ok(self
+            .lhost(py)?
+            .call_method1(intern!(py, "has_variable"), (vid,))?
             .extract()?)
     }
 
     // Unvalidated
-    fn get_strings(slf: &Bound<Self>, vid: isize) -> PyResult<Vec<String>> {
+    fn get_strings(&self, py: Python, vid: isize) -> PyResult<Vec<String>> {
         // Method is overridden
-        let mut result: Vec<String> = CLval::lhost(slf)?
-            .call_method1(intern!(slf.py(), "get_strings"), (vid,))?
+        let mut result: Vec<String> = self
+            .lhost(py)?
+            .call_method1(intern!(py, "get_strings"), (vid,))?
             .extract()?;
         // Method is overridden
         result.append(
-            &mut CLval::offset(slf)?
-                .call_method1(intern!(slf.py(), "get_strings"), (vid,))?
+            &mut self
+                .offset(py)?
+                .call_method1(intern!(py, "get_strings"), (vid,))?
                 .extract()?,
         );
         return Ok(result);
     }
 
     // Unvalidated
-    fn get_variable_uses(slf: &Bound<Self>, vid: isize) -> PyResult<Vec<String>> {
+    fn get_variable_uses(&self, py: Python, vid: isize) -> PyResult<Vec<String>> {
         // Method is overridden
-        let mut result: Vec<String> = CLval::lhost(slf)?
-            .call_method1(intern!(slf.py(), "get_variable_uses"), (vid,))?
+        let mut result: Vec<String> = self
+            .lhost(py)?
+            .call_method1(intern!(py, "get_variable_uses"), (vid,))?
             .extract()?;
         // Method is overridden
         result.append(
-            &mut CLval::offset(slf)?
-                .call_method1(intern!(slf.py(), "get_variable_uses"), (vid,))?
+            &mut self
+                .offset(py)?
+                .call_method1(intern!(py, "get_variable_uses"), (vid,))?
                 .extract()?,
         );
         return Ok(result);
     }
 
     // Unvalidated
-    fn has_variable_deref(slf: &Bound<Self>, vid: isize) -> PyResult<bool> {
+    fn has_variable_deref(&self, py: Python, vid: isize) -> PyResult<bool> {
         // Method is overridden
-        Ok(CLval::lhost(slf)?
-            .call_method1(intern!(slf.py(), "has_variable_deref"), (vid,))?
+        Ok(self
+            .lhost(py)?
+            .call_method1(intern!(py, "has_variable_deref"), (vid,))?
             .extract()?)
     }
 
     // Unvalidated
-    fn has_ref_type(slf: &Bound<Self>) -> PyResult<bool> {
+    fn has_ref_type(&self, py: Python) -> PyResult<bool> {
         // Method is overridden
-        Ok(CLval::lhost(slf)?
-            .call_method0(intern!(slf.py(), "has_ref_type"))?
+        Ok(self
+            .lhost(py)?
+            .call_method0(intern!(py, "has_ref_type"))?
             .extract()?)
     }
 
     // Unvalidated
-    fn to_dict(slf: &Bound<Self>) -> PyResult<BTreeMap<String, Py<PyAny>>> {
+    fn to_dict(&self, py: Python) -> PyResult<BTreeMap<&'static str, Py<PyAny>>> {
         Ok(BTreeMap::from([
             // Method is overridden
             (
-                "lhost".to_string(),
-                CLval::lhost(slf)?
-                    .call_method0(intern!(slf.py(), "to_dict"))?
+                "lhost",
+                self.lhost(py)?
+                    .call_method0(intern!(py, "to_dict"))?
                     .unbind(),
             ),
             // Method is overridden
             (
-                "lhost".to_string(),
-                CLval::offset(slf)?
-                    .call_method0(intern!(slf.py(), "to_dict"))?
+                "lhost",
+                self.offset(py)?
+                    .call_method0(intern!(py, "to_dict"))?
                     .unbind(),
             ),
         ]))
     }
 
     #[pyo3(name = "__str__")]
-    fn str(slf: &Bound<Self>) -> PyResult<String> {
-        Ok(CLval::lhost(slf)?.str()?.extract::<String>()?
-            + &CLval::offset(slf)?.str()?.extract::<String>()?)
+    fn str(&self, py: Python) -> PyResult<String> {
+        Ok(self.lhost(py)?.str()?.extract::<String>()?
+            + &self.offset(py)?.str()?.extract::<String>()?)
     }
 }
