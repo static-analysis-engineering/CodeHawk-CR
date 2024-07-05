@@ -123,15 +123,13 @@ pub struct CDictionaryRegistryHandler {
 #[pymethods]
 impl CDictionaryRegistryHandler {
     #[pyo3(name = "__call__")]
-    fn call(slf: &Bound<Self>, t: Py<PyType>) -> PyResult<Py<PyType>> {
-        let slf_get = slf.get();
-        slf_get
-            .registry
-            .bind(slf.py())
+    fn call<'a>(&self, t: Bound<'a, PyType>) -> PyResult<Bound<'a, PyType>> {
+        self.registry
+            .bind(t.py())
             .borrow()
             .register
-            .bind(slf.py())
-            .set_item((slf_get.anchor.clone(), slf_get.tag.as_str()), t.clone())?;
+            .bind(t.py())
+            .set_item((self.anchor.clone(), self.tag.as_str()), t.clone())?;
         Ok(t)
     }
 }
@@ -169,21 +167,20 @@ impl CDictionaryRegistry {
     }
 
     fn mk_instance<'a, 'b, 'c, 'd, 'e>(
-        slf: &'b Bound<'a, Self>,
+        &self,
         cd: &'c Bound<'a, CDictionary>,
         ixval: &'d Bound<'a, IndexedTableValue>,
         anchor: &'e Bound<'a, PyType>,
     ) -> PyResult<Bound<'a, CDictionaryRecord>> {
         let tag = ixval.get().tags()[0].clone();
-        for entry in &slf.borrow().rust_register {
-            if entry.matches(slf.py(), anchor, tag.as_str())? {
+        for entry in &self.rust_register {
+            if entry.matches(cd.py(), anchor, tag.as_str())? {
                 return entry.mk_instance(cd, ixval);
             }
         }
-        let Some(item) = slf
-            .borrow()
+        let Some(item) = self
             .register
-            .bind(slf.py())
+            .bind(cd.py())
             .get_item((anchor, tag.as_str()))?
         else {
             return Err(CHCError::new_err(format!(
