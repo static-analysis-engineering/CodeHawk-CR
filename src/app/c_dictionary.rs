@@ -28,9 +28,12 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ------------------------------------------------------------------------------
 */
-use pyo3::prelude::*;
+use pyo3::{prelude::*, types::PyType};
 
-use crate::util::indexed_table::IndexedTable;
+use crate::{
+    app::{c_attributes::CAttr, c_dictionary_record::cdregistry},
+    util::indexed_table::IndexedTable,
+};
 
 pub fn module(py: Python) -> PyResult<Bound<PyModule>> {
     let module = PyModule::new_bound(py, "c_dictionary")?;
@@ -100,5 +103,20 @@ impl CDictionary {
             self.typsig_table.clone(),
             self.typsiglist_table.clone(),
         ]
+    }
+
+    // -------------- Retrieve items from dictionary tables -------------------
+
+    pub fn get_attrparam<'a>(slf: &Bound<'a, Self>, ix: isize) -> PyResult<Bound<'a, CAttr>> {
+        let py = slf.py();
+        let ixval = slf
+            .borrow()
+            .attrparam_table
+            .borrow(py)
+            .retrieve_bound(py, ix)?;
+        Ok(cdregistry(py)?
+            .mk_instance(slf, &ixval, &PyType::new_bound::<CAttr>(py))?
+            .downcast()?
+            .clone())
     }
 }

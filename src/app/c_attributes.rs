@@ -51,7 +51,7 @@ pub fn module(py: Python) -> PyResult<Bound<PyModule>> {
 /// Attribute that comes with a C type.
 #[derive(Clone)]
 #[pyclass(extends = CDictionaryRecord, frozen, subclass)]
-struct CAttr {}
+pub struct CAttr {}
 
 #[pymethods]
 impl CAttr {
@@ -246,8 +246,7 @@ impl CAttrCons {
             .into_super()
             .args()
             .iter()
-            .map(|i| cd.call_method1(py, intern!(py, "get_attrparam"), (*i,)))
-            .map(|ins| Ok(ins?.downcast_bound::<CAttr>(py)?.clone()))
+            .map(|i| CDictionary::get_attrparam(cd.bind(py), *i))
             .collect()
     }
 

@@ -166,7 +166,7 @@ impl CDictionaryRegistry {
         }
     }
 
-    fn mk_instance<'a, 'b, 'c, 'd, 'e>(
+    pub fn mk_instance<'a, 'b, 'c, 'd, 'e>(
         &self,
         cd: &'c Bound<'a, CDictionary>,
         ixval: &'d Bound<'a, IndexedTableValue>,
@@ -281,7 +281,7 @@ inventory::collect!(CDictionaryRegistryEntry);
 
 static CDREGISTRY: OnceCell<Py<CDictionaryRegistry>> = OnceCell::new();
 
-pub fn cdregistry(py: Python) -> PyResult<Py<CDictionaryRegistry>> {
+pub fn cdregistry(py: Python) -> PyResult<PyRef<CDictionaryRegistry>> {
     CDREGISTRY
         .get_or_try_init(|| {
             let entries = inventory::iter::<CDictionaryRegistryEntry>()
@@ -290,5 +290,5 @@ pub fn cdregistry(py: Python) -> PyResult<Py<CDictionaryRegistry>> {
             let registry = CDictionaryRegistry::new(py, entries);
             Py::new(py, registry)
         })
-        .cloned()
+        .map(|reg| reg.borrow(py))
 }

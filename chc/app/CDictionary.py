@@ -122,10 +122,6 @@ class CDictionary(chc_rust.app.c_dictionary.CDictionary):
 
     # -------------- Retrieve items from dictionary tables -------------------
 
-    def get_attrparam(self, ix: int) -> CAttr:
-        return cdregistry.mk_instance(
-            self, self.attrparam_table.retrieve(ix), CAttr)
-
     def get_attrparam_map(self) -> Dict[int, IndexedTableValue]:
         return self.attrparam_table.objectmap(self.get_attrparam)
 

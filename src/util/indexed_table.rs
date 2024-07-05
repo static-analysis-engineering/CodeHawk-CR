@@ -348,7 +348,7 @@ impl IndexedTable {
         Ok(())
     }
 
-    fn retrieve(&self, index: isize) -> PyResult<Py<IndexedTableValue>> {
+    pub fn retrieve(&self, index: isize) -> PyResult<Py<IndexedTableValue>> {
         if let Some(item) = self.indextable.get(&index) {
             return Ok(item.clone());
         }
@@ -468,5 +468,15 @@ impl IndexedTable {
             lines.push(format!("Checkpoint: {cp}"));
         }
         Ok(lines.join("\n"))
+    }
+}
+
+impl IndexedTable {
+    pub fn retrieve_bound<'a>(
+        &self,
+        py: Python<'a>,
+        index: isize,
+    ) -> PyResult<Bound<'a, IndexedTableValue>> {
+        self.retrieve(index).map(|i| i.bind(py).clone())
     }
 }
