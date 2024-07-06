@@ -69,44 +69,42 @@ impl TestCFileRef {
     }
 
     #[getter]
-    fn functions(
-        py_self: Py<Self>,
-        py: Python,
-    ) -> PyResult<BTreeMap<String, Py<TestCFunctionRef>>> {
-        let slf = py_self.get();
-        slf.functions
+    fn functions(slf: &Bound<Self>) -> PyResult<BTreeMap<String, Py<TestCFunctionRef>>> {
+        let py = slf.py();
+        let borrowed = slf.borrow();
+        borrowed
+            .functions
             .get_or_try_init(|| {
                 let mut functions = BTreeMap::new();
-                let Some(dict) = slf.refd.get("functions") else {
+                let Some(dict) = borrowed.refd.get("functions") else {
                     return Ok(functions);
                 };
                 let fn_map: BTreeMap<String, BTreeMap<String, Py<PyAny>>> = dict.extract(py)?;
                 for (f, fdata) in fn_map {
                     functions.insert(
                         f.clone(),
-                        Py::new(py, TestCFunctionRef::new(py_self.clone(), f, fdata))?,
+                        Py::new(py, TestCFunctionRef::new(slf.clone().unbind(), f, fdata))?,
                     );
                 }
                 Ok(functions)
             })
-            .cloned()
+            .map(|map| {
+                map.into_iter()
+                    .map(|(k, v)| (k.clone(), v.clone_ref(py)))
+                    .collect()
+            })
     }
 
     #[getter]
-    fn functionnames(py_self: Py<Self>, py: Python) -> PyResult<Vec<String>> {
-        Ok(TestCFileRef::functions(py_self, py)?
-            .keys()
-            .cloned()
-            .collect()) // Sorting comes from collection
+    fn functionnames(slf: &Bound<Self>) -> PyResult<Vec<String>> {
+        Ok(TestCFileRef::functions(slf)?.keys().cloned().collect()) // Sorting comes from collection
     }
 
     // Seems unused
-    fn get_function(
-        py_self: Py<Self>,
-        py: Python,
-        fname: &str,
-    ) -> PyResult<Option<Py<TestCFunctionRef>>> {
-        Ok(TestCFileRef::functions(py_self, py)?.get(fname).cloned())
+    fn get_function(slf: &Bound<Self>, fname: &str) -> PyResult<Option<Py<TestCFunctionRef>>> {
+        Ok(TestCFileRef::functions(slf)?
+            .get(fname)
+            .map(|p| p.clone_ref(slf.py())))
     }
 
     fn has_domains(&self, py: Python) -> PyResult<bool> {
@@ -122,9 +120,9 @@ impl TestCFileRef {
     }
 
     // Seems unused
-    fn has_spos(py_self: Py<Self>, py: Python) -> PyResult<bool> {
-        for f in TestCFileRef::functions(py_self, py)?.into_values() {
-            if TestCFunctionRef::has_spos(f.bind(py))? {
+    fn has_spos(slf: &Bound<Self>) -> PyResult<bool> {
+        for f in TestCFileRef::functions(slf)?.into_values() {
+            if TestCFunctionRef::has_spos(f.bind(slf.py()))? {
                 return Ok(true);
             }
         }
