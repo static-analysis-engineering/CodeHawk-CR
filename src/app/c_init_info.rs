@@ -136,13 +136,13 @@ impl CCompoundInitInfo {
         slf: &'a Bound<'b, Self>,
     ) -> PyResult<Vec<Bound<'b, COffsetInitInfo>>> {
         let c_decl_record = slf.borrow().into_super().into_super();
-        let decls = c_decl_record.decls();
+        let decls = c_decl_record.decls().bind(slf.py()).clone();
         c_decl_record.into_super().args()[1..]
             .iter()
             .map(|x| {
                 Ok(decls
-                    .call_method1(slf.py(), intern!(slf.py(), "get_offset_init"), (*x,))?
-                    .downcast_bound(slf.py())?
+                    .call_method1(intern!(slf.py(), "get_offset_init"), (*x,))?
+                    .downcast()?
                     .clone())
             })
             .collect()
@@ -193,11 +193,11 @@ impl COffsetInitInfo {
     #[getter]
     fn initializer<'a, 'b>(slf: &'a Bound<'b, Self>) -> PyResult<Bound<'b, CInitInfo>> {
         let c_decl_record = slf.borrow().into_super();
-        let dictionary = c_decl_record.decls();
+        let dictionary = c_decl_record.decls().bind(slf.py()).clone();
         let args_0 = c_decl_record.into_super().args()[1];
         Ok(dictionary
-            .call_method1(slf.py(), intern!(slf.py(), "get_initinfo"), (args_0,))?
-            .downcast_bound(slf.py())?
+            .call_method1(intern!(slf.py(), "get_initinfo"), (args_0,))?
+            .downcast()?
             .clone())
     }
 

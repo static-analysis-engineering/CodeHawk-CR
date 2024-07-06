@@ -110,8 +110,8 @@ impl CDeclarationsRecord {
 }
 
 impl CDeclarationsRecord {
-    pub fn decls(&self) -> Py<CDeclarations> {
-        self.decls.clone()
+    pub fn decls(&self) -> &Py<CDeclarations> {
+        &self.decls
     }
 }
 
@@ -147,7 +147,10 @@ impl CDictionaryRegistry {
                     .borrow(tuple.py())
                     .register
                     .bind(tuple.py())
-                    .set_item((anchor.clone(), tag.as_str()), t.clone())?;
+                    .set_item(
+                        (anchor.clone_ref(tuple.py()), tag.as_str()),
+                        t.clone_ref(tuple.py()),
+                    )?;
                 Ok(t)
             };
         Ok(PyCFunction::new_closure_bound(py, None, None, closure)?)
