@@ -188,13 +188,12 @@ impl CExpConst {
 
     #[getter]
     fn constant<'a, 'b>(slf: &'a Bound<'b, Self>) -> PyResult<Bound<'b, CConst>> {
-        let py = slf.py();
         let c_dict_record = slf.borrow().into_super().into_super();
-        let cd = c_dict_record.cd();
+        let cd = c_dict_record.cd().bind(slf.py()).clone();
         let arg_0 = c_dict_record.into_super().args()[0];
         Ok(cd
-            .call_method1(py, intern!(py, "get_constant"), (arg_0,))?
-            .downcast_bound(py)?
+            .call_method1(intern!(slf.py(), "get_constant"), (arg_0,))?
+            .downcast()?
             .clone())
     }
 

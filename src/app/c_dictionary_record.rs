@@ -81,8 +81,8 @@ impl CDictionaryRecord {
 }
 
 impl CDictionaryRecord {
-    pub fn cd(&self) -> Py<CDictionary> {
-        self.cd.clone()
+    pub fn cd(&self) -> &Py<CDictionary> {
+        &self.cd
     }
 }
 

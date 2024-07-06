@@ -237,15 +237,21 @@ impl CAttrCons {
     }
 
     #[getter]
-    fn params(slf: Py<Self>, py: Python) -> PyResult<Vec<Bound<CAttr>>> {
-        let cd = slf.borrow(py).into_super().into_super().cd();
-        slf.borrow(py)
+    fn params<'a>(slf: &Bound<'a, Self>) -> PyResult<Vec<Bound<'a, CAttr>>> {
+        let cd = slf
+            .borrow()
+            .into_super()
+            .into_super()
+            .cd()
+            .bind(slf.py())
+            .clone();
+        slf.borrow()
             .into_super()
             .into_super()
             .into_super()
             .args()
             .iter()
-            .map(|i| CDictionary::get_attrparam(cd.bind(py), *i))
+            .map(|i| CDictionary::get_attrparam(&cd, *i))
             .collect()
     }
 

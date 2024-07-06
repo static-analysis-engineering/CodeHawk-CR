@@ -86,8 +86,9 @@ impl COffset {
         cd: &Bound<CDictionary>,
         ixval: IndexedTableValue,
     ) -> PyClassInitializer<Self> {
+        let py = cd.py();
         let cd = cd.clone().unbind();
-        PyClassInitializer::from(CDictionaryRecord::new(cd.clone(), ixval))
+        PyClassInitializer::from(CDictionaryRecord::new(cd.clone_ref(py), ixval))
             .add_subclass(COffset { cd, typ })
     }
 }

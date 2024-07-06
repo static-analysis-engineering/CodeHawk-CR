@@ -161,17 +161,17 @@ impl CConstStr {
     }
 
     #[getter]
-    fn stringvalue(slf: PyRef<Self>, py: Python) -> PyResult<String> {
-        let dict_record = slf.into_super().into_super();
-        let decls = dict_record.cd();
+    fn stringvalue(slf: &Bound<Self>) -> PyResult<String> {
+        let dict_record = slf.borrow().into_super().into_super();
+        let decls = dict_record.cd().bind(slf.py()).clone();
         let arg0 = dict_record.into_super().args()[0];
         decls
-            .call_method1(py, intern!(py, "get_string"), (arg0,))?
-            .extract(py)
+            .call_method1(intern!(slf.py(), "get_string"), (arg0,))?
+            .extract()
     }
 
-    fn get_strings(slf: PyRef<Self>, py: Python) -> PyResult<Vec<String>> {
-        Ok(vec![CConstStr::stringvalue(slf, py)?])
+    fn get_strings(slf: &Bound<Self>) -> PyResult<Vec<String>> {
+        Ok(vec![CConstStr::stringvalue(slf)?])
     }
 
     #[getter]
@@ -180,8 +180,8 @@ impl CConstStr {
     }
 
     #[pyo3(name = "__str__")]
-    fn str(slf: PyRef<Self>, py: Python) -> PyResult<String> {
-        let strg = CConstStr::stringvalue(slf, py)?;
+    fn str(slf: &Bound<Self>) -> PyResult<String> {
+        let strg = CConstStr::stringvalue(slf)?;
         if strg.len() > 25 {
             Ok(format!("{}-char string", strg.len()))
         } else {

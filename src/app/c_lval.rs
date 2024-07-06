@@ -62,13 +62,14 @@ pub struct CLval {
 #[pymethods]
 impl CLval {
     #[new]
-    fn new(cd: Py<CDictionary>, ixval: IndexedTableValue) -> PyClassInitializer<Self> {
+    fn new(cd: &Bound<CDictionary>, ixval: IndexedTableValue) -> PyClassInitializer<Self> {
         let lval = CLval {
-            cd: cd.clone(),
+            cd: cd.clone().unbind(),
             lhost_index: ixval.args()[0],
             offset_index: ixval.args()[1],
         };
-        PyClassInitializer::from(CDictionaryRecord::new(cd, ixval)).add_subclass(lval)
+        PyClassInitializer::from(CDictionaryRecord::new(cd.clone().unbind(), ixval))
+            .add_subclass(lval)
     }
 
     #[getter]
