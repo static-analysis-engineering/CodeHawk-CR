@@ -75,47 +75,61 @@ impl TestCFunctionRef {
     }
 
     #[getter]
-    fn line_ppos(py_self: Py<Self>, py: Python) -> PyResult<BTreeMap<isize, Vec<Py<TestPPORef>>>> {
-        let slf = py_self.get();
-        slf.line_ppos
+    fn line_ppos(slf: &Bound<Self>) -> PyResult<BTreeMap<isize, Vec<Py<TestPPORef>>>> {
+        let py = slf.py();
+        let borrowed = slf.borrow();
+        borrowed
+            .line_ppos
             .get_or_try_init(|| {
                 let mut line_ppos = BTreeMap::new();
-                if let Some(ppos) = slf.refd.get("ppos") {
+                if let Some(ppos) = borrowed.refd.get("ppos") {
                     for p in ppos.extract::<Vec<Py<PyAny>>>(py)? {
-                        let ppo = Py::new(py, TestPPORef::new(py_self.clone(), p.extract(py)?))?;
+                        let ppo =
+                            Py::new(py, TestPPORef::new(slf.clone().unbind(), p.extract(py)?))?;
                         let line = ppo.borrow(py).line(py)?;
                         line_ppos.entry(line).or_insert(Vec::new()).push(ppo)
                     }
                 }
                 Ok(line_ppos)
             })
-            .cloned()
+            .map(|map| {
+                map.into_iter()
+                    .map(|(k, v)| (k.clone(), v.into_iter().map(|p| p.clone_ref(py)).collect()))
+                    .collect()
+            })
     }
 
     #[getter]
-    fn line_spos(py_self: Py<Self>, py: Python) -> PyResult<BTreeMap<isize, Vec<Py<TestSPORef>>>> {
-        let slf = py_self.get();
-        slf.line_spos
+    fn line_spos(slf: &Bound<Self>) -> PyResult<BTreeMap<isize, Vec<Py<TestSPORef>>>> {
+        let py = slf.py();
+        let borrowed = slf.borrow();
+        borrowed
+            .line_spos
             .get_or_try_init(|| {
                 let mut line_spos = BTreeMap::new();
-                if let Some(spos) = slf.refd.get("spos") {
+                if let Some(spos) = borrowed.refd.get("spos") {
                     for p in spos.extract::<Vec<Py<PyAny>>>(py)? {
-                        let spo = Py::new(py, TestSPORef::new(py_self.clone(), p.extract(py)?))?;
+                        let spo =
+                            Py::new(py, TestSPORef::new(slf.clone().unbind(), p.extract(py)?))?;
                         let line = spo.borrow(py).line(py)?;
                         line_spos.entry(line).or_insert(Vec::new()).push(spo)
                     }
                 }
                 Ok(line_spos)
             })
-            .cloned()
+            .map(|map| {
+                map.into_iter()
+                    .map(|(k, v)| (k.clone(), v.into_iter().map(|p| p.clone_ref(py)).collect()))
+                    .collect()
+            })
     }
 
     #[getter]
-    fn ppos(py_self: Py<Self>, py: Python) -> PyResult<Vec<Py<TestPPORef>>> {
-        Ok(TestCFunctionRef::line_ppos(py_self, py)?
+    fn ppos(slf: &Bound<Self>) -> PyResult<Vec<Py<TestPPORef>>> {
+        Ok(TestCFunctionRef::line_ppos(slf)?
             .values()
             .flatten()
-            .cloned()
+            .map(|v| v.clone_ref(slf.py()))
             .collect())
     }
 
@@ -138,42 +152,42 @@ impl TestCFunctionRef {
     }
 
     // Seems unused
-    fn has_ppos(py_self: Py<Self>, py: Python) -> PyResult<bool> {
-        Ok(!TestCFunctionRef::ppos(py_self, py)?.is_empty())
+    fn has_ppos(slf: &Bound<Self>) -> PyResult<bool> {
+        Ok(!TestCFunctionRef::ppos(slf)?.is_empty())
     }
 
     // Seems unused
-    fn get_pred_ppos(py_self: Py<Self>, py: Python, pred: &str) -> PyResult<Vec<Py<TestPPORef>>> {
-        TestCFunctionRef::ppos(py_self, py)?
+    fn get_pred_ppos(slf: &Bound<Self>, pred: &str) -> PyResult<Vec<Py<TestPPORef>>> {
+        TestCFunctionRef::ppos(slf)?
             .into_iter()
-            .map(|ppo| Ok((ppo.get().predicate(py)?, ppo)))
+            .map(|ppo| Ok((ppo.get().predicate(slf.py())?, ppo)))
             .filter_ok(|(ppo_pred, _)| pred == ppo_pred)
             .map_ok(|(_, ppo)| ppo)
             .collect()
     }
 
     #[getter]
-    fn spos(py_self: Py<Self>, py: Python) -> PyResult<Vec<Py<TestSPORef>>> {
-        Ok(TestCFunctionRef::line_spos(py_self, py)?
+    fn spos(slf: &Bound<Self>) -> PyResult<Vec<Py<TestSPORef>>> {
+        Ok(TestCFunctionRef::line_spos(slf)?
             .values()
             .flatten()
-            .cloned()
+            .map(|v| v.clone_ref(slf.py()))
             .collect())
     }
 
     // Seems unused
-    pub fn has_spos(py_self: Py<Self>, py: Python) -> PyResult<bool> {
-        Ok(!TestCFunctionRef::spos(py_self, py)?.is_empty())
+    pub fn has_spos(slf: &Bound<Self>) -> PyResult<bool> {
+        Ok(!TestCFunctionRef::spos(slf)?.is_empty())
     }
 
     // Seems unused
-    fn has_multiple(py_self: Py<Self>, py: Python, line: isize, pred: &str) -> PyResult<bool> {
-        Ok(TestCFunctionRef::line_ppos(py_self, py)?
+    fn has_multiple(slf: &Bound<Self>, line: isize, pred: &str) -> PyResult<bool> {
+        Ok(TestCFunctionRef::line_ppos(slf)?
             .get(&line)
-            .cloned()
-            .unwrap_or_else(|| Vec::new())
+            .map(|v| &v[..])
+            .unwrap_or_else(|| &[])
             .into_iter()
-            .map(|ppo| ppo.get().predicate(py))
+            .map(|ppo| ppo.get().predicate(slf.py()))
             .filter_ok(|ppo_pred| ppo_pred == pred)
             .collect::<PyResult<Vec<String>>>()?
             .len()

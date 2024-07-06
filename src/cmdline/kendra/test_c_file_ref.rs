@@ -124,7 +124,7 @@ impl TestCFileRef {
     // Seems unused
     fn has_spos(py_self: Py<Self>, py: Python) -> PyResult<bool> {
         for f in TestCFileRef::functions(py_self, py)?.into_values() {
-            if TestCFunctionRef::has_spos(f, py)? {
+            if TestCFunctionRef::has_spos(f.bind(py))? {
                 return Ok(true);
             }
         }
