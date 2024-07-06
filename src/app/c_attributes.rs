@@ -265,7 +265,7 @@ impl CAttrCons {
 inventory::submit! { CDictionaryRegistryEntry::python_type::<CAttr, CAttrCons>("acons") }
 
 #[derive(Clone)]
-#[pyclass(extends = CDictionaryRecord, frozen, subclass)]
+#[pyclass(extends = CDictionaryRecord, frozen)]
 pub struct CAttribute {
     name: String,
     cd: Py<CDictionary>,
@@ -309,13 +309,43 @@ impl CAttribute {
 }
 
 #[derive(Clone)]
-#[pyclass(extends = CDictionaryRecord, frozen, subclass)]
-pub struct CAttributes {}
+#[pyclass(extends = CDictionaryRecord, frozen)]
+pub struct CAttributes {
+    args: Vec<isize>,
+    cd: Py<CDictionary>,
+}
 
 #[pymethods]
 impl CAttributes {
     #[new]
     fn new(cd: Py<CDictionary>, ixval: IndexedTableValue) -> PyClassInitializer<Self> {
-        PyClassInitializer::from(CDictionaryRecord::new(cd, ixval)).add_subclass(CAttributes {})
+        let attributes = CAttributes {
+            args: ixval.args().to_vec(),
+            cd: cd.clone(),
+        };
+        PyClassInitializer::from(CDictionaryRecord::new(cd, ixval)).add_subclass(attributes)
+    }
+
+    #[getter]
+    fn attributes<'a>(&self, py: Python<'a>) -> PyResult<Vec<Bound<'a, CAttribute>>> {
+        self.args
+            .iter()
+            .map(|i| CDictionary::get_attribute(self.cd.bind(py), *i))
+            .collect()
+    }
+
+    #[getter]
+    fn length(&self) -> usize {
+        self.args.len()
+    }
+
+    #[pyo3(name = "__str__")]
+    fn str(&self, py: Python) -> PyResult<String> {
+        let attributes = self
+            .attributes(py)?
+            .into_iter()
+            .map(|b| Ok(b.str()?.extract()?))
+            .collect::<PyResult<Vec<String>>>()?;
+        Ok(attributes.join(","))
     }
 }

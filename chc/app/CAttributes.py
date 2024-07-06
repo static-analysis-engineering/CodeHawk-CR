@@ -399,18 +399,4 @@ class CAttrQuestion(CAttr):
 CAttribute = chc_rust.app.c_attributes.CAttribute
 
 
-class CAttributes(chc_rust.app.c_attributes.CAttributes):
-
-    def __new__(cls, cd: "CDictionary", ixval: IT.IndexedTableValue) -> "CAttributes":
-        return super().__new__(cls, cd, ixval)
-
-    @property
-    def attributes(self) -> List[CAttribute]:
-        return [self.cd.get_attribute(int(i)) for i in self.args]
-
-    @property
-    def length(self) -> int:
-        return len(self.attributes)
-
-    def __str__(self) -> str:
-        return ",".join([str(p) for p in self.attributes])
+CAttributes = chc_rust.app.c_attributes.CAttributes
