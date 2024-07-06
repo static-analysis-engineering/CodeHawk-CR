@@ -266,41 +266,45 @@ inventory::submit! { CDictionaryRegistryEntry::python_type::<CAttr, CAttrCons>("
 
 #[derive(Clone)]
 #[pyclass(extends = CDictionaryRecord, frozen, subclass)]
-pub struct CAttribute {}
+pub struct CAttribute {
+    name: String,
+    cd: Py<CDictionary>,
+    args: Vec<isize>,
+}
 
 #[pymethods]
 impl CAttribute {
     #[new]
     pub fn new(cd: Py<CDictionary>, ixval: IndexedTableValue) -> PyClassInitializer<Self> {
-        PyClassInitializer::from(CDictionaryRecord::new(cd, ixval)).add_subclass(CAttribute {})
+        let c_attribute = CAttribute {
+            name: ixval.tags()[0].clone(),
+            cd: cd.clone(),
+            args: ixval.args().to_vec(),
+        };
+        PyClassInitializer::from(CDictionaryRecord::new(cd, ixval)).add_subclass(c_attribute)
     }
 
     #[getter]
-    fn name(slf: PyRef<Self>) -> String {
-        slf.into_super().into_super().tags()[0].clone()
+    fn name(&self) -> &str {
+        self.name.as_str()
     }
 
     #[getter]
-    fn params<'a>(slf: &Bound<'a, Self>) -> PyResult<Vec<Bound<'a, CAttr>>> {
-        let c_dict_record = slf.borrow().into_super();
-        let cd = c_dict_record.cd();
-        let cd = cd.bind(slf.py());
-        c_dict_record
-            .into_super()
-            .args()
+    fn params<'a>(&self, py: Python<'a>) -> PyResult<Vec<Bound<'a, CAttr>>> {
+        self.args
             .iter()
-            .map(|i| CDictionary::get_attrparam(cd, *i))
+            .map(|i| CDictionary::get_attrparam(self.cd.bind(py), *i))
             .collect()
     }
 
     #[pyo3(name = "__str__")]
-    fn str<'a>(slf: &Bound<'a, Self>) -> PyResult<String> {
-        let name = Self::name(slf.borrow());
-        let params = Self::params(slf)?
+    fn str(&self, py: Python) -> PyResult<String> {
+        let params = self
+            .params(py)?
             .into_iter()
             .map(|b| Ok(b.str()?.extract()?))
             .collect::<PyResult<Vec<String>>>()?;
-        Ok(format!("{name}: {}", params.join(",")))
+        Ok(format!("{}: {}", self.name, params.join(",")))
     }
 }
 
