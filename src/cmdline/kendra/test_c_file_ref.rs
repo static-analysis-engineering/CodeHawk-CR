@@ -41,7 +41,6 @@ pub fn module(py: Python) -> PyResult<Bound<PyModule>> {
     Ok(module)
 }
 
-#[derive(Clone)]
 #[pyclass(frozen, subclass)]
 pub struct TestCFileRef {
     #[pyo3(get)]

@@ -52,7 +52,6 @@ pub fn module(py: Python) -> PyResult<Bound<PyModule>> {
 }
 
 /// Attribute that comes with a C type.
-#[derive(Clone)]
 #[pyclass(extends = CDictionaryRecord, frozen, subclass)]
 pub struct CAttr {}
 
@@ -152,7 +151,6 @@ impl CAttr {
 /// Integer attribute.
 ///
 /// args[0]: integer value
-#[derive(Clone)]
 #[pyclass(extends = CAttr, frozen, subclass)]
 struct CAttrInt {}
 
@@ -184,7 +182,6 @@ inventory::submit! { CDictionaryRegistryEntry::python_type::<CAttr, CAttrInt>("a
 /// String attribute.
 ///
 /// * args[0]: index in string table of string attribute
-#[derive(Clone)]
 #[pyclass(extends = CAttr, frozen, subclass)]
 struct CAttrStr {}
 
@@ -224,7 +221,6 @@ inventory::submit! { CDictionaryRegistryEntry::python_type::<CAttr, CAttrStr>("a
 ///
 /// * tags[1]: name
 /// * args[0..]: indices of attribute parameters in cdictionary.
-#[derive(Clone)]
 #[pyclass(extends = CAttr, frozen, subclass)]
 struct CAttrCons {}
 
@@ -266,7 +262,6 @@ impl CAttrCons {
 
 inventory::submit! { CDictionaryRegistryEntry::python_type::<CAttr, CAttrCons>("acons") }
 
-#[derive(Clone)]
 #[pyclass(extends = CDictionaryRecord, frozen)]
 pub struct CAttribute {
     name: String,
@@ -316,7 +311,6 @@ impl CDictionaryRecordTrait for CAttribute {
     }
 }
 
-#[derive(Clone)]
 #[pyclass(extends = CDictionaryRecord, frozen)]
 pub struct CAttributes {
     args: Vec<isize>,

@@ -37,7 +37,6 @@ pub fn module(py: Python) -> PyResult<Bound<PyModule>> {
 }
 
 /// C File main access point.
-#[derive(Clone)]
 #[pyclass(subclass)]
 pub struct CFunction {}
 

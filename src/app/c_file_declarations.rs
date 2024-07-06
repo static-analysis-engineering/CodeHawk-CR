@@ -44,7 +44,6 @@ pub fn module(py: Python) -> PyResult<Bound<PyModule>> {
 /// write_xml_cfile based on cchcil/cHCilDeclarations.cildeclarations.
 ///
 /// Declarations are dependent on CFileDictionary
-#[derive(Clone)]
 #[pyclass(extends = CDeclarations, frozen, subclass)]
 pub struct CFileDeclarations {}
 

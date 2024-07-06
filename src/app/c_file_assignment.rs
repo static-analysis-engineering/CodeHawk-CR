@@ -44,7 +44,6 @@ pub fn module(py: Python) -> PyResult<Bound<PyModule>> {
 
 // Unvalidated
 /// Base class for all assignment objects.
-#[derive(Clone)]
 #[pyclass(extends = AssignDictionaryRecord, frozen, subclass)]
 pub struct CFileAssignment {}
 

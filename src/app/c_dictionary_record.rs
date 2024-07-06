@@ -58,7 +58,6 @@ pub trait CDictionaryRecordTrait: PyClass {
 }
 
 /// Base class for all objects kept in the CDictionary
-#[derive(Clone)]
 #[pyclass(extends = IndexedTableValue, frozen, subclass)]
 pub struct CDictionaryRecord {
     #[pyo3(get)]
@@ -88,7 +87,6 @@ impl CDictionaryRecord {
 }
 
 /// Base class for all objects kept in the CFileDeclarations.
-#[derive(Clone)]
 #[pyclass(extends = IndexedTableValue, frozen, subclass)]
 pub struct CDeclarationsRecord {
     #[pyo3(get)]
@@ -117,7 +115,6 @@ impl CDeclarationsRecord {
     }
 }
 
-#[derive(Clone)]
 #[pyclass]
 pub struct CDictionaryRegistry {
     #[pyo3(get)]

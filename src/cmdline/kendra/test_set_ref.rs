@@ -42,7 +42,6 @@ pub fn module(py: Python) -> PyResult<Bound<PyModule>> {
 }
 
 /// Provides access to the reference results of a set of C files.
-#[derive(Clone)]
 #[pyclass(frozen, subclass)]
 pub struct TestSetRef {
     #[pyo3(get)]

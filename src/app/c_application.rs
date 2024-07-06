@@ -63,7 +63,6 @@ pub fn module(py: Python) -> PyResult<Bound<PyModule>> {
 /// - name: a string denoting the relative path of the file w.r.t. the project
 ///   directory (e.g., src/cgi/buffer.c)
 
-#[derive(Clone)]
 #[pyclass(subclass)]
 pub struct CApplication {
     #[pyo3(get)]

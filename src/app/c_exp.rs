@@ -49,7 +49,6 @@ pub fn module(py: Python) -> PyResult<Bound<PyModule>> {
 }
 
 /// Base class for all expressions.
-#[derive(Clone)]
 #[pyclass(extends = CDictionaryRecord, frozen, subclass)]
 pub struct CExp {}
 
@@ -172,7 +171,6 @@ impl CExp {
 /// Constant expression
 ///
 /// - args[0]: constant
-#[derive(Clone)]
 #[pyclass(extends = CExp, frozen, subclass)]
 struct CExpConst {}
 

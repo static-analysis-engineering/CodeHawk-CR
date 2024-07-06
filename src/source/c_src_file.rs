@@ -39,7 +39,6 @@ pub fn module(py: Python) -> PyResult<Bound<PyModule>> {
 }
 
 /// Represents the text file that holds the C source code.
-#[derive(Clone)]
 #[pyclass(get_all, subclass)]
 pub struct CSrcFile {
     capp: Py<CApplication>,

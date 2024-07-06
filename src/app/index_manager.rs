@@ -69,7 +69,6 @@ impl FileVarReference {
 }
 
 // Originally a dataclass, but ordering and hasing weren't used
-#[derive(Clone)]
 #[pyclass(get_all, set_all)]
 pub struct FileKeyReference {
     fid: isize,
@@ -90,7 +89,6 @@ impl FileKeyReference {
 }
 
 // Originally a dataclass, but ordering and hasing weren't used
-#[derive(Clone)]
 #[pyclass(get_all, set_all)]
 pub struct VarReference {
     fid: Option<isize>,
@@ -112,7 +110,6 @@ impl VarReference {
 }
 
 // Originally a dataclass, but ordering and hasing weren't used
-#[derive(Clone)]
 #[pyclass(get_all, set_all)]
 pub struct CKeyReference {
     fid: Option<isize>,
@@ -143,7 +140,6 @@ fn chklogger_debug(py: Python, text: String) -> PyResult<()> {
     Ok(())
 }
 
-#[derive(Clone)]
 #[pyclass(get_all, subclass)]
 pub struct IndexManager {
     is_single_file: bool,   // application consists of a single file

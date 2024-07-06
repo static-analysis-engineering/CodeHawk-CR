@@ -48,7 +48,6 @@ pub fn module(py: Python) -> PyResult<Bound<PyModule>> {
 }
 
 /// Global enum definition.
-#[derive(Clone)]
 #[pyclass(extends = CDeclarationsRecord, frozen, subclass)]
 pub struct CEnumInfo {}
 

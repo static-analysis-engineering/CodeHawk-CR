@@ -51,7 +51,6 @@ pub fn module(py: Python) -> PyResult<Bound<PyModule>> {
 /// - args[0]: filename index
 /// - args[1]: byte number
 /// - args[2]: line number
-#[derive(Clone)]
 #[pyclass(extends = CDeclarationsRecord, frozen, subclass)]
 pub struct CLocation {}
 

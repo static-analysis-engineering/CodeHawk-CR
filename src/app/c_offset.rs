@@ -50,7 +50,6 @@ pub fn module(py: Python) -> PyResult<Bound<PyModule>> {
 }
 
 // Needs to be a separate type because of #[pyclass]
-#[derive(Clone)]
 enum COffsetType {
     CNoOffset,
     /// Field offset
@@ -75,7 +74,6 @@ enum COffsetType {
 }
 
 /// Base class for an expression offset.
-#[derive(Clone)]
 #[pyclass(extends = CDictionaryRecord, frozen)]
 pub struct COffset {
     cd: Py<CDictionary>,

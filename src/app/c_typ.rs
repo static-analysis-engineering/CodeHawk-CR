@@ -42,7 +42,6 @@ pub fn module(py: Python) -> PyResult<Bound<PyModule>> {
 }
 
 /// Base class of all variable types.
-#[derive(Clone)]
 #[pyclass(extends = CDictionaryRecord, frozen, subclass)]
 pub struct CTyp {}
 

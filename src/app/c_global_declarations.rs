@@ -65,7 +65,6 @@ pub fn module(py: Python) -> PyResult<Bound<PyModule>> {
 ///   returned gckey, add (ckey,gckey) to the list of incompatibles, reset
 ///   the indexed table to the file checkpoint, and re-index all compinfos
 ///   in the file.
-#[derive(Clone)]
 #[pyclass(extends = CDeclarations, frozen, subclass)]
 pub struct CGlobalDeclarations {}
 

@@ -56,7 +56,6 @@ pub fn module(py: Python) -> PyResult<Bound<PyModule>> {
 /// - cchtargzname  projectname.cch.tar.gz
 /// - cchtarfile    targetpath/projectname.cch.tar
 /// - cchtargzfile  targetpath/projectname.cch.tar.gz
-#[derive(Clone)]
 #[pyclass(subclass)]
 pub struct ParseManager {}
 

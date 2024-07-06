@@ -43,7 +43,6 @@ pub fn module(py: Python) -> PyResult<Bound<PyModule>> {
 }
 
 /// Base class for variable and dereference.
-#[derive(Clone)]
 #[pyclass(extends = CDictionaryRecord, frozen, subclass)]
 pub struct CLHost {}
 

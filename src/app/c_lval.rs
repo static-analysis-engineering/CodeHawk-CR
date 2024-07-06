@@ -52,7 +52,6 @@ pub fn module(py: Python) -> PyResult<Bound<PyModule>> {
 ///
 /// * args[0]: index of lhost in cdictionary
 /// * args[1]: index of offset in cdictionary
-#[derive(Clone)]
 #[pyclass(extends = CDictionaryRecord, frozen)]
 pub struct CLval {
     cd: Py<CDictionary>,

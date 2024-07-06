@@ -53,7 +53,6 @@ pub fn module(py: Python) -> PyResult<Bound<PyModule>> {
 }
 
 /// Constant expression.
-#[derive(Clone)]
 #[pyclass(extends = CDictionaryRecord, frozen, subclass)]
 pub struct CConst {}
 
@@ -114,7 +113,6 @@ impl CConst {
 ///
 /// - tags[1]: string representation of value
 /// - tags[2]: ikind
-#[derive(Clone)]
 #[pyclass(extends = CConst, frozen, subclass)]
 struct CConstInt {}
 
@@ -152,7 +150,6 @@ inventory::submit! { CDictionaryRegistryEntry::python_type::<CConst, CConstInt>(
 /// Constant string
 ///
 /// - args[0]: string index
-#[derive(Clone)]
 #[pyclass(extends = CConst, frozen, subclass)]
 struct CConstStr {}
 
@@ -198,7 +195,6 @@ inventory::submit! { CDictionaryRegistryEntry::python_type::<CConst, CConstStr>(
 /// Constant wide string (represented as a sequence of int64 integers)
 ///
 /// - tags[1..]: string representation of int64 integers
-#[derive(Clone)]
 #[pyclass(extends = CConst, frozen, subclass)]
 struct CConstWStr {}
 
@@ -232,7 +228,6 @@ inventory::submit! { CDictionaryRegistryEntry::python_type::<CConst, CConstWStr>
 /// Constant character.
 ///
 /// - args[0]: char code
-#[derive(Clone)]
 #[pyclass(extends = CConst, frozen, subclass)]
 struct CConstChr {}
 
@@ -265,7 +260,6 @@ inventory::submit! { CDictionaryRegistryEntry::python_type::<CConst, CConstChr>(
 ///
 /// - tags[1]: string representation of real
 /// - tags[2]: fkind
-#[derive(Clone)]
 #[pyclass(extends = CConst, frozen, subclass)]
 struct CConstReal {}
 
@@ -305,7 +299,6 @@ inventory::submit! { CDictionaryRegistryEntry::python_type::<CConst, CConstReal>
 /// - tags[2]: enum item name
 ///
 /// - args[0]: exp
-#[derive(Clone)]
 #[pyclass(extends = CConst, frozen, subclass)]
 struct CConstEnum {}
 
@@ -356,7 +349,6 @@ inventory::submit! { CDictionaryRegistryEntry::python_type::<CConst, CConstEnum>
 /// - tags[1]: 'x' (optional) if string value is represented in hexadecimal
 ///
 /// - args[0] length of original string
-#[derive(Clone)]
 #[pyclass(extends = CDictionaryRecord, frozen, subclass)]
 struct CStringConstant {}
 

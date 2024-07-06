@@ -56,7 +56,6 @@ pub fn module(py: Python) -> PyResult<Bound<PyModule>> {
 /// * args[2]: fbitfield
 /// * args[3]: fattr       (-1 for global structs)
 /// * args[4]: floc        (-1 for global structs)
-#[derive(Clone)]
 #[pyclass(extends = CDeclarationsRecord, frozen, subclass)]
 pub struct CFieldInfo {}
 

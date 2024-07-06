@@ -38,7 +38,6 @@ pub fn module(py: Python) -> PyResult<Bound<PyModule>> {
     Ok(module)
 }
 
-#[derive(Clone)]
 #[pyclass(extends = IndexedTableValue, get_all, frozen, subclass)]
 pub struct CFunPODictionaryRecord {
     pod: Py<CFunPODictionary>,

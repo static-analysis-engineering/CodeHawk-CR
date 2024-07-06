@@ -37,7 +37,6 @@ pub fn module(py: Python) -> PyResult<Bound<PyModule>> {
 }
 
 /// Indexed function invariants.
-#[derive(Clone)]
 #[pyclass(subclass)]
 pub struct CFunInvDictionary {}
 

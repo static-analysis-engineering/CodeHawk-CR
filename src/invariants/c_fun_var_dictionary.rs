@@ -37,7 +37,6 @@ pub fn module(py: Python) -> PyResult<Bound<PyModule>> {
 }
 
 /// Indexed analysis variables.
-#[derive(Clone)]
 #[pyclass(subclass)]
 pub struct CFunVarDictionary {}
 

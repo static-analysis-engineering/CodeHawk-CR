@@ -45,7 +45,6 @@ pyo3::import_exception!(chcc.util.fileutil, CHCError);
 
 // Unvalidated
 /// Base class for all objects kept in the CFileAssignmentDictionary.
-#[derive(Clone)]
 #[pyclass(extends = IndexedTableValue, frozen, subclass)]
 pub struct AssignDictionaryRecord {
     #[pyo3(get)]

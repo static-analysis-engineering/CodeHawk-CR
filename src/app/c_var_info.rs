@@ -57,7 +57,6 @@ pub fn module(py: Python) -> PyResult<Bound<PyModule>> {
 /// * args[6]: vaddrof
 /// * args[7]: vparam
 /// * args[8]: vinit     (optional)
-#[derive(Clone)]
 #[pyclass(extends = CDeclarationsRecord, frozen, subclass)]
 pub struct CVarInfo {}
 

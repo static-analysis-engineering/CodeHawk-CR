@@ -55,7 +55,6 @@ pub fn module(py: Python) -> PyResult<Bound<PyModule>> {
 /// * args[1]: isstruct
 /// * args[2]: iattr                 (-1 for global struct)
 /// * args[3..]: field indices
-#[derive(Clone)]
 #[pyclass(extends = CDeclarationsRecord, frozen, subclass)]
 pub struct CCompInfo {}
 

@@ -45,7 +45,6 @@ pub fn module(py: Python) -> PyResult<Bound<PyModule>> {
 
 pyo3::import_exception!(chcc.util.fileutil, CHCError);
 
-#[derive(Clone)]
 #[pyclass(extends = IndexedTableValue, frozen, subclass)]
 pub struct CContextDictionaryRecord {
     #[pyo3(get)]
@@ -82,7 +81,6 @@ impl CContextDictionaryRecord {
 /// - tags[0]: name of the node
 /// - tags[1..]: additional info on the node, e.g. field name in struct expression
 /// - args[0]: stmt.id for statements, instr sequence number for instructions
-#[derive(Clone)]
 #[pyclass(extends = CContextDictionaryRecord, frozen, subclass)]
 pub struct CContextNode {}
 
@@ -133,7 +131,6 @@ impl CContextNode {
 /// Control-flow-graph context expressed by a list of context nodes.
 ///
 /// args[0..]: indices of context nodes in the context dictionary, inner context last
-#[derive(Clone)]
 #[pyclass(extends = CContextDictionaryRecord, frozen, subclass)]
 pub struct CfgContext {}
 
@@ -171,7 +168,6 @@ impl CfgContext {
 /// Expression nesting context expressed by a list of context nodes.
 ///
 /// args[0..]: indices of context nodes in the context dictionary, inner context last
-#[derive(Clone)]
 #[pyclass(extends = CContextDictionaryRecord, frozen, subclass)]
 pub struct ExpContext {}
 
@@ -205,7 +201,6 @@ impl ExpContext {
 ///
 /// args[0]: index of cfg context in context dictionary
 /// args[1]: index of exp context in context dictionary
-#[derive(Clone)]
 #[pyclass(extends = CContextDictionaryRecord, frozen, subclass)]
 pub struct ProgramContext {}
 

@@ -51,7 +51,6 @@ pub fn module(py: Python) -> PyResult<Bound<PyModule>> {
 /// * tags[0]: name of the item
 /// * args[0]: index of expression associated with the item in cdictionary
 /// * args[1]: index of definition location in the declarations
-#[derive(Clone)]
 #[pyclass(extends = CDeclarationsRecord, frozen, subclass)]
 pub struct CEnumItem {}
 

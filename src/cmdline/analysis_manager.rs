@@ -37,7 +37,6 @@ pub fn module(py: Python) -> PyResult<Bound<PyModule>> {
 }
 
 /// Provide the interface to the codehawk (ocaml) analyzer.
-#[derive(Clone)]
 #[pyclass(subclass)]
 pub struct AnalysisManager {}
 

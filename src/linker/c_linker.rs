@@ -48,7 +48,6 @@ pub fn module(py: Python) -> PyResult<Bound<PyModule>> {
     Ok(module)
 }
 
-#[derive(Clone)]
 #[pyclass(get_all, subclass)]
 pub struct CLinker {
     capp: Py<CApplication>,

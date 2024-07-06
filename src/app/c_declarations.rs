@@ -51,7 +51,6 @@ pub fn module(py: Python) -> PyResult<Bound<PyModule>> {
 }
 
 /// Abstract super class for CGlobalDeclarations and CFileDeclarations.
-#[derive(Clone)]
 #[pyclass(subclass)]
 pub struct CDeclarations {}
 

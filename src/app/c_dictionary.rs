@@ -53,7 +53,6 @@ pub fn module(py: Python) -> PyResult<Bound<PyModule>> {
 ///
 /// - CFileDictionary: Corresponds with cchlib/cCHDictionary.
 /// - CGlobalDictionary: constructed in the python api
-#[derive(Clone)]
 #[pyclass(get_all, subclass)]
 pub struct CDictionary {
     attrparam_table: Py<IndexedTable>,

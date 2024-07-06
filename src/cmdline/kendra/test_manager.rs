@@ -44,7 +44,6 @@ pub fn module(py: Python) -> PyResult<Bound<PyModule>> {
 ///     testname: name of the test directory
 ///     saveref: adds missing ppos to functions in the json spec file and
 ///              overwrites the json file with the result
-#[derive(Clone)]
 #[pyclass(subclass)]
 pub struct TestManager {}
 

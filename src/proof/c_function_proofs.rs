@@ -51,7 +51,6 @@ pub fn module(py: Python) -> PyResult<Bound<PyModule>> {
 ///   - id -> CFunctionCallsiteSPO
 ///   - returnsitespos: context -> CFunctionReturnsiteSPOs
 ///   - id -> CFunctionReturnsiteSPO
-#[derive(Clone)]
 #[pyclass(subclass)]
 pub struct CFunctionProofs {}
 

@@ -47,7 +47,6 @@ pub fn module(py: Python) -> PyResult<Bound<PyModule>> {
 ///
 /// - tags[0]: name of type definition
 /// - args[1]: index of type of type definition in cdictionary
-#[derive(Clone)]
 #[pyclass(extends = CDeclarationsRecord, frozen, subclass)]
 pub struct CTypeInfo {}
 

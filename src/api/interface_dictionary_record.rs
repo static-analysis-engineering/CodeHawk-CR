@@ -39,7 +39,6 @@ pub fn module(py: Python) -> PyResult<Bound<PyModule>> {
 }
 
 /// Base class for all objects kept in the InterfaceDictionary
-#[derive(Clone)]
 #[pyclass(extends = IndexedTableValue, frozen, subclass)]
 pub struct InterfaceDictionaryRecord {
     #[pyo3(get)]

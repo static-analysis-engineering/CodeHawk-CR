@@ -39,7 +39,6 @@ pub fn module(py: Python) -> PyResult<Bound<PyModule>> {
 }
 
 /// Superclass of all control flow components in a function.
-#[derive(Clone)]
 #[pyclass(frozen, subclass)]
 pub struct CStmt {
     #[pyo3(get)]

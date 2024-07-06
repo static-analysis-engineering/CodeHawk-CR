@@ -37,7 +37,6 @@ pub fn module(py: Python) -> PyResult<Bound<PyModule>> {
 }
 
 /// Dictionary for program context specifications.
-#[derive(Clone)]
 #[pyclass(subclass)]
 pub struct CContextDictionary {}
 

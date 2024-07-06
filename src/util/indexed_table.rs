@@ -191,7 +191,6 @@ fn element_tree_element<'a, 'py>(py: Python<'py>, tag: &'a str) -> PyResult<Boun
 ///
 /// Note: the string encodings use the comma as a concatenation character, hence
 ///       the comma character cannot be used in any string representation.
-#[derive(Clone)]
 #[pyclass(subclass)]
 pub struct IndexedTable {
     #[pyo3(get)]

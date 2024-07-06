@@ -40,7 +40,6 @@ pub fn module(py: Python) -> PyResult<Bound<PyModule>> {
     Ok(module)
 }
 
-#[derive(Clone)]
 #[pyclass(frozen)]
 pub struct TestPPORef {
     #[pyo3(get)]

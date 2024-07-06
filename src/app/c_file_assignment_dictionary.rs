@@ -39,7 +39,6 @@ pub fn module(py: Python) -> PyResult<Bound<PyModule>> {
 
 // Unvalidated
 /// Dictionary of assignments to global and static variables and fields.
-#[derive(Clone)]
 #[pyclass(get_all, subclass)]
 pub struct CFileAssignmentDictionary {}
 

@@ -50,7 +50,6 @@ pub fn module(py: Python) -> PyResult<Bound<PyModule>> {
 }
 
 /// Global variable initializer.
-#[derive(Clone)]
 #[pyclass(extends = CDeclarationsRecord, frozen, subclass)]
 pub struct CInitInfo {}
 
@@ -75,7 +74,6 @@ impl CInitInfo {
 /// Initializer of a simple variable.
 ///
 /// - args[0]: index of initialization expression in cdictionary
-#[derive(Clone)]
 #[pyclass(extends = CInitInfo, frozen, subclass)]
 pub struct CSingleInitInfo {}
 
@@ -111,7 +109,6 @@ impl CSingleInitInfo {
 /// Initializer of a struct or array.
 ///
 /// - args[0]: index of type of initializer in cdictionary
-#[derive(Clone)]
 #[pyclass(extends = CInitInfo, frozen, subclass)]
 pub struct CCompoundInitInfo {}
 
@@ -170,7 +167,6 @@ impl CCompoundInitInfo {
 ///
 /// - args[0]: index of offset expression in cdictionary
 /// - args[1]: index of initinfo in cdeclarations
-#[derive(Clone)]
 #[pyclass(extends = CDeclarationsRecord, frozen, subclass)]
 pub struct COffsetInitInfo {}
 

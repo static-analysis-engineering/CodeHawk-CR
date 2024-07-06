@@ -49,7 +49,6 @@ pub fn module(py: Python) -> PyResult<Bound<PyModule>> {
 ///        on this assumption
 ///     isglobal (bool=False): assumption holds globally
 ///     isfile (bool=False): assumption holds for the entire c-file
-#[derive(Clone)]
 #[pyclass(frozen)]
 pub struct ApiAssumption {
     #[pyo3(get)]
