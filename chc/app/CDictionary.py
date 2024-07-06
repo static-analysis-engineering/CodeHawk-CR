@@ -122,12 +122,6 @@ class CDictionary(chc_rust.app.c_dictionary.CDictionary):
 
     # -------------- Retrieve items from dictionary tables -------------------
 
-    def get_attribute(self, ix: int) -> CAttribute:
-        return CAttribute(self, self.attribute_table.retrieve(ix))
-
-    def get_attribute_map(self) -> Dict[int, IndexedTableValue]:
-        return self.attribute_table.objectmap(self.get_attribute)
-
     def get_attributes(self, ix: int) -> CAttributes:
         return CAttributes(self, self.attributes_table.retrieve(ix))
 

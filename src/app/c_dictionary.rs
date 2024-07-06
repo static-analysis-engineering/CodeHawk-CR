@@ -33,7 +33,10 @@ use std::collections::BTreeMap;
 use pyo3::{prelude::*, types::PyType};
 
 use crate::{
-    app::{c_attributes::CAttr, c_dictionary_record::cdregistry},
+    app::{
+        c_attributes::{CAttr, CAttribute},
+        c_dictionary_record::cdregistry,
+    },
     util::indexed_table::IndexedTable,
 };
 
@@ -128,6 +131,30 @@ impl CDictionary {
             .borrow(slf.py())
             .keys()
             .map(|k| Ok((*k, Self::get_attrparam(slf, *k)?)))
+            .collect()
+    }
+
+    pub fn get_attribute<'a>(slf: &Bound<'a, Self>, ix: isize) -> PyResult<Bound<'a, CAttribute>> {
+        let py = slf.py();
+        let ixval = slf
+            .borrow()
+            .attribute_table
+            .borrow(py)
+            .retrieve_bound(py, ix)?;
+        Bound::new(
+            slf.py(),
+            CAttribute::new(slf.clone().unbind(), ixval.borrow().clone()),
+        )
+    }
+
+    fn get_attribute_map<'a>(
+        slf: &Bound<'a, Self>,
+    ) -> PyResult<BTreeMap<isize, Bound<'a, CAttribute>>> {
+        slf.borrow()
+            .attribute_table
+            .borrow(slf.py())
+            .keys()
+            .map(|k| Ok((*k, Self::get_attribute(slf, *k)?)))
             .collect()
     }
 }
