@@ -396,7 +396,7 @@ class CAttrQuestion(CAttr):
         )
 
 
-class CAttribute(CDictionaryRecord):
+class CAttribute(chc_rust.app.c_attributes.CAttribute):
 
     def __new__(cls, cd: "CDictionary", ixval: IT.IndexedTableValue) -> "CAttribute":
         return super().__new__(cls, cd, ixval)

@@ -44,6 +44,7 @@ pub fn module(py: Python) -> PyResult<Bound<PyModule>> {
     module.add_class::<CAttrCons>()?;
     module.add_class::<CAttrInt>()?;
     module.add_class::<CAttrStr>()?;
+    module.add_class::<CAttribute>()?;
     module.add_class::<CAttributes>()?;
     Ok(module)
 }
@@ -262,6 +263,18 @@ impl CAttrCons {
 }
 
 inventory::submit! { CDictionaryRegistryEntry::python_type::<CAttr, CAttrCons>("acons") }
+
+#[derive(Clone)]
+#[pyclass(extends = CDictionaryRecord, frozen, subclass)]
+pub struct CAttribute {}
+
+#[pymethods]
+impl CAttribute {
+    #[new]
+    fn new(cd: Py<CDictionary>, ixval: IndexedTableValue) -> PyClassInitializer<Self> {
+        PyClassInitializer::from(CDictionaryRecord::new(cd, ixval)).add_subclass(CAttribute {})
+    }
+}
 
 #[derive(Clone)]
 #[pyclass(extends = CDictionaryRecord, frozen, subclass)]
