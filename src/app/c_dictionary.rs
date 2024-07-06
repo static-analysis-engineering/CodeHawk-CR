@@ -30,12 +30,12 @@ SOFTWARE.
 */
 use std::collections::BTreeMap;
 
-use pyo3::{prelude::*, types::PyType};
+use pyo3::{prelude::*, type_object::PyTypeInfo, types::PyType};
 
 use crate::{
     app::{
         c_attributes::{CAttr, CAttribute, CAttributes},
-        c_dictionary_record::cdregistry,
+        c_dictionary_record::{cdregistry, CDictionaryRecordTrait},
     },
     util::indexed_table::IndexedTable,
 };
@@ -113,75 +113,75 @@ impl CDictionary {
     // -------------- Retrieve items from dictionary tables -------------------
 
     pub fn get_attrparam<'a>(slf: &Bound<'a, Self>, ix: isize) -> PyResult<Bound<'a, CAttr>> {
-        let py = slf.py();
-        let ixval = slf
-            .borrow()
-            .attrparam_table
-            .borrow(py)
-            .retrieve_bound(py, ix)?;
-        Ok(cdregistry(py)?
-            .mk_instance(slf, &ixval, &PyType::new_bound::<CAttr>(py))?
-            .downcast()?
-            .clone())
+        Self::dict_to_registry(slf, &slf.borrow().attrparam_table, ix)
     }
 
     fn get_attrparam_map<'a>(slf: &Bound<'a, Self>) -> PyResult<BTreeMap<isize, Bound<'a, CAttr>>> {
-        slf.borrow()
-            .attrparam_table
-            .borrow(slf.py())
-            .keys()
-            .map(|k| Ok((*k, Self::get_attrparam(slf, *k)?)))
-            .collect()
+        Self::object_map(slf, &slf.borrow().attrparam_table, Self::get_attrparam)
     }
 
     pub fn get_attribute<'a>(slf: &Bound<'a, Self>, ix: isize) -> PyResult<Bound<'a, CAttribute>> {
-        let py = slf.py();
-        let ixval = slf
-            .borrow()
-            .attribute_table
-            .borrow(py)
-            .retrieve_bound(py, ix)?;
-        Bound::new(
-            slf.py(),
-            CAttribute::new(slf.clone().unbind(), ixval.borrow().clone()),
-        )
+        Self::dict_to_constructor(slf, &slf.borrow().attribute_table, ix)
     }
 
     fn get_attribute_map<'a>(
         slf: &Bound<'a, Self>,
     ) -> PyResult<BTreeMap<isize, Bound<'a, CAttribute>>> {
-        slf.borrow()
-            .attribute_table
-            .borrow(slf.py())
-            .keys()
-            .map(|k| Ok((*k, Self::get_attribute(slf, *k)?)))
-            .collect()
+        Self::object_map(slf, &slf.borrow().attribute_table, Self::get_attribute)
     }
 
     pub fn get_attributes<'a>(
         slf: &Bound<'a, Self>,
         ix: isize,
     ) -> PyResult<Bound<'a, CAttributes>> {
-        let py = slf.py();
-        let ixval = slf
-            .borrow()
-            .attribute_table
-            .borrow(py)
-            .retrieve_bound(py, ix)?;
-        Bound::new(
-            slf.py(),
-            CAttributes::new(slf.clone().unbind(), ixval.borrow().clone()),
-        )
+        Self::dict_to_constructor(slf, &slf.borrow().attributes_table, ix)
     }
 
     fn get_attributes_map<'a>(
         slf: &Bound<'a, Self>,
     ) -> PyResult<BTreeMap<isize, Bound<'a, CAttributes>>> {
-        slf.borrow()
-            .attribute_table
-            .borrow(slf.py())
+        Self::object_map(slf, &slf.borrow().attributes_table, Self::get_attributes)
+    }
+}
+
+impl CDictionary {
+    fn dict_to_registry<'a, T: PyTypeInfo>(
+        slf: &Bound<'a, Self>,
+        dict: &Py<IndexedTable>,
+        ix: isize,
+    ) -> PyResult<Bound<'a, T>> {
+        let py = slf.py();
+        let ixval = dict.borrow(py).retrieve_bound(py, ix)?;
+        Ok(cdregistry(py)?
+            .mk_instance(slf, &ixval, &PyType::new_bound::<T>(py))?
+            .downcast()?
+            .clone())
+    }
+
+    fn dict_to_constructor<'a, T: CDictionaryRecordTrait>(
+        slf: &Bound<'a, Self>,
+        dict: &Py<IndexedTable>,
+        ix: isize,
+    ) -> PyResult<Bound<'a, T>> {
+        let py = slf.py();
+        let ixval = dict.borrow(py).retrieve_bound(py, ix)?;
+        Bound::new(
+            slf.py(),
+            T::new(slf.clone().unbind(), ixval.borrow().clone()),
+        )
+    }
+
+    fn object_map<'a, T, F>(
+        slf: &Bound<'a, Self>,
+        dict: &Py<IndexedTable>,
+        func: F,
+    ) -> PyResult<BTreeMap<isize, Bound<'a, T>>>
+    where
+        F: Fn(&Bound<'a, Self>, isize) -> PyResult<Bound<'a, T>>,
+    {
+        dict.borrow(slf.py())
             .keys()
-            .map(|k| Ok((*k, Self::get_attributes(slf, *k)?)))
+            .map(|k| Ok((*k, func(slf, *k)?)))
             .collect()
     }
 }

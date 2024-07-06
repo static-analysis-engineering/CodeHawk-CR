@@ -33,7 +33,9 @@ use pyo3::{intern, prelude::*};
 use crate::{
     app::{
         c_dictionary::CDictionary,
-        c_dictionary_record::{CDictionaryRecord, CDictionaryRegistryEntry},
+        c_dictionary_record::{
+            CDictionaryRecord, CDictionaryRecordTrait, CDictionaryRegistryEntry,
+        },
     },
     util::indexed_table::IndexedTableValue,
 };
@@ -308,6 +310,12 @@ impl CAttribute {
     }
 }
 
+impl CDictionaryRecordTrait for CAttribute {
+    fn new(cd: Py<CDictionary>, ixval: IndexedTableValue) -> PyClassInitializer<Self> {
+        Self::new(cd, ixval)
+    }
+}
+
 #[derive(Clone)]
 #[pyclass(extends = CDictionaryRecord, frozen)]
 pub struct CAttributes {
@@ -347,5 +355,11 @@ impl CAttributes {
             .map(|b| Ok(b.str()?.extract()?))
             .collect::<PyResult<Vec<String>>>()?;
         Ok(attributes.join(","))
+    }
+}
+
+impl CDictionaryRecordTrait for CAttributes {
+    fn new(cd: Py<CDictionary>, ixval: IndexedTableValue) -> PyClassInitializer<Self> {
+        Self::new(cd, ixval)
     }
 }

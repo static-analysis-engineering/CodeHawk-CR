@@ -32,6 +32,7 @@ use once_cell::sync::OnceCell;
 use pyo3::{
     intern,
     prelude::*,
+    pyclass::PyClass,
     type_object::PyTypeInfo,
     types::{PyCFunction, PyDict, PyTuple, PyType},
 };
@@ -50,6 +51,10 @@ pub fn module(py: Python) -> PyResult<Bound<PyModule>> {
     module.add("cdregistry", cdregistry(py)?)?;
     module.add_class::<CDeclarationsRecord>()?;
     Ok(module)
+}
+
+pub trait CDictionaryRecordTrait: PyClass {
+    fn new(cd: Py<CDictionary>, ixval: IndexedTableValue) -> PyClassInitializer<Self>;
 }
 
 /// Base class for all objects kept in the CDictionary
