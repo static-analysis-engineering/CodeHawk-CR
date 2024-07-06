@@ -33,7 +33,7 @@ use pyo3::{
     intern,
     prelude::*,
     type_object::PyTypeInfo,
-    types::{PyDict, PyType},
+    types::{PyCFunction, PyDict, PyTuple, PyType},
 };
 
 use crate::{
@@ -113,28 +113,6 @@ impl CDeclarationsRecord {
 }
 
 #[derive(Clone)]
-#[pyclass(frozen)]
-pub struct CDictionaryRegistryHandler {
-    registry: Py<CDictionaryRegistry>,
-    tag: String,
-    anchor: Py<PyType>,
-}
-
-#[pymethods]
-impl CDictionaryRegistryHandler {
-    #[pyo3(name = "__call__")]
-    fn call<'a>(&self, t: Bound<'a, PyType>) -> PyResult<Bound<'a, PyType>> {
-        self.registry
-            .bind(t.py())
-            .borrow()
-            .register
-            .bind(t.py())
-            .set_item((self.anchor.clone(), self.tag.as_str()), t.clone())?;
-        Ok(t)
-    }
-}
-
-#[derive(Clone)]
 #[pyclass]
 pub struct CDictionaryRegistry {
     #[pyo3(get)]
@@ -154,16 +132,23 @@ impl CDictionaryRegistry {
 
 #[pymethods]
 impl CDictionaryRegistry {
-    fn register_tag(
-        registry: Py<Self>,
+    fn register_tag<'a>(
+        slf_registry: Py<Self>,
+        py: Python<'a>,
         tag: String,
         anchor: Py<PyType>,
-    ) -> CDictionaryRegistryHandler {
-        CDictionaryRegistryHandler {
-            registry,
-            tag,
-            anchor,
-        }
+    ) -> PyResult<Bound<'a, PyCFunction>> {
+        let closure =
+            move |tuple: &Bound<PyTuple>, _dict: Option<&Bound<PyDict>>| -> PyResult<Py<PyType>> {
+                let (t,): (Py<PyType>,) = tuple.extract()?;
+                slf_registry
+                    .borrow(tuple.py())
+                    .register
+                    .bind(tuple.py())
+                    .set_item((anchor.clone(), tag.as_str()), t.clone())?;
+                Ok(t)
+            };
+        Ok(PyCFunction::new_closure_bound(py, None, None, closure)?)
     }
 
     pub fn mk_instance<'a, 'b, 'c, 'd, 'e>(
