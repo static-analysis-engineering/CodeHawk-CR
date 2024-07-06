@@ -54,7 +54,7 @@ pub fn module(py: Python) -> PyResult<Bound<PyModule>> {
 }
 
 pub trait CDictionaryRecordTrait: PyClass {
-    fn new(cd: Py<CDictionary>, ixval: IndexedTableValue) -> PyClassInitializer<Self>;
+    fn new(cd: &Bound<CDictionary>, ixval: IndexedTableValue) -> PyClassInitializer<Self>;
 }
 
 /// Base class for all objects kept in the CDictionary

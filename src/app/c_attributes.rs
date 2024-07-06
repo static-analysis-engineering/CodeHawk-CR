@@ -278,13 +278,14 @@ pub struct CAttribute {
 #[pymethods]
 impl CAttribute {
     #[new]
-    pub fn new(cd: Py<CDictionary>, ixval: IndexedTableValue) -> PyClassInitializer<Self> {
+    pub fn new(cd: &Bound<CDictionary>, ixval: IndexedTableValue) -> PyClassInitializer<Self> {
         let c_attribute = CAttribute {
             name: ixval.tags()[0].clone(),
-            cd: cd.clone(),
+            cd: cd.clone().unbind(),
             args: ixval.args().to_vec(),
         };
-        PyClassInitializer::from(CDictionaryRecord::new(cd, ixval)).add_subclass(c_attribute)
+        PyClassInitializer::from(CDictionaryRecord::new(cd.clone().unbind(), ixval))
+            .add_subclass(c_attribute)
     }
 
     #[getter]
@@ -312,7 +313,7 @@ impl CAttribute {
 }
 
 impl CDictionaryRecordTrait for CAttribute {
-    fn new(cd: Py<CDictionary>, ixval: IndexedTableValue) -> PyClassInitializer<Self> {
+    fn new(cd: &Bound<CDictionary>, ixval: IndexedTableValue) -> PyClassInitializer<Self> {
         Self::new(cd, ixval)
     }
 }
@@ -326,12 +327,13 @@ pub struct CAttributes {
 #[pymethods]
 impl CAttributes {
     #[new]
-    pub fn new(cd: Py<CDictionary>, ixval: IndexedTableValue) -> PyClassInitializer<Self> {
+    pub fn new(cd: &Bound<CDictionary>, ixval: IndexedTableValue) -> PyClassInitializer<Self> {
         let attributes = CAttributes {
             args: ixval.args().to_vec(),
-            cd: cd.clone(),
+            cd: cd.clone().unbind(),
         };
-        PyClassInitializer::from(CDictionaryRecord::new(cd, ixval)).add_subclass(attributes)
+        PyClassInitializer::from(CDictionaryRecord::new(cd.clone().unbind(), ixval))
+            .add_subclass(attributes)
     }
 
     #[getter]
@@ -359,7 +361,7 @@ impl CAttributes {
 }
 
 impl CDictionaryRecordTrait for CAttributes {
-    fn new(cd: Py<CDictionary>, ixval: IndexedTableValue) -> PyClassInitializer<Self> {
+    fn new(cd: &Bound<CDictionary>, ixval: IndexedTableValue) -> PyClassInitializer<Self> {
         Self::new(cd, ixval)
     }
 }

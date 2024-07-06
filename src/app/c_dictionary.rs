@@ -92,21 +92,21 @@ impl CDictionary {
     }
 
     #[getter]
-    fn tables(&self) -> Vec<Py<IndexedTable>> {
+    fn tables(&self, py: Python) -> Vec<Py<IndexedTable>> {
         vec![
-            self.attrparam_table.clone(),
-            self.attribute_table.clone(),
-            self.attributes_table.clone(),
-            self.constant_table.clone(),
-            self.exp_table.clone(),
-            self.funarg_table.clone(),
-            self.funargs_table.clone(),
-            self.lhost_table.clone(),
-            self.lval_table.clone(),
-            self.offset_table.clone(),
-            self.typ_table.clone(),
-            self.typsig_table.clone(),
-            self.typsiglist_table.clone(),
+            self.attrparam_table.clone_ref(py),
+            self.attribute_table.clone_ref(py),
+            self.attributes_table.clone_ref(py),
+            self.constant_table.clone_ref(py),
+            self.exp_table.clone_ref(py),
+            self.funarg_table.clone_ref(py),
+            self.funargs_table.clone_ref(py),
+            self.lhost_table.clone_ref(py),
+            self.lval_table.clone_ref(py),
+            self.offset_table.clone_ref(py),
+            self.typ_table.clone_ref(py),
+            self.typsig_table.clone_ref(py),
+            self.typsiglist_table.clone_ref(py),
         ]
     }
 
@@ -173,10 +173,7 @@ impl CDictionary {
     ) -> PyResult<Bound<'a, T>> {
         let py = slf.py();
         let ixval = dict.borrow(py).retrieve_bound(py, ix)?;
-        Bound::new(
-            slf.py(),
-            T::new(slf.clone().unbind(), ixval.borrow().clone()),
-        )
+        Bound::new(slf.py(), T::new(slf, ixval.borrow().clone()))
     }
 
     fn object_map<'a, T, F>(

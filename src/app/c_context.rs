@@ -71,8 +71,8 @@ impl CContextDictionaryRecord {
 }
 
 impl CContextDictionaryRecord {
-    fn cxd(&self) -> Py<PyAny> {
-        self.cxd.clone()
+    fn cxd(&self) -> &Py<PyAny> {
+        &self.cxd
     }
 }
 
@@ -143,14 +143,14 @@ impl CfgContext {
     }
 
     #[getter]
-    fn nodes(slf: &Bound<Self>) -> PyResult<Vec<Py<PyAny>>> {
+    fn nodes<'a>(slf: &Bound<'a, Self>) -> PyResult<Vec<Bound<'a, PyAny>>> {
         let py_super = slf.borrow().into_super();
-        let cxd = py_super.cxd();
+        let cxd = py_super.cxd().bind(slf.py()).clone();
         py_super
             .into_super()
             .args()
             .into_iter()
-            .map(|arg| cxd.call_method1(slf.py(), intern!(slf.py(), "get_node"), (*arg,)))
+            .map(|arg| cxd.call_method1(intern!(slf.py(), "get_node"), (*arg,)))
             .collect()
     }
 
@@ -180,14 +180,14 @@ impl ExpContext {
     }
 
     #[getter]
-    fn nodes(slf: &Bound<Self>) -> PyResult<Vec<Py<PyAny>>> {
+    fn nodes<'a>(slf: &Bound<'a, Self>) -> PyResult<Vec<Bound<'a, PyAny>>> {
         let py_super = slf.borrow().into_super();
-        let cxd = py_super.cxd();
+        let cxd = py_super.cxd().bind(slf.py()).clone();
         py_super
             .into_super()
             .args()
             .into_iter()
-            .map(|arg| cxd.call_method1(slf.py(), intern!(slf.py(), "get_node"), (*arg,)))
+            .map(|arg| cxd.call_method1(intern!(slf.py(), "get_node"), (*arg,)))
             .collect()
     }
 
@@ -213,31 +213,31 @@ impl ProgramContext {
     }
 
     #[getter]
-    fn cfg_context(slf: PyRef<Self>, py: Python) -> PyResult<Py<PyAny>> {
-        let py_super = slf.into_super();
-        let cxd = py_super.cxd();
+    fn cfg_context<'a>(slf: &Bound<'a, Self>) -> PyResult<Bound<'a, PyAny>> {
+        let py_super = slf.borrow().into_super();
+        let cxd = py_super.cxd().bind(slf.py()).clone();
         let base = py_super.into_super();
         let Some(arg0) = base.args().get(0) else {
             return Err(PyException::new_err("No element 0"));
         };
-        cxd.call_method1(py, intern!(py, "get_cfg_context"), (*arg0,))
+        cxd.call_method1(intern!(slf.py(), "get_cfg_context"), (*arg0,))
     }
 
     #[getter]
-    fn exp_context(slf: PyRef<Self>, py: Python) -> PyResult<Py<PyAny>> {
-        let py_super = slf.into_super();
-        let cxd = py_super.cxd();
+    fn exp_context<'a>(slf: &Bound<'a, Self>) -> PyResult<Bound<'a, PyAny>> {
+        let py_super = slf.borrow().into_super();
+        let cxd = py_super.cxd().bind(slf.py()).clone();
         let base = py_super.into_super();
         let Some(arg1) = base.args().get(1) else {
             return Err(PyException::new_err("No element 1"));
         };
-        cxd.call_method1(py, intern!(py, "get_exp_context"), (*arg1,))
+        cxd.call_method1(intern!(slf.py(), "get_exp_context"), (*arg1,))
     }
 
     #[pyo3(name = "__str__")]
-    fn str(slf: Py<Self>, py: Python) -> PyResult<String> {
-        let cfg_context = ProgramContext::cfg_context(slf.borrow(py), py)?;
-        let exp_context = ProgramContext::exp_context(slf.borrow(py), py)?;
+    fn str(slf: &Bound<Self>) -> PyResult<String> {
+        let cfg_context = ProgramContext::cfg_context(slf)?;
+        let exp_context = ProgramContext::exp_context(slf)?;
         Ok(format!("({cfg_context},{exp_context})"))
     }
 }
