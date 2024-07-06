@@ -74,15 +74,21 @@ impl TestSetRef {
                 fp.call_method0(intern!(py, "close"))?;
                 refd_any.extract()
             })
-            .cloned()
+            .map(|map| {
+                map.into_iter()
+                    .map(|(k, v)| (k.clone(), v.clone_ref(py)))
+                    .collect()
+            })
     }
 
     #[getter]
-    fn cfiles(py_slf: Py<Self>, py: Python) -> PyResult<BTreeMap<String, Py<TestCFileRef>>> {
-        let slf = py_slf.get();
-        slf.cfiles
+    fn cfiles(slf: &Bound<Self>) -> PyResult<BTreeMap<String, Py<TestCFileRef>>> {
+        let py = slf.py();
+        let borrowed = slf.borrow();
+        borrowed
+            .cfiles
             .get_or_try_init(|| {
-                let refd = slf.refd(py)?;
+                let refd = borrowed.refd(py)?;
                 let refd_cfiles = refd
                     .get("cfiles")
                     .ok_or_else(|| PyException::new_err("'cfiles' missing"))?;
@@ -91,24 +97,31 @@ impl TestSetRef {
                 for (f, fdata) in cfiles_dict {
                     cfiles.insert(
                         f.clone(),
-                        Py::new(py, TestCFileRef::new(py_slf.clone(), f, fdata.extract(py)?))?,
+                        Py::new(
+                            py,
+                            TestCFileRef::new(slf.clone().unbind(), f, fdata.extract(py)?),
+                        )?,
                     );
                 }
                 Ok(cfiles)
             })
-            .cloned()
+            .map(|map| {
+                map.into_iter()
+                    .map(|(k, v)| (k.clone(), v.clone_ref(py)))
+                    .collect()
+            })
     }
 
     // Seems unused
     #[getter]
-    fn cfilenames(py_slf: Py<Self>, py: Python) -> PyResult<Vec<String>> {
-        Ok(TestSetRef::cfiles(py_slf, py)?.keys().cloned().collect()) // Sorted by BTreeMap
+    fn cfilenames(slf: &Bound<Self>) -> PyResult<Vec<String>> {
+        Ok(TestSetRef::cfiles(slf)?.keys().cloned().collect()) // Sorted by BTreeMap
     }
 
     // Seems unused
-    fn cfile(py_slf: Py<Self>, py: Python, cfilename: &str) -> PyResult<Option<Py<TestCFileRef>>> {
-        let cfiles = TestSetRef::cfiles(py_slf, py)?;
-        Ok(cfiles.get(cfilename).cloned())
+    fn cfile(slf: &Bound<Self>, cfilename: &str) -> PyResult<Option<Py<TestCFileRef>>> {
+        let cfiles = TestSetRef::cfiles(slf)?;
+        Ok(cfiles.get(cfilename).map(|p| p.clone_ref(slf.py())))
     }
 
     // Seems unused
