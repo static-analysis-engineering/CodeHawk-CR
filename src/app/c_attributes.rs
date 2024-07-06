@@ -271,8 +271,36 @@ pub struct CAttribute {}
 #[pymethods]
 impl CAttribute {
     #[new]
-    fn new(cd: Py<CDictionary>, ixval: IndexedTableValue) -> PyClassInitializer<Self> {
+    pub fn new(cd: Py<CDictionary>, ixval: IndexedTableValue) -> PyClassInitializer<Self> {
         PyClassInitializer::from(CDictionaryRecord::new(cd, ixval)).add_subclass(CAttribute {})
+    }
+
+    #[getter]
+    fn name(slf: PyRef<Self>) -> String {
+        slf.into_super().into_super().tags()[0].clone()
+    }
+
+    #[getter]
+    fn params<'a>(slf: &Bound<'a, Self>) -> PyResult<Vec<Bound<'a, CAttr>>> {
+        let c_dict_record = slf.borrow().into_super();
+        let cd = c_dict_record.cd();
+        let cd = cd.bind(slf.py());
+        c_dict_record
+            .into_super()
+            .args()
+            .iter()
+            .map(|i| CDictionary::get_attrparam(cd, *i))
+            .collect()
+    }
+
+    #[pyo3(name = "__str__")]
+    fn str<'a>(slf: &Bound<'a, Self>) -> PyResult<String> {
+        let name = Self::name(slf.borrow());
+        let params = Self::params(slf)?
+            .into_iter()
+            .map(|b| Ok(b.str()?.extract()?))
+            .collect::<PyResult<Vec<String>>>()?;
+        Ok(format!("{name}: {}", params.join(",")))
     }
 }
 
