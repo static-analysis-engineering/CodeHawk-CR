@@ -318,7 +318,7 @@ pub struct CAttributes {
 #[pymethods]
 impl CAttributes {
     #[new]
-    fn new(cd: Py<CDictionary>, ixval: IndexedTableValue) -> PyClassInitializer<Self> {
+    pub fn new(cd: Py<CDictionary>, ixval: IndexedTableValue) -> PyClassInitializer<Self> {
         let attributes = CAttributes {
             args: ixval.args().to_vec(),
             cd: cd.clone(),

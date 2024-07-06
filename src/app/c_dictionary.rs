@@ -34,7 +34,7 @@ use pyo3::{prelude::*, types::PyType};
 
 use crate::{
     app::{
-        c_attributes::{CAttr, CAttribute},
+        c_attributes::{CAttr, CAttribute, CAttributes},
         c_dictionary_record::cdregistry,
     },
     util::indexed_table::IndexedTable,
@@ -155,6 +155,33 @@ impl CDictionary {
             .borrow(slf.py())
             .keys()
             .map(|k| Ok((*k, Self::get_attribute(slf, *k)?)))
+            .collect()
+    }
+
+    pub fn get_attributes<'a>(
+        slf: &Bound<'a, Self>,
+        ix: isize,
+    ) -> PyResult<Bound<'a, CAttributes>> {
+        let py = slf.py();
+        let ixval = slf
+            .borrow()
+            .attribute_table
+            .borrow(py)
+            .retrieve_bound(py, ix)?;
+        Bound::new(
+            slf.py(),
+            CAttributes::new(slf.clone().unbind(), ixval.borrow().clone()),
+        )
+    }
+
+    fn get_attributes_map<'a>(
+        slf: &Bound<'a, Self>,
+    ) -> PyResult<BTreeMap<isize, Bound<'a, CAttributes>>> {
+        slf.borrow()
+            .attribute_table
+            .borrow(slf.py())
+            .keys()
+            .map(|k| Ok((*k, Self::get_attributes(slf, *k)?)))
             .collect()
     }
 }
