@@ -35,6 +35,7 @@ use pyo3::{prelude::*, type_object::PyTypeInfo, types::PyType};
 use crate::{
     app::{
         c_attributes::{CAttr, CAttribute, CAttributes},
+        c_const::CConst,
         c_dictionary_record::{cdregistry, CDictionaryRecordTrait},
     },
     util::indexed_table::IndexedTable,
@@ -141,6 +142,14 @@ impl CDictionary {
         slf: &Bound<'a, Self>,
     ) -> PyResult<BTreeMap<isize, Bound<'a, CAttributes>>> {
         Self::object_map(slf, &slf.borrow().attributes_table, Self::get_attributes)
+    }
+
+    fn get_constant<'a>(slf: &Bound<'a, Self>, ix: isize) -> PyResult<Bound<'a, CConst>> {
+        Self::dict_to_registry(slf, &slf.borrow().constant_table, ix)
+    }
+
+    fn get_constant_map<'a>(slf: &Bound<'a, Self>) -> PyResult<BTreeMap<isize, Bound<'a, CConst>>> {
+        Self::object_map(slf, &slf.borrow().constant_table, Self::get_constant)
     }
 }
 

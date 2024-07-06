@@ -122,13 +122,6 @@ class CDictionary(chc_rust.app.c_dictionary.CDictionary):
 
     # -------------- Retrieve items from dictionary tables -------------------
 
-    def get_constant(self, ix: int) -> CConst:
-        return cdregistry.mk_instance(
-            self, self.constant_table.retrieve(ix), CConst)
-
-    def get_constant_map(self) -> Dict[int, IndexedTableValue]:
-        return self.constant_table.objectmap(self.get_constant)
-
     def get_funarg(self, ix: int) -> CFunArg:
         return CFunArg(self, self.funarg_table.retrieve(ix))
 
