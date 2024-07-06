@@ -479,4 +479,8 @@ impl IndexedTable {
     ) -> PyResult<Bound<'a, IndexedTableValue>> {
         self.retrieve(index).map(|i| i.bind(py).clone())
     }
+
+    pub fn keys(&self) -> impl Iterator<Item = &isize> {
+        self.indextable.keys()
+    }
 }

@@ -28,6 +28,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ------------------------------------------------------------------------------
 */
+use std::collections::BTreeMap;
+
 use pyo3::{prelude::*, types::PyType};
 
 use crate::{
@@ -118,5 +120,14 @@ impl CDictionary {
             .mk_instance(slf, &ixval, &PyType::new_bound::<CAttr>(py))?
             .downcast()?
             .clone())
+    }
+
+    fn get_attrparam_map<'a>(slf: &Bound<'a, Self>) -> PyResult<BTreeMap<isize, Bound<'a, CAttr>>> {
+        slf.borrow()
+            .attrparam_table
+            .borrow(slf.py())
+            .keys()
+            .map(|k| Ok((*k, Self::get_attrparam(slf, *k)?)))
+            .collect()
     }
 }
