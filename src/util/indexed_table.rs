@@ -314,15 +314,12 @@ impl IndexedTable {
         index
     }
 
-    fn values(&self) -> Vec<Py<IndexedTableValue>> {
-        self.indextable.values().cloned().collect()
+    fn values(&self) -> Vec<&Py<IndexedTableValue>> {
+        self.indextable.values().collect()
     }
 
-    fn items(&self) -> Vec<(isize, Py<IndexedTableValue>)> {
-        self.indextable
-            .iter()
-            .map(|(k, v)| (k.clone(), v.clone()))
-            .collect()
+    fn items(&self) -> Vec<(isize, &Py<IndexedTableValue>)> {
+        self.indextable.iter().map(|(k, v)| (*k, v)).collect()
     }
 
     fn commit_reserved(
@@ -347,9 +344,9 @@ impl IndexedTable {
         Ok(())
     }
 
-    pub fn retrieve(&self, index: isize) -> PyResult<Py<IndexedTableValue>> {
+    pub fn retrieve(&self, index: isize) -> PyResult<&Py<IndexedTableValue>> {
         if let Some(item) = self.indextable.get(&index) {
-            return Ok(item.clone());
+            return Ok(item);
         }
         let message = format!(
             "Unable to retrieve item {} from table {} (size {})",
@@ -360,10 +357,10 @@ impl IndexedTable {
         Err(IndexedTableError::new_err(message))
     }
 
-    fn retrieve_by_key(
+    fn retrieve_by_key<'a>(
         &self,
-        f: &Bound<PyFunction>,
-    ) -> PyResult<Vec<((String, String), Py<IndexedTableValue>)>> {
+        f: &Bound<'a, PyFunction>,
+    ) -> PyResult<Vec<((String, String), Bound<'a, IndexedTableValue>)>> {
         let mut result = Vec::new();
         for (key, index) in self.keytable.iter() {
             if f.call1((key.clone(),))?.extract()? {
@@ -372,6 +369,7 @@ impl IndexedTable {
                     self.indextable
                         .get(&index)
                         .ok_or_else(|| PyException::new_err("No element at {index}"))?
+                        .bind(f.py())
                         .clone(),
                 ));
             }
