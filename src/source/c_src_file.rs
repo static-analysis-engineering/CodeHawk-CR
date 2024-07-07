@@ -28,7 +28,15 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ------------------------------------------------------------------------------
 */
-use pyo3::prelude::*;
+use std::{
+    collections::BTreeMap,
+    fs::File,
+    io::{BufRead, BufReader},
+    path::Path,
+};
+
+use once_cell::sync::OnceCell;
+use pyo3::{intern, prelude::*};
 
 use crate::app::c_application::CApplication;
 
@@ -38,18 +46,66 @@ pub fn module(py: Python) -> PyResult<Bound<PyModule>> {
     Ok(module)
 }
 
+fn chklogger_warning(py: Python, text: String) -> PyResult<()> {
+    let chc = PyModule::import_bound(py, intern!(py, "chc"))?;
+    let util = chc.getattr(intern!(py, "util"))?;
+    let loggingutil = util.getattr(intern!(py, "loggingutil"))?;
+    let chklogger = loggingutil.getattr(intern!(py, "chklogger"))?;
+    let logger = chklogger.getattr(intern!(py, "logger"))?;
+    logger.call_method1(intern!(py, "warning"), (text,))?;
+    Ok(())
+}
+
 /// Represents the text file that holds the C source code.
-#[pyclass(get_all, subclass)]
+#[pyclass(frozen, subclass)]
 pub struct CSrcFile {
+    #[pyo3(get)]
     capp: Py<CApplication>,
     /// Returns the absolute c filename relative to the project directory.
+    #[pyo3(get)]
     fname: String,
+    lines: OnceCell<BTreeMap<usize, String>>,
+}
+
+impl CSrcFile {
+    fn lines(&self, py: Python) -> PyResult<&BTreeMap<usize, String>> {
+        self.lines.get_or_try_init(|| {
+            let path = Path::new(&self.fname);
+            if !path.exists() {
+                chklogger_warning(py, format!("Source file {} was not found", self.fname))?;
+                return Ok(BTreeMap::new());
+            }
+            BufReader::new(File::open(path)?)
+                .lines()
+                .enumerate()
+                .map(|(n, io_res)| Ok((n + 1, io_res?)))
+                .collect()
+        })
+    }
 }
 
 #[pymethods]
 impl CSrcFile {
     #[new]
     fn new(capp: Py<CApplication>, fname: String) -> CSrcFile {
-        CSrcFile { capp, fname }
+        CSrcFile {
+            capp,
+            fname,
+            lines: OnceCell::new(),
+        }
+    }
+
+    #[getter]
+    #[pyo3(name = "lines")]
+    fn cloned_lines(&self, py: Python) -> PyResult<BTreeMap<usize, String>> {
+        self.lines(py).cloned()
+    }
+
+    fn get_line_count(&self, py: Python) -> PyResult<usize> {
+        Ok(self.lines(py)?.len())
+    }
+
+    fn get_line(&self, py: Python, n: usize) -> PyResult<Option<String>> {
+        Ok(self.lines(py)?.get(&n).cloned())
     }
 }

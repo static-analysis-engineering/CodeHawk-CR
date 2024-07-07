@@ -27,45 +27,7 @@
 # SOFTWARE.
 # ------------------------------------------------------------------------------
 
-import os
-from typing import Dict, TYPE_CHECKING, Optional
-
-import chc.util.fileutil as UF
-from chc.util.loggingutil import chklogger
-
 import chc_rust
 
-if TYPE_CHECKING:
-    from chc.app.CApplication import CApplication
 
-
-class CSrcFile(chc_rust.source.c_src_file.CSrcFile):
-    """Represents the text file that holds the C source code."""
-
-    def __new__(cls, capp: "CApplication", fname: str) -> "CSrcFile":
-        self = super().__new__(cls, capp, fname)
-        self._lines: Optional[Dict[int, str]] = None
-        return self
-
-    @property
-    def lines(self) -> Dict[int, str]:
-        if self._lines is None:
-            self._lines = {}
-            if os.path.isfile(self.fname):
-                n: int = 1
-                with open(self.fname) as fp:
-                    for line in fp:
-                        self._lines[n] = line
-                        n += 1
-            else:
-                chklogger.logger.warning(
-                    "Source file %s not found", self.fname)
-        return self._lines
-
-    def get_line_count(self) -> int:
-        return len(self.lines)
-
-    def get_line(self, n: int) -> Optional[str]:
-        if self.get_line_count() > n:
-            return str(n) + "  " + self.lines[n]
-        return None
+CSrcFile = chc_rust.source.c_src_file.CSrcFile
