@@ -103,23 +103,6 @@ class CTyp(chc_rust.app.c_typ.CTyp):
                     str(newtyp))
             return newtyp
 
-    def get_typ(self, ix: int) -> "CTyp":
-        return self.cd.get_typ(ix)
-
-    def get_exp(self, ix: int) -> "CExp":
-        return self.cd.get_exp(ix)
-
-    def get_exp_opt(self, ix: int) -> Optional["CExp"]:
-        return self.cd.get_exp_opt(ix)
-
-    @property
-    def attributes(self) -> "CAttributes":
-        aindex = attribute_index[self.tags[0]]
-        if len(self.args) > aindex:
-            return self.cd.get_attributes(int(self.args[aindex]))
-        else:
-            return self.cd.get_attributes(1)
-
     @property
     def attributes_string(self) -> str:
         attrs = self.attributes
