@@ -85,24 +85,6 @@ class CTyp(chc_rust.app.c_typ.CTyp):
     def __new__(cls, cd: "CDictionary", ixval: IT.IndexedTableValue) -> "CTyp":
         return super().__new__(cls, cd, ixval)
 
-    def strip_attributes(self) -> "CTyp":
-        aindex = attribute_index[self.tags[0]]
-        if aindex >= len(self.args):
-            return self
-        elif self.args[aindex] == 1:
-            return self
-        else:
-            newargs = self.args[:-1]
-            newtypix = self.cd.mk_typ_index(self.tags, newargs)
-            if newtypix != self.index:
-                newtyp = self.cd.get_typ(newtypix)
-                chklogger.logger.info(
-                    "Stripping attributes %s ; changing type from %s to %s",
-                    self.attributes_string,
-                    str(self),
-                    str(newtyp))
-            return newtyp
-
     @property
     def attributes_string(self) -> str:
         attrs = self.attributes

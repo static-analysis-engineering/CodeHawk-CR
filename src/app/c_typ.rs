@@ -47,6 +47,16 @@ pub fn module(py: Python) -> PyResult<Bound<PyModule>> {
     Ok(module)
 }
 
+fn chklogger_info(py: Python, text: String) -> PyResult<()> {
+    let chc = PyModule::import_bound(py, intern!(py, "chc"))?;
+    let util = chc.getattr(intern!(py, "util"))?;
+    let loggingutil = util.getattr(intern!(py, "loggingutil"))?;
+    let chklogger = loggingutil.getattr(intern!(py, "chklogger"))?;
+    let logger = chklogger.getattr(intern!(py, "logger"))?;
+    logger.call_method1(intern!(py, "info"), (text,))?;
+    Ok(())
+}
+
 /// Base class of all variable types.
 #[pyclass(extends = CDictionaryRecord, frozen, subclass)]
 pub struct CTyp {
@@ -85,6 +95,44 @@ impl CTyp {
 
     fn expand<'a, 'b>(slf: &'a Bound<'b, Self>) -> &'a Bound<'b, Self> {
         slf
+    }
+
+    fn strip_attributes<'a>(slf: &Bound<'a, Self>) -> PyResult<Bound<'a, Self>> {
+        let sg = slf.get();
+        let (args, cd, tags) = (&sg.args, sg.cd.bind(slf.py()), &sg.tags);
+        let aindex = *ATTRIBUTE_INDEX
+            .get(tags[0].as_str())
+            .ok_or_else(|| PyException::new_err(format!("no such aindex: {}", tags[0])))?;
+        if aindex >= args.len() {
+            return Ok(slf.clone());
+        } else if args[aindex] == 1 {
+            return Ok(slf.clone());
+        }
+        let newargs = args[..args.len() - 1].to_vec();
+        let newtypix = cd
+            .call_method1(intern!(slf.py(), "mk_typ_index"), (tags.to_vec(), newargs))?
+            .extract::<isize>()?;
+        if newtypix != slf.borrow().into_super().into_super().index() {
+            let newtyp = cd
+                .call_method1(intern!(slf.py(), "get_typ"), (newtypix,))?
+                .downcast::<CTyp>()?
+                .clone();
+            chklogger_info(
+                slf.py(),
+                format!(
+                    "Stripping attributes {} ; changing type from {} to {}",
+                    slf.getattr(intern!(slf.py(), "attributes_string"))?.str()?,
+                    slf.str()?,
+                    newtyp.str()?
+                ),
+            )?;
+            Ok(newtyp)
+        } else {
+            // Would have errored in python implementation because newtyp is not defined
+            Err(PyException::new_err(format!(
+                "unexpected condition: newtyp not defined"
+            )))
+        }
     }
 
     fn get_typ<'a>(&self, py: Python<'a>, ix: isize) -> PyResult<Bound<'a, CTyp>> {
