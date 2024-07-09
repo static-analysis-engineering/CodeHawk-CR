@@ -79,39 +79,7 @@ attribute_index = {
 }
 
 
-class CTyp(chc_rust.app.c_typ.CTyp):
-    """Base class of all variable types."""
-
-    def __new__(cls, cd: "CDictionary", ixval: IT.IndexedTableValue) -> "CTyp":
-        return super().__new__(cls, cd, ixval)
-
-    @property
-    def attributes_string(self) -> str:
-        attrs = self.attributes
-        if attrs.length > 0:
-            return "[" + str(attrs) + "]"
-        else:
-            return ""
-
-    def get_opaque_type(self) -> "CTyp":
-        return self
-
-    def equal(self, other: "CTyp") -> bool:
-        return self.expand().index == other.expand().index
-
-    def writexml(self, cnode: ET.Element) -> None:
-        cnode.set("ix", str(self.index))
-        cnode.set("tags", ",".join(self.tags))
-        cnode.set("args", ",".join([str(int(x)) for x in self.args]))
-
-    def __str__(self) -> str:
-        return "typebase:" + self.tags[0]
-
-    def to_dict(self) -> Dict[str, object]:
-        return {"base": "type"}
-
-    def to_idict(self) -> Dict[str, object]:
-        return {"t": self.tags, "a": self.args}
+CTyp = chc_rust.app.c_typ.CTyp
 
 
 @cdregistry.register_tag("tvoid", CTyp)

@@ -30,6 +30,7 @@ SOFTWARE.
 */
 use std::collections::BTreeMap;
 
+use itertools::Itertools;
 use once_cell::sync::Lazy;
 use pyo3::{exceptions::PyException, intern, prelude::*};
 
@@ -121,7 +122,7 @@ impl CTyp {
                 slf.py(),
                 format!(
                     "Stripping attributes {} ; changing type from {} to {}",
-                    slf.getattr(intern!(slf.py(), "attributes_string"))?.str()?,
+                    slf.get().attributes_string(slf.py())?,
                     slf.str()?,
                     newtyp.str()?
                 ),
@@ -178,6 +179,31 @@ impl CTyp {
             1
         };
         CDictionary::get_attributes(self.cd.bind(py), index)
+    }
+
+    #[getter]
+    fn attributes_string<'a>(&self, py: Python<'a>) -> PyResult<String> {
+        let attrs = self.attributes(py)?;
+        if attrs.get().length() > 0 {
+            Ok(format!("[{}]", attrs.str()?))
+        } else {
+            Ok("".to_string())
+        }
+    }
+
+    // Unvalidated
+    #[getter]
+    fn get_opaque_type<'a, 'b>(slf: &'a Bound<'b, Self>) -> &'a Bound<'b, Self> {
+        slf
+    }
+
+    // Unvalidated
+    fn equal<'a>(slf: &Bound<'a, Self>, other: &Bound<'a, Self>) -> PyResult<bool> {
+        let expand = intern!(slf.py(), "expand");
+        let index = intern!(slf.py(), "index");
+        let slf_index: isize = slf.call_method0(expand)?.getattr(index)?.extract()?;
+        let other_index: isize = other.call_method0(expand)?.getattr(index)?.extract()?;
+        Ok(slf_index == other_index)
     }
 
     #[getter]
@@ -243,5 +269,42 @@ impl CTyp {
     #[getter]
     fn is_default_function_prototype(&self) -> bool {
         false
+    }
+
+    // Unvalidated
+    fn writexml(slf: &Bound<Self>, cnode: &Bound<PyAny>) -> PyResult<()> {
+        let set = intern!(cnode.py(), "set");
+        cnode.call_method1(
+            set,
+            (
+                intern!(slf.py(), "ix"),
+                format!("{}", slf.borrow().into_super().into_super().index()),
+            ),
+        )?;
+        cnode.call_method1(set, (intern!(slf.py(), "tags"), slf.get().tags.join(",")))?;
+        cnode.call_method1(
+            set,
+            (intern!(slf.py(), "args"), slf.get().args.iter().join(",")),
+        )?;
+        Ok(())
+    }
+
+    // Unvalidated
+    #[pyo3(name = "__str__")]
+    fn str(&self) -> String {
+        format!("typebase: {}", self.tags[0])
+    }
+
+    // Unvalidated
+    fn to_dict(&self) -> BTreeMap<&'static str, &'static str> {
+        BTreeMap::from([("base", "type")])
+    }
+
+    // Unvalidated
+    fn to_idict(&self, py: Python) -> BTreeMap<&'static str, Py<PyAny>> {
+        BTreeMap::from([
+            ("t", self.tags.to_object(py)),
+            ("a", self.args.to_object(py)),
+        ])
     }
 }

@@ -345,7 +345,7 @@ impl CAttributes {
     }
 
     #[getter]
-    fn length(&self) -> usize {
+    pub fn length(&self) -> usize {
         self.args.len()
     }
 
