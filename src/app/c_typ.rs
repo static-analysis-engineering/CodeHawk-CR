@@ -36,8 +36,10 @@ use pyo3::{exceptions::PyException, intern, prelude::*};
 
 use crate::{
     app::{
-        c_attributes::CAttributes, c_dictionary::CDictionary,
-        c_dictionary_record::CDictionaryRecord, c_exp::CExp,
+        c_attributes::CAttributes,
+        c_dictionary::CDictionary,
+        c_dictionary_record::{CDictionaryRecord, CDictionaryRegistryEntry},
+        c_exp::CExp,
     },
     util::indexed_table::IndexedTableValue,
 };
@@ -45,6 +47,7 @@ use crate::{
 pub fn module(py: Python) -> PyResult<Bound<PyModule>> {
     let module = PyModule::new_bound(py, "c_typ")?;
     module.add_class::<CTyp>()?;
+    module.add_class::<CTypVoid>()?;
     Ok(module)
 }
 
@@ -308,3 +311,35 @@ impl CTyp {
         ])
     }
 }
+
+/// Void type.
+///
+/// * args[0]: attributes
+#[pyclass(extends = CTyp, frozen, subclass)]
+pub struct CTypVoid {}
+
+#[pymethods]
+impl CTypVoid {
+    #[new]
+    fn new(cd: &Bound<CDictionary>, ixval: IndexedTableValue) -> PyClassInitializer<Self> {
+        PyClassInitializer::from(CTyp::new(cd, ixval)).add_subclass(CTypVoid {})
+    }
+
+    #[getter]
+    fn is_void(&self) -> bool {
+        true
+    }
+
+    // Unvalidated
+    fn to_dict(&self) -> BTreeMap<&'static str, &'static str> {
+        BTreeMap::from([("base", "void")])
+    }
+
+    #[pyo3(name = "__str__")]
+    fn str(slf: &Bound<Self>) -> PyResult<String> {
+        let attributes = slf.borrow().into_super().attributes(slf.py())?.str()?;
+        Ok(format!("void[{}]", attributes))
+    }
+}
+
+inventory::submit! { CDictionaryRegistryEntry::python_type::<CTyp, CTypVoid>("tvoid") }

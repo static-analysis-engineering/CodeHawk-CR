@@ -82,28 +82,7 @@ attribute_index = {
 CTyp = chc_rust.app.c_typ.CTyp
 
 
-@cdregistry.register_tag("tvoid", CTyp)
-class CTypVoid(CTyp):
-    """ Void type.
-
-    * args[0]: attributes
-    """
-
-    def __new__(cls, cd: "CDictionary", ixval: IT.IndexedTableValue) -> "CTypVoid":
-        return super().__new__(cls, cd, ixval)
-
-    @property
-    def is_void(self) -> bool:
-        return True
-
-    def get_opaque_type(self) -> CTyp:
-        return self
-
-    def to_dict(self) -> Dict[str, object]:
-        return {"base": "void"}
-
-    def __str__(self) -> str:
-        return "void" + "[" + str(self.attributes) + "]"
+CTypVoid = chc_rust.app.c_typ.CTypVoid
 
 
 @cdregistry.register_tag("tint", CTyp)
