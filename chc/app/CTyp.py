@@ -48,21 +48,6 @@ if TYPE_CHECKING:
     from chc.app.CConst import CConst, CConstInt
 
 
-integernames = {
-    "ichar": "char",
-    "ischar": "signed char",
-    "iuchar": "unsigned char",
-    "ibool": "bool",
-    "iint": "int",
-    "iuint": "unsigned int",
-    "ishort": "short",
-    "iushort": "unsigned short",
-    "ilong": "long",
-    "iulong": "unsigned long",
-    "ilonglong": "long long",
-    "iulonglong": "unsigned long long",
-}
-
 floatnames = {"float": "float", "fdouble": "double", "flongdouble": "long double"}
 
 attribute_index = {
@@ -85,42 +70,7 @@ CTyp = chc_rust.app.c_typ.CTyp
 CTypVoid = chc_rust.app.c_typ.CTypVoid
 
 
-@cdregistry.register_tag("tint", CTyp)
-class CTypInt(CTyp):
-    """ Integer type.
-
-    * tags[1]: ikind
-
-    * args[0]: index of attributes in cdictionary
-    """
-
-    def __new__(cls, cd: "CDictionary", ixval: IT.IndexedTableValue) -> "CTypInt":
-        return super().__new__(cls, cd, ixval)
-
-    @property
-    def is_int(self) -> bool:
-        return True
-
-    @property
-    def size(self) -> int:
-        k = self.ikind
-        if "char" in integernames[k]:
-            return 1
-        else:
-            return 4  # TBD: adjust for other kinds
-
-    @property
-    def ikind(self) -> str:
-        return self.tags[1]
-
-    def get_opaque_type(self) -> CTyp:
-        return self
-
-    def to_dict(self) -> Dict[str, object]:
-        return {"base": "int", "kind": self.ikind}
-
-    def __str__(self) -> str:
-        return integernames[self.ikind] + str(self.attributes_string)
+CTypInt = chc_rust.app.c_typ.CTypInt
 
 
 @cdregistry.register_tag("tfloat", CTyp)

@@ -47,6 +47,7 @@ use crate::{
 pub fn module(py: Python) -> PyResult<Bound<PyModule>> {
     let module = PyModule::new_bound(py, "c_typ")?;
     module.add_class::<CTyp>()?;
+    module.add_class::<CTypInt>()?;
     module.add_class::<CTypVoid>()?;
     Ok(module)
 }
@@ -81,6 +82,23 @@ const ATTRIBUTE_INDEX: Lazy<BTreeMap<&'static str, usize>> = Lazy::new(|| {
         ("tcomp", 1),
         ("tenum", 0),
         ("tbuiltin-va)-list", 0),
+    ])
+});
+
+const INTEGER_NAMES: Lazy<BTreeMap<&'static str, &'static str>> = Lazy::new(|| {
+    BTreeMap::from([
+        ("ichar", "char"),
+        ("ischar", "signed char"),
+        ("iuchar", "unsigned char"),
+        ("ibool", "bool"),
+        ("iint", "int"),
+        ("iuint", "unsigned int"),
+        ("ishort", "short"),
+        ("iushort", "unsigned short"),
+        ("ilong", "long"),
+        ("iulong", "unsigned long"),
+        ("ilonglong", "long long"),
+        ("iulonglong", "unsigned long long"),
     ])
 });
 
@@ -343,3 +361,67 @@ impl CTypVoid {
 }
 
 inventory::submit! { CDictionaryRegistryEntry::python_type::<CTyp, CTypVoid>("tvoid") }
+
+/// Integer type.
+///
+/// * tags[1]: ikind
+///
+/// * args[0]: index of attributes in cdictionary
+#[pyclass(extends = CTyp, frozen, subclass)]
+pub struct CTypInt {
+    ikind: String,
+}
+
+#[pymethods]
+impl CTypInt {
+    #[new]
+    fn new(cd: &Bound<CDictionary>, ixval: IndexedTableValue) -> PyClassInitializer<Self> {
+        let typint = CTypInt {
+            ikind: ixval.tags()[1].clone(),
+        };
+        PyClassInitializer::from(CTyp::new(cd, ixval)).add_subclass(typint)
+    }
+
+    #[getter]
+    fn is_int(&self) -> bool {
+        true
+    }
+
+    // Unvalidated
+    #[getter]
+    fn size(&self) -> PyResult<isize> {
+        let binding = INTEGER_NAMES;
+        let name = binding
+            .get(self.ikind.as_str())
+            .ok_or_else(|| PyException::new_err(format!("unknown type '{}'", self.ikind)))?;
+        Ok(if name.contains("char") {
+            1
+        } else {
+            4 // TBD: adjust for other kinds
+        })
+    }
+
+    // Unvalidated
+    #[getter]
+    fn ikind(&self) -> &str {
+        self.ikind.as_str()
+    }
+
+    // Unvalidated
+    fn to_dict(&self) -> BTreeMap<&'static str, &str> {
+        BTreeMap::from([("base", "void"), ("kind", self.ikind.as_str())])
+    }
+
+    #[pyo3(name = "__str__")]
+    fn str(slf: &Bound<Self>) -> PyResult<String> {
+        let slf_borrow = slf.borrow();
+        let binding = INTEGER_NAMES;
+        let name = binding
+            .get(slf_borrow.ikind.as_str())
+            .ok_or_else(|| PyException::new_err(format!("unknown type '{}'", slf_borrow.ikind)))?;
+        let attributes_string = slf.borrow().into_super().attributes_string(slf.py())?;
+        Ok(format!("{name}{attributes_string}"))
+    }
+}
+
+inventory::submit! { CDictionaryRegistryEntry::python_type::<CTyp, CTypInt>("tint") }
