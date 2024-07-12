@@ -60,45 +60,7 @@ CTypInt = chc_rust.app.c_typ.CTypInt
 CTypFloat = chc_rust.app.c_typ.CTypFloat
 
 
-@cdregistry.register_tag("tnamed", CTyp)
-class CTypNamed(CTyp):
-    """Type definition
-
-    * tags[1]: tname
-
-    * args[0]: attributes
-    """
-
-    def __new__(cls, cd: "CDictionary", ixval: IT.IndexedTableValue) -> "CTypNamed":
-        return super().__new__(cls, cd, ixval)
-
-    @property
-    def name(self) -> str:
-        return self.tags[1]
-
-    def expand(self) -> CTyp:
-        return self.cd.decls.expand(self.name)
-
-    @property
-    def size(self) -> int:
-        return self.expand().size
-
-    @property
-    def is_named_type(self) -> bool:
-        return True
-
-    def get_opaque_type(self) -> CTyp:
-        return self.expand().get_opaque_type()
-
-    def to_dict(self) -> Dict[str, object]:
-        return {
-            "base": "named",
-            "name": self.name,
-            "expand": self.expand().to_dict(),
-        }
-
-    def __str__(self) -> str:
-        return self.name + str(self.attributes_string)
+CTypNamed = chc_rust.app.c_typ.CTypNamed
 
 
 @cdregistry.register_tag("tcomp", CTyp)

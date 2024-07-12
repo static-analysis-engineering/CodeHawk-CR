@@ -49,6 +49,7 @@ pub fn module(py: Python) -> PyResult<Bound<PyModule>> {
     module.add_class::<CTyp>()?;
     module.add_class::<CTypFloat>()?;
     module.add_class::<CTypInt>()?;
+    module.add_class::<CTypNamed>()?;
     module.add_class::<CTypVoid>()?;
     Ok(module)
 }
@@ -487,3 +488,83 @@ impl CTypFloat {
 }
 
 inventory::submit! { CDictionaryRegistryEntry::python_type::<CTyp, CTypFloat>("tfloat") }
+
+/// Type definition
+///
+/// * tags[1]: tname
+///
+/// * args[0]: attributes
+#[pyclass(extends = CTyp, frozen, subclass)]
+pub struct CTypNamed {
+    cd: Py<CDictionary>,
+    #[pyo3(get)]
+    name: String,
+}
+
+#[pymethods]
+impl CTypNamed {
+    #[new]
+    fn new(cd: &Bound<CDictionary>, ixval: IndexedTableValue) -> PyClassInitializer<Self> {
+        let typnamed = CTypNamed {
+            cd: cd.clone().unbind(),
+            name: ixval.tags()[1].clone(),
+        };
+        PyClassInitializer::from(CTyp::new(cd, ixval)).add_subclass(typnamed)
+    }
+
+    fn expand<'a>(&self, py: Python<'a>) -> PyResult<Bound<'a, CTyp>> {
+        Ok(self
+            .cd
+            .bind(py)
+            .getattr(intern!(py, "decls"))?
+            .call_method1(intern!(py, "expand"), (self.name.as_str(),))?
+            .downcast()?
+            .clone())
+    }
+
+    // Unvalidated
+    #[getter]
+    fn size(&self, py: Python) -> PyResult<isize> {
+        Ok(self.expand(py)?.getattr(intern!(py, "size"))?.extract()?)
+    }
+
+    #[getter]
+    fn is_named_type(&self) -> bool {
+        true
+    }
+
+    // Unvalidated
+    #[getter]
+    fn get_opaque_type<'a>(&self, py: Python<'a>) -> PyResult<Bound<'a, CTyp>> {
+        Ok(self
+            .expand(py)?
+            .call_method0(intern!(py, "get_opaque_type"))?
+            .downcast()?
+            .clone())
+    }
+
+    // Unvalidated
+    fn to_dict<'a>(&self, py: Python<'a>) -> PyResult<BTreeMap<&'static str, Py<PyAny>>> {
+        Ok(BTreeMap::from([
+            ("base", "named".into_py(py)),
+            ("name", self.name.as_str().into_py(py)),
+            (
+                "expand",
+                self.expand(py)?
+                    .call_method0(intern!(py, "to_dict"))?
+                    .unbind(),
+            ),
+        ]))
+    }
+
+    #[pyo3(name = "__str__")]
+    fn str(slf: &Bound<Self>) -> PyResult<String> {
+        Ok(format!(
+            "{}{}",
+            slf.borrow().name,
+            slf.borrow().as_super().attributes_string(slf.py())?
+        ))
+    }
+}
+
+inventory::submit! { CDictionaryRegistryEntry::python_type::<CTyp, CTypNamed>("tnamed") }
