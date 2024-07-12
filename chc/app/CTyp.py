@@ -48,22 +48,6 @@ if TYPE_CHECKING:
     from chc.app.CConst import CConst, CConstInt
 
 
-floatnames = {"float": "float", "fdouble": "double", "flongdouble": "long double"}
-
-attribute_index = {
-    "tvoid": 0,
-    "tint": 0,
-    "tfloat": 0,
-    "tptr": 1,
-    "tarray": 2,
-    "tfun": 3,
-    "tnamed": 0,
-    "tcomp": 1,
-    "tenum": 0,
-    "tbuiltin-va-list": 0,
-}
-
-
 CTyp = chc_rust.app.c_typ.CTyp
 
 
@@ -73,38 +57,7 @@ CTypVoid = chc_rust.app.c_typ.CTypVoid
 CTypInt = chc_rust.app.c_typ.CTypInt
 
 
-@cdregistry.register_tag("tfloat", CTyp)
-class CTypFloat(CTyp):
-    """ Float type.
-
-    * tags[1]: fkind
-
-    * args[0]: attributes
-    """
-
-    def __new__(cls, cd: "CDictionary", ixval: IT.IndexedTableValue) -> "CTypFloat":
-        return super().__new__(cls, cd, ixval)
-
-    @property
-    def is_float(self) -> bool:
-        return True
-
-    @property
-    def fkind(self) -> str:
-        return self.tags[1]
-
-    @property
-    def size(self) -> int:
-        return 4  # TBD: adjust for kind
-
-    def get_opaque_type(self) -> CTyp:
-        return self
-
-    def to_dict(self) -> Dict[str, object]:
-        return {"base": "float", "kind": self.fkind}
-
-    def __str__(self) -> str:
-        return floatnames[self.fkind]
+CTypFloat = chc_rust.app.c_typ.CTypFloat
 
 
 @cdregistry.register_tag("tnamed", CTyp)

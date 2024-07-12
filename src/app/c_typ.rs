@@ -47,6 +47,7 @@ use crate::{
 pub fn module(py: Python) -> PyResult<Bound<PyModule>> {
     let module = PyModule::new_bound(py, "c_typ")?;
     module.add_class::<CTyp>()?;
+    module.add_class::<CTypFloat>()?;
     module.add_class::<CTypInt>()?;
     module.add_class::<CTypVoid>()?;
     Ok(module)
@@ -82,6 +83,14 @@ const ATTRIBUTE_INDEX: Lazy<BTreeMap<&'static str, usize>> = Lazy::new(|| {
         ("tcomp", 1),
         ("tenum", 0),
         ("tbuiltin-va)-list", 0),
+    ])
+});
+
+const FLOAT_NAMES: Lazy<BTreeMap<&'static str, &'static str>> = Lazy::new(|| {
+    BTreeMap::from([
+        ("float", "float"),
+        ("fdouble", "double"),
+        ("flongdouble", "long double"),
     ])
 });
 
@@ -409,7 +418,7 @@ impl CTypInt {
 
     // Unvalidated
     fn to_dict(&self) -> BTreeMap<&'static str, &str> {
-        BTreeMap::from([("base", "void"), ("kind", self.ikind.as_str())])
+        BTreeMap::from([("base", "int"), ("kind", self.ikind.as_str())])
     }
 
     #[pyo3(name = "__str__")]
@@ -425,3 +434,56 @@ impl CTypInt {
 }
 
 inventory::submit! { CDictionaryRegistryEntry::python_type::<CTyp, CTypInt>("tint") }
+
+/// Float type.
+///
+/// * tags[1]: fkind
+///
+/// * args[0]: attributes
+#[pyclass(extends = CTyp, frozen, subclass)]
+pub struct CTypFloat {
+    fkind: String,
+}
+
+#[pymethods]
+impl CTypFloat {
+    #[new]
+    fn new(cd: &Bound<CDictionary>, ixval: IndexedTableValue) -> PyClassInitializer<Self> {
+        let typfloat = CTypFloat {
+            fkind: ixval.tags()[1].clone(),
+        };
+        PyClassInitializer::from(CTyp::new(cd, ixval)).add_subclass(typfloat)
+    }
+
+    #[getter]
+    fn is_float(&self) -> bool {
+        true
+    }
+
+    // Unvalidated
+    #[getter]
+    fn size(&self) -> isize {
+        4 // TBD: adjust for kind
+    }
+
+    // Unvalidated
+    #[getter]
+    fn fkind(&self) -> &str {
+        self.fkind.as_str()
+    }
+
+    // Unvalidated
+    fn to_dict(&self) -> BTreeMap<&'static str, &str> {
+        BTreeMap::from([("base", "float"), ("kind", self.fkind.as_str())])
+    }
+
+    #[pyo3(name = "__str__")]
+    fn str(&self) -> PyResult<&'static str> {
+        FLOAT_NAMES
+            .get(self.fkind.as_str())
+            .cloned()
+            .ok_or_else(|| PyException::new_err(format!("unknown type '{}'", self.fkind)))
+    }
+}
+
+inventory::submit! { CDictionaryRegistryEntry::python_type::<CTyp, CTypFloat>("tfloat") }
