@@ -10,5 +10,6 @@ build constants.o: cc constants.c
 build main.o: cc main.c
 build strings.o: cc strings.c
 build types.o: cc types.c
+build varargs.o: cc varargs.c
 
-build demo: link constants.o main.o strings.o types.o
+build demo: link constants.o main.o strings.o types.o varargs.o

@@ -69,29 +69,7 @@ CTypComp = chc_rust.app.c_typ.CTypComp
 CTypEnum = chc_rust.app.c_typ.CTypEnum
 
 
-@cdregistry.register_tag("tbuiltinvaargs", CTyp)
-@cdregistry.register_tag("tbuiltin-va-list", CTyp)
-class CTypBuiltinVaargs(CTyp):
-    """Builtin variable arguments
-
-    * args[0]: index of attributes in cdictionary
-    """
-
-    def __new__(cls, cd: "CDictionary", ixval: IT.IndexedTableValue) -> "CTypBuiltinVaargs":
-        return super().__new__(cls, cd, ixval)
-
-    @property
-    def is_builtin_vaargs(self) -> bool:
-        return True
-
-    def get_opaque_type(self) -> CTyp:
-        return self
-
-    def to_dict(self) -> Dict[str, Any]:
-        return {"base": "builtin_vaargs"}
-
-    def __str__(self) -> str:
-        return "tbuiltin_va_args"
+CTypBuiltinVaargs = chc_rust.app.c_typ.CTypBuiltinVaargs
 
 
 @cdregistry.register_tag("tptr", CTyp)

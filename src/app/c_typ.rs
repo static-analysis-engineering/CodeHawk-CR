@@ -48,6 +48,7 @@ use crate::{
 pub fn module(py: Python) -> PyResult<Bound<PyModule>> {
     let module = PyModule::new_bound(py, "c_typ")?;
     module.add_class::<CTyp>()?;
+    module.add_class::<CTypBuiltinVaargs>()?;
     module.add_class::<CTypComp>()?;
     module.add_class::<CTypEnum>()?;
     module.add_class::<CTypFloat>()?;
@@ -734,3 +735,33 @@ impl CTypEnum {
 }
 
 inventory::submit! { CDictionaryRegistryEntry::python_type::<CTyp, CTypEnum>("tenum") }
+
+// Unvalidated
+#[pyclass(extends = CTyp, frozen, subclass)]
+pub struct CTypBuiltinVaargs {}
+
+#[pymethods]
+impl CTypBuiltinVaargs {
+    #[new]
+    fn new(cd: &Bound<CDictionary>, ixval: IndexedTableValue) -> PyClassInitializer<Self> {
+        let vaargs = CTypBuiltinVaargs {};
+        PyClassInitializer::from(CTyp::new(cd, ixval)).add_subclass(vaargs)
+    }
+
+    #[getter]
+    fn is_builtin_vaargs(&self) -> bool {
+        true
+    }
+
+    fn to_dict(&self) -> BTreeMap<&'static str, &'static str> {
+        BTreeMap::from([("base", "builtin_vaargs")])
+    }
+
+    #[pyo3(name = "__str__")]
+    fn str(&self) -> &'static str {
+        "tbuiltin_va_args"
+    }
+}
+
+inventory::submit! { CDictionaryRegistryEntry::python_type::<CTyp, CTypBuiltinVaargs>("tbuiltinvaargs") }
+inventory::submit! { CDictionaryRegistryEntry::python_type::<CTyp, CTypBuiltinVaargs>("tbuiltin-va-list") }

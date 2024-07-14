@@ -1,6 +1,7 @@
 #include "constants.h"
 #include "strings.h"
 #include "types.h"
+#include "varargs.h"
 
 int main() {
 	char data[8];
@@ -23,4 +24,6 @@ int main() {
 		free_tagged_union(tags[i]);
 		tags[i] = NULL;
 	}
+
+	printf("%d\n", add_ints(1, 2, 3, 4, 5, 0));
 }
