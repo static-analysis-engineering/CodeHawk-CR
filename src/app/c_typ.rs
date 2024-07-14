@@ -37,6 +37,7 @@ use pyo3::{exceptions::PyException, intern, prelude::*};
 use crate::{
     app::{
         c_attributes::CAttributes,
+        c_comp_info::CCompInfo,
         c_dictionary::CDictionary,
         c_dictionary_record::{CDictionaryRecord, CDictionaryRegistryEntry},
         c_exp::CExp,
@@ -47,6 +48,7 @@ use crate::{
 pub fn module(py: Python) -> PyResult<Bound<PyModule>> {
     let module = PyModule::new_bound(py, "c_typ")?;
     module.add_class::<CTyp>()?;
+    module.add_class::<CTypComp>()?;
     module.add_class::<CTypFloat>()?;
     module.add_class::<CTypInt>()?;
     module.add_class::<CTypNamed>()?;
@@ -568,3 +570,106 @@ impl CTypNamed {
 }
 
 inventory::submit! { CDictionaryRegistryEntry::python_type::<CTyp, CTypNamed>("tnamed") }
+
+/// Struct type (composite type; also includes union)
+///
+/// * tags[0]: struct name
+///
+/// * args[0]: ckey
+/// * args[1]: index of attributes in cdictionary
+#[pyclass(extends = CTyp, frozen, subclass)]
+pub struct CTypComp {
+    cd: Py<CDictionary>,
+    #[pyo3(get)]
+    ckey: isize,
+}
+
+#[pymethods]
+impl CTypComp {
+    #[new]
+    fn new(cd: &Bound<CDictionary>, ixval: IndexedTableValue) -> PyClassInitializer<Self> {
+        let typcomp = CTypComp {
+            cd: cd.clone().unbind(),
+            ckey: ixval.args()[0],
+        };
+        PyClassInitializer::from(CTyp::new(cd, ixval)).add_subclass(typcomp)
+    }
+
+    #[getter]
+    fn compinfo<'a>(slf: &Bound<'a, Self>) -> PyResult<Bound<'a, CCompInfo>> {
+        Ok(slf
+            .getattr(intern!(slf.py(), "decls"))?
+            .call_method1(
+                intern!(slf.py(), "get_compinfo_by_ckey"),
+                (slf.borrow().ckey,),
+            )?
+            .downcast()?
+            .clone())
+    }
+
+    #[getter]
+    fn name(slf: &Bound<Self>) -> PyResult<String> {
+        CCompInfo::name(&Self::compinfo(slf)?)
+    }
+
+    #[getter]
+    fn is_struct(slf: &Bound<Self>) -> PyResult<bool> {
+        Ok(CCompInfo::is_struct(Self::compinfo(slf)?.borrow()))
+    }
+
+    // Unvalidated
+    #[getter]
+    fn size(slf: &Bound<Self>) -> PyResult<isize> {
+        CCompInfo::size(&Self::compinfo(slf)?)
+    }
+
+    #[getter]
+    fn is_comp(&self) -> bool {
+        true
+    }
+
+    // Unvalidated
+    fn get_opaque_type<'a>(&self, py: Python<'a>) -> PyResult<Bound<'a, CTyp>> {
+        let tags = ["tvoid"];
+        let args: [isize; 0] = [];
+        let cd = self.cd.bind(py);
+        let typ_index = cd.call_method1(intern!(py, "mk_typ_index"), (tags, args))?;
+        Ok(self
+            .cd
+            .bind(py)
+            .call_method1(intern!(py, "get_typ"), (typ_index,))?
+            .downcast()?
+            .clone())
+    }
+
+    // Unvalidated
+    fn to_dict(slf: &Bound<Self>) -> PyResult<BTreeMap<&'static str, Py<PyAny>>> {
+        let py = slf.py();
+        Ok(BTreeMap::from([
+            ("base", "struct".into_py(py)),
+            (
+                "kind",
+                if Self::is_struct(slf)? {
+                    "struct"
+                } else {
+                    "union "
+                }
+                .into_py(py),
+            ),
+            ("name", Self::name(slf)?.into_py(py)),
+            ("key", slf.borrow().ckey.into_py(py)),
+        ]))
+    }
+
+    #[pyo3(name = "__str__")]
+    fn str(slf: &Bound<Self>) -> PyResult<String> {
+        let typ = if Self::is_struct(slf)? {
+            "struct"
+        } else {
+            "union"
+        };
+        Ok(format!("{typ} {}({})", Self::name(slf)?, slf.borrow().ckey))
+    }
+}
+
+inventory::submit! { CDictionaryRegistryEntry::python_type::<CTyp, CTypComp>("tcomp") }

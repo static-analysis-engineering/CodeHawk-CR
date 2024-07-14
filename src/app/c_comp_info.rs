@@ -95,7 +95,7 @@ impl CCompInfo {
     }
 
     #[getter]
-    fn is_struct(slf: PyRef<Self>) -> bool {
+    pub fn is_struct(slf: PyRef<Self>) -> bool {
         slf.into_super().into_super().args()[1] == 1
     }
 
@@ -125,7 +125,7 @@ impl CCompInfo {
 
     // Unvalidated
     #[getter]
-    fn size(slf: &Bound<Self>) -> PyResult<isize> {
+    pub fn size(slf: &Bound<Self>) -> PyResult<isize> {
         Ok(CCompInfo::fields(slf)?
             .iter()
             .map(|field| CFieldInfo::size(field))
@@ -135,7 +135,7 @@ impl CCompInfo {
     }
 
     #[getter]
-    fn name(slf: &Bound<Self>) -> PyResult<String> {
+    pub fn name(slf: &Bound<Self>) -> PyResult<String> {
         let tag_0 = slf.borrow().into_super().into_super().tags()[0].clone();
         if tag_0 != "?" {
             return Ok(tag_0);

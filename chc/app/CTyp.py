@@ -63,61 +63,7 @@ CTypFloat = chc_rust.app.c_typ.CTypFloat
 CTypNamed = chc_rust.app.c_typ.CTypNamed
 
 
-@cdregistry.register_tag("tcomp", CTyp)
-class CTypComp(CTyp):
-    """Struct type (composite type; also includes union)
-
-    * tags[0]: struct name
-
-    * args[0]: ckey
-    * args[1]: index of attributes in cdictionary
-    """
-
-    def __new__(cls, cd: "CDictionary", ixval: IT.IndexedTableValue) -> "CTypComp":
-        return super().__new__(cls, cd, ixval)
-
-    @property
-    def ckey(self) -> int:
-        return self.args[0]
-
-    @property
-    def compinfo(self) -> "CCompInfo":
-        return self.decls.get_compinfo_by_ckey(self.ckey)
-
-    @property
-    def name(self) -> str:
-        return self.compinfo.name
-
-    @property
-    def is_struct(self) -> bool:
-        return self.compinfo.is_struct
-
-    @property
-    def size(self) -> int:
-        return self.compinfo.size
-
-    @property
-    def is_comp(self) -> bool:
-        return True
-
-    def get_opaque_type(self) -> CTyp:
-        tags = ["tvoid"]
-        args: List[int] = []
-        return self.cd.get_typ(self.cd.mk_typ_index(tags, args))
-
-    def to_dict(self) -> Dict[str, Any]:
-        return {
-            "base": "struct",
-            "kind": "struct" if self.is_struct else "union",
-            "name": self.name,
-            "key": self.ckey,
-        }
-
-    def __str__(self) -> str:
-        if self.is_struct:
-            return "struct " + self.name + "(" + str(self.ckey) + ")"
-        else:
-            return "union " + self.name + "(" + str(self.ckey) + ")"
+CTypComp = chc_rust.app.c_typ.CTypComp
 
 
 @cdregistry.register_tag("tenum", CTyp)
