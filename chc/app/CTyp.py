@@ -66,39 +66,7 @@ CTypNamed = chc_rust.app.c_typ.CTypNamed
 CTypComp = chc_rust.app.c_typ.CTypComp
 
 
-@cdregistry.register_tag("tenum", CTyp)
-class CTypEnum(CTyp):
-    """Enum type.
-
-    * tags[1]: name of enum (ename)
-    * args[0]: index of attributes in cdictionary
-    """
-
-    def __new__(cls, cd: "CDictionary", ixval: IT.IndexedTableValue) -> "CTypEnum":
-        return super().__new__(cls, cd, ixval)
-
-    @property
-    def name(self) -> str:
-        return self.tags[1]
-
-    @property
-    def size(self) -> int:
-        return 4
-
-    @property
-    def is_enum(self) -> bool:
-        return True
-
-    def get_opaque_type(self) -> CTyp:
-        tags = ["tint", "iint"]
-        args: List[int] = []
-        return self.cd.get_typ(self.cd.mk_typ_index(tags, args))
-
-    def to_dict(self) -> Dict[str, Any]:
-        return {"base": "enum", "name": self.name}
-
-    def __str__(self) -> str:
-        return "enum " + self.name
+CTypEnum = chc_rust.app.c_typ.CTypEnum
 
 
 @cdregistry.register_tag("tbuiltinvaargs", CTyp)

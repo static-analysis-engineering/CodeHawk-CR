@@ -49,6 +49,7 @@ pub fn module(py: Python) -> PyResult<Bound<PyModule>> {
     let module = PyModule::new_bound(py, "c_typ")?;
     module.add_class::<CTyp>()?;
     module.add_class::<CTypComp>()?;
+    module.add_class::<CTypEnum>()?;
     module.add_class::<CTypFloat>()?;
     module.add_class::<CTypInt>()?;
     module.add_class::<CTypNamed>()?;
@@ -673,3 +674,63 @@ impl CTypComp {
 }
 
 inventory::submit! { CDictionaryRegistryEntry::python_type::<CTyp, CTypComp>("tcomp") }
+
+/// Enum type.
+///
+/// * tags[1]: name of enum (ename)
+/// * args[0]: index of attributes in cdictionary
+#[pyclass(extends = CTyp, frozen, subclass)]
+pub struct CTypEnum {
+    cd: Py<CDictionary>,
+    #[pyo3(get)]
+    name: String,
+}
+
+#[pymethods]
+impl CTypEnum {
+    #[new]
+    fn new(cd: &Bound<CDictionary>, ixval: IndexedTableValue) -> PyClassInitializer<Self> {
+        let typenum = CTypEnum {
+            cd: cd.clone().unbind(),
+            name: ixval.tags()[1].clone(),
+        };
+        PyClassInitializer::from(CTyp::new(cd, ixval)).add_subclass(typenum)
+    }
+
+    // Unvalidated
+    #[getter]
+    fn size(&self) -> isize {
+        4
+    }
+
+    #[getter]
+    fn is_enum(&self) -> bool {
+        true
+    }
+
+    // Unvalidated
+    fn get_opaque_type<'a>(&self, py: Python<'a>) -> PyResult<Bound<'a, CTyp>> {
+        let tags = ["tint", "iint"];
+        let args: [isize; 0] = [];
+        let cd = self.cd.bind(py);
+        let typ_index = cd.call_method1(intern!(py, "mk_typ_index"), (tags, args))?;
+        Ok(self
+            .cd
+            .bind(py)
+            .call_method1(intern!(py, "get_typ"), (typ_index,))?
+            .downcast()?
+            .clone())
+    }
+
+    // Unvalidated
+    fn to_dict(&self) -> BTreeMap<&'static str, &str> {
+        BTreeMap::from([("base", "struct"), ("name", self.name.as_str())])
+    }
+
+    #[pyo3(name = "__str__")]
+    fn str(&self) -> String {
+        format!("enum {}", self.name)
+    }
+}
+
+inventory::submit! { CDictionaryRegistryEntry::python_type::<CTyp, CTypEnum>("tenum") }
