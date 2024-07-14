@@ -72,40 +72,7 @@ CTypEnum = chc_rust.app.c_typ.CTypEnum
 CTypBuiltinVaargs = chc_rust.app.c_typ.CTypBuiltinVaargs
 
 
-@cdregistry.register_tag("tptr", CTyp)
-class CTypPtr(CTyp):
-    """ Pointer type
-
-    * args[0]: index of pointed-to type in cdictionary
-    * args[1]: index of attributes in cdictionary
-    """
-
-    def __new__(cls, cd: "CDictionary", ixval: IT.IndexedTableValue) -> "CTypPtr":
-        return super().__new__(cls, cd, ixval)
-
-    @property
-    def pointedto_type(self) -> CTyp:
-        return self.get_typ(self.args[0])
-
-    @property
-    def size(self) -> int:
-        return 4
-
-    @property
-    def is_pointer(self) -> bool:
-        return True
-
-    def get_opaque_type(self) -> CTyp:
-        tgttype = self.pointedto_type.get_opaque_type()
-        tags = ["tptr"]
-        args = [self.cd.index_typ(tgttype)]
-        return self.cd.get_typ(self.cd.mk_typ_index(tags, args))
-
-    def to_dict(self) -> Dict[str, Any]:
-        return {"base": "ptr", "tgt": self.pointedto_type.to_dict()}
-
-    def __str__(self) -> str:
-        return "(" + str(self.pointedto_type) + " *)"
+CTypPtr = chc_rust.app.c_typ.CTypPtr
 
 
 @cdregistry.register_tag("tarray", CTyp)

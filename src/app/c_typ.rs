@@ -54,6 +54,7 @@ pub fn module(py: Python) -> PyResult<Bound<PyModule>> {
     module.add_class::<CTypFloat>()?;
     module.add_class::<CTypInt>()?;
     module.add_class::<CTypNamed>()?;
+    module.add_class::<CTypPtr>()?;
     module.add_class::<CTypVoid>()?;
     Ok(module)
 }
@@ -765,3 +766,78 @@ impl CTypBuiltinVaargs {
 
 inventory::submit! { CDictionaryRegistryEntry::python_type::<CTyp, CTypBuiltinVaargs>("tbuiltinvaargs") }
 inventory::submit! { CDictionaryRegistryEntry::python_type::<CTyp, CTypBuiltinVaargs>("tbuiltin-va-list") }
+
+/// Pointer type
+///
+/// * args[0]: index of pointed-to type in cdictionary
+/// * args[1]: index of attributes in cdictionary
+#[pyclass(extends = CTyp, frozen, subclass)]
+pub struct CTypPtr {
+    cd: Py<CDictionary>,
+    pointed_to_index: isize,
+}
+
+#[pymethods]
+impl CTypPtr {
+    #[new]
+    fn new(cd: &Bound<CDictionary>, ixval: IndexedTableValue) -> PyClassInitializer<Self> {
+        let ptr = CTypPtr {
+            cd: cd.clone().unbind(),
+            pointed_to_index: ixval.args()[0],
+        };
+        PyClassInitializer::from(CTyp::new(cd, ixval)).add_subclass(ptr)
+    }
+
+    #[getter]
+    fn pointedto_type<'a>(slf: PyRef<Self>, py: Python<'a>) -> PyResult<Bound<'a, CTyp>> {
+        slf.as_super().get_typ(py, slf.pointed_to_index)
+    }
+
+    // Unvalidated
+    #[getter]
+    fn size(&self) -> isize {
+        4
+    }
+
+    #[getter]
+    fn is_pointer(&self) -> bool {
+        true
+    }
+
+    // Unvalidated
+    fn get_opaque_type<'a>(slf: &Bound<'a, Self>) -> PyResult<Bound<'a, CTyp>> {
+        let slf_borrow = slf.borrow();
+        let py = slf.py();
+        let tgttype = CTypPtr::pointedto_type(slf.borrow(), py)?;
+        let tags = ["tptr"];
+        let cd = slf_borrow.cd.bind(py);
+        let index_typ = cd.call_method1(intern!(py, "index_typ"), (tgttype,))?;
+        let args = [index_typ.extract::<isize>()?];
+        let typ_index = cd.call_method1(intern!(py, "mk_typ_index"), (tags, args))?;
+        Ok(cd
+            .call_method1(intern!(py, "get_typ"), (typ_index,))?
+            .downcast()?
+            .clone())
+    }
+
+    // Unvalidated
+    fn to_dict(slf: &Bound<Self>) -> PyResult<BTreeMap<&'static str, Py<PyAny>>> {
+        let py = slf.py();
+        Ok(BTreeMap::from([
+            ("base", "ptr".into_py(py)),
+            (
+                "tgt",
+                Self::pointedto_type(slf.borrow(), py)?
+                    .call_method0(intern!(py, "to_dict"))?
+                    .unbind(),
+            ),
+        ]))
+    }
+
+    #[pyo3(name = "__str__")]
+    fn str(slf: PyRef<Self>, py: Python) -> PyResult<String> {
+        Ok(format!("({})", Self::pointedto_type(slf, py)?.str()?))
+    }
+}
+
+inventory::submit! { CDictionaryRegistryEntry::python_type::<CTyp, CTypPtr>("tptr") }
