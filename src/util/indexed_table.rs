@@ -28,7 +28,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ------------------------------------------------------------------------------
 */
-use std::collections::BTreeMap;
+use std::{borrow::Cow, collections::BTreeMap};
 
 use itertools::Itertools;
 use pyo3::{
@@ -169,6 +169,104 @@ impl IndexedTableValue {
         self.index
     }
 }
+
+pub trait IndexedTableValueTrait {
+    fn tags(&self) -> Cow<[Cow<str>]>;
+    fn args(&self) -> Cow<[isize]>;
+    fn index(&self) -> isize;
+}
+
+impl IndexedTableValueTrait for IndexedTableValue {
+    fn tags(&self) -> Cow<[Cow<str>]> {
+        Cow::Owned(
+            self.tags
+                .iter()
+                .map(|s| Cow::Borrowed(s.as_str()))
+                .collect(),
+        )
+    }
+    fn args(&self) -> Cow<[isize]> {
+        Cow::Borrowed(&self.args[..])
+    }
+    fn index(&self) -> isize {
+        self.index
+    }
+}
+
+impl<'a> IndexedTableValueTrait for PyRef<'a, IndexedTableValue> {
+    fn tags(&self) -> Cow<[Cow<str>]> {
+        Cow::Owned(
+            self.tags
+                .iter()
+                .map(|s| Cow::Borrowed(s.as_str()))
+                .collect(),
+        )
+    }
+    fn args(&self) -> Cow<[isize]> {
+        Cow::Borrowed(&self.args[..])
+    }
+    fn index(&self) -> isize {
+        self.index
+    }
+}
+
+impl<'a> IndexedTableValueTrait for Bound<'a, IndexedTableValue> {
+    fn tags(&self) -> Cow<[Cow<str>]> {
+        Cow::Owned(
+            self.get()
+                .tags
+                .iter()
+                .map(|s| Cow::Borrowed(s.as_str()))
+                .collect(),
+        )
+    }
+    fn args(&self) -> Cow<[isize]> {
+        Cow::Borrowed(&self.get().args[..])
+    }
+    fn index(&self) -> isize {
+        self.get().index
+    }
+}
+
+#[macro_export]
+macro_rules! inherit_indexed_table_value_trait {
+    ($type:ident) => {
+        impl<'a> crate::util::indexed_table::IndexedTableValueTrait
+            for pyo3::pycell::PyRef<'a, $type>
+        {
+            fn tags(&self) -> std::borrow::Cow<[std::borrow::Cow<str>]> {
+                self.as_super().tags()
+            }
+            fn args(&self) -> std::borrow::Cow<[isize]> {
+                self.as_super().args()
+            }
+            fn index(&self) -> isize {
+                self.as_super().index()
+            }
+        }
+
+        impl<'a> crate::util::indexed_table::IndexedTableValueTrait for pyo3::Bound<'a, $type> {
+            fn tags(&self) -> std::borrow::Cow<[std::borrow::Cow<str>]> {
+                std::borrow::Cow::Owned(
+                    self.borrow()
+                        .as_super()
+                        .tags()
+                        .iter()
+                        .map(|c| std::borrow::Cow::Owned(c.to_string()))
+                        .collect(),
+                )
+            }
+            fn args(&self) -> Cow<[isize]> {
+                std::borrow::Cow::Owned(self.borrow().as_super().args().to_vec())
+            }
+            fn index(&self) -> isize {
+                self.borrow().as_super().index()
+            }
+        }
+    };
+}
+
+pub use inherit_indexed_table_value_trait;
 
 #[pyfunction]
 fn get_value<'a, 'b>(

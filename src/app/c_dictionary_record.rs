@@ -28,6 +28,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ------------------------------------------------------------------------------
 */
+use std::borrow::Cow;
+
 use once_cell::sync::OnceCell;
 use pyo3::{
     intern,
@@ -39,7 +41,7 @@ use pyo3::{
 
 use crate::{
     app::{c_declarations::CDeclarations, c_dictionary::CDictionary},
-    util::indexed_table::IndexedTableValue,
+    util::indexed_table::{inherit_indexed_table_value_trait, IndexedTableValue},
 };
 
 pyo3::import_exception!(chc.util.fileutil, CHCError);
@@ -85,6 +87,8 @@ impl CDictionaryRecord {
         &self.cd
     }
 }
+
+inherit_indexed_table_value_trait!(CDictionaryRecord);
 
 /// Base class for all objects kept in the CFileDeclarations.
 #[pyclass(extends = IndexedTableValue, frozen, subclass)]

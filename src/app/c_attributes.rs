@@ -28,6 +28,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ------------------------------------------------------------------------------
 */
+use std::borrow::Cow;
+
 use pyo3::{intern, prelude::*};
 
 use crate::{
@@ -37,7 +39,9 @@ use crate::{
             CDictionaryRecord, CDictionaryRecordTrait, CDictionaryRegistryEntry,
         },
     },
-    util::indexed_table::IndexedTableValue,
+    util::indexed_table::{
+        inherit_indexed_table_value_trait, IndexedTableValue, IndexedTableValueTrait,
+    },
 };
 
 pub fn module(py: Python) -> PyResult<Bound<PyModule>> {
@@ -54,6 +58,8 @@ pub fn module(py: Python) -> PyResult<Bound<PyModule>> {
 /// Attribute that comes with a C type.
 #[pyclass(extends = CDictionaryRecord, frozen, subclass)]
 pub struct CAttr {}
+
+inherit_indexed_table_value_trait!(CAttr);
 
 #[pymethods]
 impl CAttr {
@@ -144,7 +150,7 @@ impl CAttr {
 
     #[pyo3(name = "__str__")]
     fn str(slf: PyRef<Self>) -> String {
-        format!("attrparam:{}", slf.into_super().into_super().tags()[0])
+        format!("attrparam:{}", slf.tags()[0])
     }
 }
 
@@ -153,6 +159,8 @@ impl CAttr {
 /// args[0]: integer value
 #[pyclass(extends = CAttr, frozen, subclass)]
 struct CAttrInt {}
+
+inherit_indexed_table_value_trait!(CAttrInt);
 
 #[pymethods]
 impl CAttrInt {
@@ -163,7 +171,7 @@ impl CAttrInt {
 
     #[getter]
     fn intvalue(slf: PyRef<Self>) -> isize {
-        slf.into_super().into_super().into_super().args()[0]
+        slf.args()[0]
     }
 
     #[getter]
@@ -185,6 +193,8 @@ inventory::submit! { CDictionaryRegistryEntry::python_type::<CAttr, CAttrInt>("a
 #[pyclass(extends = CAttr, frozen, subclass)]
 struct CAttrStr {}
 
+inherit_indexed_table_value_trait!(CAttrStr);
+
 // Unvalidated
 #[pymethods]
 impl CAttrStr {
@@ -194,13 +204,13 @@ impl CAttrStr {
     }
 
     #[getter]
-    fn stringvalue(slf: Py<Self>, py: Python) -> PyResult<String> {
-        let args_0 = slf.borrow(py).into_super().into_super().into_super().args()[0];
-        slf.borrow(py)
+    fn stringvalue(slf: &Bound<Self>) -> PyResult<String> {
+        let py = slf.py();
+        slf.borrow()
             .into_super()
             .into_super()
             .cd()
-            .call_method1(py, intern!(py, "get_string"), (args_0,))?
+            .call_method1(py, intern!(py, "get_string"), (slf.args()[0],))?
             .extract(py)
     }
 
@@ -210,8 +220,8 @@ impl CAttrStr {
     }
 
     #[pyo3(name = "__str__")]
-    fn str(slf: Py<Self>, py: Python) -> PyResult<String> {
-        Ok(format!("astr({})", CAttrStr::stringvalue(slf, py)?))
+    fn str(slf: &Bound<Self>) -> PyResult<String> {
+        Ok(format!("astr({})", CAttrStr::stringvalue(slf)?))
     }
 }
 
@@ -224,6 +234,8 @@ inventory::submit! { CDictionaryRegistryEntry::python_type::<CAttr, CAttrStr>("a
 #[pyclass(extends = CAttr, frozen, subclass)]
 struct CAttrCons {}
 
+inherit_indexed_table_value_trait!(CAttrCons);
+
 #[pymethods]
 impl CAttrCons {
     #[new]
@@ -233,7 +245,7 @@ impl CAttrCons {
 
     #[getter]
     fn name(slf: PyRef<Self>) -> String {
-        slf.into_super().into_super().into_super().tags()[1].clone()
+        slf.into_super().tags()[1].to_string()
     }
 
     #[getter]
@@ -245,11 +257,7 @@ impl CAttrCons {
             .cd()
             .bind(slf.py())
             .clone();
-        slf.borrow()
-            .into_super()
-            .into_super()
-            .into_super()
-            .args()
+        slf.args()
             .iter()
             .map(|i| CDictionary::get_attrparam(&cd, *i))
             .collect()
