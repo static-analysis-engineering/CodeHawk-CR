@@ -90,8 +90,8 @@ impl CSingleInitInfo {
         let dictionary = c_decl_record.dictionary(slf.py())?;
         let args_0 = c_decl_record.into_super().args()[0];
         Ok(dictionary
-            .call_method1(slf.py(), intern!(slf.py(), "get_exp"), (args_0,))?
-            .downcast_bound(slf.py())?
+            .call_method1(intern!(slf.py(), "get_exp"), (args_0,))?
+            .downcast()?
             .clone())
     }
 
@@ -126,8 +126,8 @@ impl CCompoundInitInfo {
         let dictionary = c_decl_record.dictionary(slf.py())?;
         let args_0 = c_decl_record.into_super().args()[0];
         Ok(dictionary
-            .call_method1(slf.py(), intern!(slf.py(), "get_typ"), (args_0,))?
-            .downcast_bound(slf.py())?
+            .call_method1(intern!(slf.py(), "get_typ"), (args_0,))?
+            .downcast()?
             .clone())
     }
 
@@ -185,8 +185,8 @@ impl COffsetInitInfo {
         let dictionary = c_decl_record.dictionary(slf.py())?;
         let args_0 = c_decl_record.into_super().args()[0];
         Ok(dictionary
-            .call_method1(slf.py(), intern!(slf.py(), "get_offset"), (args_0,))?
-            .downcast_bound(slf.py())?
+            .call_method1(intern!(slf.py(), "get_offset"), (args_0,))?
+            .downcast()?
             .clone())
     }
 

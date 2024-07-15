@@ -75,8 +75,8 @@ impl CDictionaryRecord {
     }
 
     #[getter]
-    pub fn decls(&self, py: Python) -> PyResult<Py<PyAny>> {
-        self.cd.getattr(py, intern!(py, "decls"))
+    fn decls<'a>(&self, py: Python<'a>) -> PyResult<Bound<'a, PyAny>> {
+        self.cd.bind(py).getattr(intern!(py, "decls"))
     }
 }
 
@@ -104,8 +104,8 @@ impl CDeclarationsRecord {
     }
 
     #[getter]
-    pub fn dictionary(&self, py: Python) -> PyResult<Py<PyAny>> {
-        self.decls.getattr(py, intern!(py, "dictionary"))
+    pub fn dictionary<'a>(&self, py: Python<'a>) -> PyResult<Bound<'a, PyAny>> {
+        self.decls.bind(py).getattr(intern!(py, "dictionary"))
     }
 }
 

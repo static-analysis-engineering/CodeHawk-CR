@@ -70,8 +70,8 @@ impl CTypeInfo {
         // Comment says args[1] but original source uses args[0]
         let args_0 = c_dict_record.into_super().args()[0];
         Ok(dict
-            .call_method1(slf.py(), intern!(slf.py(), "get_typ"), (args_0,))?
-            .downcast_bound(slf.py())?
+            .call_method1(intern!(slf.py(), "get_typ"), (args_0,))?
+            .downcast()?
             .clone())
     }
 

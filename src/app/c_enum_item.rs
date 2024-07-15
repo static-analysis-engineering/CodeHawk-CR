@@ -72,8 +72,8 @@ impl CEnumItem {
         let dictionary = c_dict_record.dictionary(slf.py())?;
         let args_0 = c_dict_record.into_super().args()[0];
         Ok(dictionary
-            .call_method1(slf.py(), intern!(slf.py(), "get_exp"), (args_0,))?
-            .downcast_bound(slf.py())?
+            .call_method1(intern!(slf.py(), "get_exp"), (args_0,))?
+            .downcast()?
             .clone())
     }
 

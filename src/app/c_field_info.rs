@@ -77,8 +77,8 @@ impl CFieldInfo {
         let dictionary = c_decl_record.dictionary(slf.py())?;
         let args_1 = c_decl_record.into_super().args()[1];
         Ok(dictionary
-            .call_method1(slf.py(), intern!(slf.py(), "get_typ"), (args_1,))?
-            .extract(slf.py())?)
+            .call_method1(intern!(slf.py(), "get_typ"), (args_1,))?
+            .extract()?)
     }
 
     #[getter]
@@ -125,8 +125,8 @@ impl CFieldInfo {
         let dictionary = slf.borrow().into_super().dictionary(slf.py())?;
         Ok(Some(
             dictionary
-                .call_method1(slf.py(), intern!(slf.py(), "get_attributes"), (args_3,))?
-                .extract(slf.py())?,
+                .call_method1(intern!(slf.py(), "get_attributes"), (args_3,))?
+                .extract()?,
         ))
     }
 

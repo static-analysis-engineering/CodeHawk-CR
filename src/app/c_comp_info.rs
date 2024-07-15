@@ -107,7 +107,6 @@ impl CCompInfo {
             .borrow()
             .into_super()
             .dictionary(slf.py())?
-            .bind(slf.py())
             .call_method1(intern!(slf.py(), "get_attributes"), (args_2,))?
             .downcast()?
             .clone())
