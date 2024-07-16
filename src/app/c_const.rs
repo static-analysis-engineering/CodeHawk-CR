@@ -114,7 +114,7 @@ impl CConst {
 /// - tags[1]: string representation of value
 /// - tags[2]: ikind
 #[pyclass(extends = CConst, frozen, subclass)]
-struct CConstInt {}
+pub struct CConstInt {}
 
 #[pymethods]
 impl CConstInt {
@@ -124,7 +124,7 @@ impl CConstInt {
     }
 
     #[getter]
-    fn intvalue(slf: PyRef<Self>) -> PyResult<isize> {
+    pub fn intvalue(slf: PyRef<Self>) -> PyResult<isize> {
         Ok(slf.into_super().into_super().into_super().tags()[1].parse()?)
     }
 

@@ -172,7 +172,7 @@ impl CExp {
 ///
 /// - args[0]: constant
 #[pyclass(extends = CExp, frozen, subclass)]
-struct CExpConst {}
+pub struct CExpConst {}
 
 #[pymethods]
 impl CExpConst {
@@ -187,7 +187,7 @@ impl CExpConst {
     }
 
     #[getter]
-    fn constant<'a, 'b>(slf: &'a Bound<'b, Self>) -> PyResult<Bound<'b, CConst>> {
+    pub fn constant<'a, 'b>(slf: &'a Bound<'b, Self>) -> PyResult<Bound<'b, CConst>> {
         let c_dict_record = slf.borrow().into_super().into_super();
         let cd = c_dict_record.cd().bind(slf.py()).clone();
         let arg_0 = c_dict_record.into_super().args()[0];

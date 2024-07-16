@@ -75,65 +75,7 @@ CTypBuiltinVaargs = chc_rust.app.c_typ.CTypBuiltinVaargs
 CTypPtr = chc_rust.app.c_typ.CTypPtr
 
 
-@cdregistry.register_tag("tarray", CTyp)
-class CTypArray(CTyp):
-    """ Array type
-
-    * args[0]: index of base type in cdictionary
-    * args[1]: index of size expression in cdictionary (optional)
-    * args[2]: index of attributes in cdictionary
-    """
-
-    def __new__(cls, cd: "CDictionary", ixval: IT.IndexedTableValue) -> "CTypArray":
-        return super().__new__(cls, cd, ixval)
-
-    @property
-    def array_basetype(self) -> CTyp:
-        return self.get_typ(self.args[0])
-
-    @property
-    def array_size_expr(self) -> "CExp":
-        if self.args[1] >= 0:
-            return self.get_exp(self.args[1])
-        else:
-            raise UF.CHCError("Array type does not have a size")
-
-    def has_array_size_expr(self) -> bool:
-        return self.args[1] >= 0
-
-    @property
-    def size(self) -> int:
-        try:
-            if self.has_array_size_expr():
-                array_size_const = cast(
-                    "CExpConst", self.array_size_expr).constant
-                array_size_int = cast(
-                    "CConstInt", array_size_const).intvalue
-                return self.array_basetype.size * array_size_int
-        except BaseException:
-            return -1000
-        else:
-            return -1000
-
-    @property
-    def is_array(self) -> bool:
-        return True
-
-    def get_opaque_type(self) -> CTyp:
-        tags = ["tvoid"]
-        args: List[int] = []
-        return self.cd.get_typ(self.cd.mk_typ_index(tags, args))
-
-    def to_dict(self) -> Dict[str, Any]:
-        result = {"base": "array", "elem": self.array_basetype.to_dict()}
-        if self.has_array_size_expr() and self.array_size_expr.is_constant:
-            result["size"] = str(self.array_size_expr)
-        return result
-
-    def __str__(self) -> str:
-        size = self.array_size_expr
-        ssize = str(size) if size is not None else "?"
-        return str(self.array_basetype) + "[" + ssize + "]"
+CTypArray = chc_rust.app.c_typ.CTypArray
 
 
 @cdregistry.register_tag("tfun", CTyp)

@@ -38,16 +38,20 @@ use crate::{
     app::{
         c_attributes::CAttributes,
         c_comp_info::CCompInfo,
+        c_const::CConstInt,
         c_dictionary::CDictionary,
         c_dictionary_record::{CDictionaryRecord, CDictionaryRegistryEntry},
-        c_exp::CExp,
+        c_exp::{CExp, CExpConst},
     },
     util::indexed_table::IndexedTableValue,
 };
 
+pyo3::import_exception!(chcc.util.fileutil, CHCError);
+
 pub fn module(py: Python) -> PyResult<Bound<PyModule>> {
     let module = PyModule::new_bound(py, "c_typ")?;
     module.add_class::<CTyp>()?;
+    module.add_class::<CTypArray>()?;
     module.add_class::<CTypBuiltinVaargs>()?;
     module.add_class::<CTypComp>()?;
     module.add_class::<CTypEnum>()?;
@@ -841,3 +845,129 @@ impl CTypPtr {
 }
 
 inventory::submit! { CDictionaryRegistryEntry::python_type::<CTyp, CTypPtr>("tptr") }
+
+/// Array type
+///
+/// * args[0]: index of base type in cdictionary
+/// * args[1]: index of size expression in cdictionary (optional)
+/// * args[2]: index of attributes in cdictionary
+#[pyclass(extends = CTyp, frozen, subclass)]
+pub struct CTypArray {
+    cd: Py<CDictionary>,
+    base_type_index: isize,
+    size_expression_index: isize,
+}
+
+#[pymethods]
+impl CTypArray {
+    #[new]
+    fn new(cd: &Bound<CDictionary>, ixval: IndexedTableValue) -> PyClassInitializer<Self> {
+        let ptr = CTypArray {
+            cd: cd.clone().unbind(),
+            base_type_index: ixval.args()[0],
+            size_expression_index: ixval.args()[1],
+        };
+        PyClassInitializer::from(CTyp::new(cd, ixval)).add_subclass(ptr)
+    }
+
+    #[getter]
+    fn array_basetype<'a>(slf: PyRef<Self>, py: Python<'a>) -> PyResult<Bound<'a, CTyp>> {
+        slf.as_super().get_typ(py, slf.base_type_index)
+    }
+
+    #[getter]
+    fn array_size_expr<'a>(slf: PyRef<Self>, py: Python<'a>) -> PyResult<Bound<'a, CExp>> {
+        if slf.size_expression_index >= 0 {
+            slf.as_super().get_exp(py, slf.size_expression_index)
+        } else {
+            Err(CHCError::new_err("Array does not have a size"))
+        }
+    }
+
+    fn has_array_size_expr(&self) -> bool {
+        self.size_expression_index >= 0
+    }
+
+    // Unvalidated
+    #[getter]
+    fn size(slf: &Bound<Self>) -> isize {
+        if !slf.borrow().has_array_size_expr() {
+            return -1000;
+        }
+        (|| {
+            let array_size_const = Self::array_size_expr(slf.borrow(), slf.py())?
+                .downcast::<CExpConst>()?
+                .clone();
+            let array_size_int = CExpConst::constant(&array_size_const)?
+                .downcast::<CConstInt>()?
+                .clone();
+            CConstInt::intvalue(array_size_int.borrow())
+        })()
+        .unwrap_or(-1000)
+    }
+
+    #[getter]
+    fn is_array(&self) -> bool {
+        true
+    }
+
+    // Unvalidated
+    fn get_opaque_type<'a>(&self, py: Python<'a>) -> PyResult<Bound<'a, CTyp>> {
+        let tags = ["tvoid"];
+        let args: [isize; 0] = [];
+        let cd = self.cd.bind(py);
+        let typ_index = cd.call_method1(intern!(py, "mk_typ_index"), (tags, args))?;
+        Ok(self
+            .cd
+            .bind(py)
+            .call_method1(intern!(py, "get_typ"), (typ_index,))?
+            .downcast()?
+            .clone())
+    }
+
+    // Unvalidated
+    fn to_dict(slf: &Bound<Self>) -> PyResult<BTreeMap<&'static str, Py<PyAny>>> {
+        let py = slf.py();
+        let mut map = BTreeMap::from([
+            ("base", "array".into_py(py)),
+            (
+                "elem",
+                Self::array_basetype(slf.borrow(), py)?
+                    .call_method0(intern!(py, "to_dict"))?
+                    .unbind(),
+            ),
+        ]);
+        if slf.borrow().has_array_size_expr()
+            && Self::array_basetype(slf.borrow(), py)?
+                .getattr(intern!(py, "is_constant"))?
+                .extract()?
+        {
+            map.insert(
+                "size",
+                Self::array_size_expr(slf.borrow(), py)?
+                    .str()?
+                    .into_any()
+                    .unbind(),
+            );
+        }
+        Ok(map)
+    }
+
+    // Unvalidated
+    #[pyo3(name = "__str__")]
+    fn str(slf: &Bound<Self>) -> PyResult<String> {
+        let py = slf.py();
+        let size = Self::array_size_expr(slf.borrow(), py)?;
+        let ssize = if size.is_none() {
+            "?".to_string()
+        } else {
+            size.str()?.extract()?
+        };
+        Ok(format!(
+            "{}[{ssize}]",
+            Self::array_basetype(slf.borrow(), py)?.str()?
+        ))
+    }
+}
+
+inventory::submit! { CDictionaryRegistryEntry::python_type::<CTyp, CTypArray>("tarray") }
