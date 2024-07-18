@@ -73,24 +73,9 @@ class AnalysisManager(chc_rust.cmdline.analysis_manager.AnalysisManager):
             nofilter (bool): don't remove functions with absolute filename (default True)
         """
 
-        self = super().__new__(cls)
-        self._capp = capp
-        # self.contractpath = capp.contractpath
+        self = super().__new__(cls, capp, wordsize, unreachability, thirdpartysummaries, nofilter, verbose)
         self._config = Config()
-        # self.chsummaries = self.config.summaries
-        # self.path = self.capp.path
-        # self.canalyzer = self.config.canalyzer
-        # self.gui = self.config.chc_gui
-        self.nofilter = nofilter
-        self.wordsize = wordsize
-        self.thirdpartysummaries = thirdpartysummaries
-        self.unreachability = unreachability
-        self.verbose = verbose
         return self
-
-    @property
-    def capp(self) -> "CApplication":
-        return self._capp
 
     @property
     def contractpath(self) -> Optional[str]:

@@ -30,6 +30,8 @@ SOFTWARE.
 */
 use pyo3::prelude::*;
 
+use crate::app::c_application::CApplication;
+
 pub fn module(py: Python) -> PyResult<Bound<PyModule>> {
     let module = PyModule::new_bound(py, "analysis_manager")?;
     module.add_class::<AnalysisManager>()?;
@@ -37,8 +39,15 @@ pub fn module(py: Python) -> PyResult<Bound<PyModule>> {
 }
 
 /// Provide the interface to the codehawk (ocaml) analyzer.
-#[pyclass(subclass)]
-pub struct AnalysisManager {}
+#[pyclass(get_all, frozen, subclass)]
+pub struct AnalysisManager {
+    capp: Py<CApplication>,
+    wordsize: isize,
+    unreachability: bool,
+    thirdpartysummaries: Vec<String>,
+    nofilter: bool,
+    verbose: bool,
+}
 
 #[pymethods]
 impl AnalysisManager {
@@ -55,7 +64,22 @@ impl AnalysisManager {
     ///     verbose (bool): display analyzer output (default True)
     ///     nofilter (bool): don't remove functions with absolute filename (default True)
     #[new]
-    fn new() -> AnalysisManager {
-        AnalysisManager {}
+    #[pyo3(signature = (capp, wordsize = 0, unreachability = false, thirdpartysummaries = vec![], nofilter = true, verbose = false))]
+    fn new(
+        capp: Py<CApplication>,
+        wordsize: isize,
+        unreachability: bool,
+        thirdpartysummaries: Vec<String>,
+        nofilter: bool,
+        verbose: bool,
+    ) -> AnalysisManager {
+        AnalysisManager {
+            capp,
+            wordsize,
+            unreachability,
+            thirdpartysummaries,
+            nofilter,
+            verbose,
+        }
     }
 }
