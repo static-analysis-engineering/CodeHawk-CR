@@ -28,9 +28,12 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ------------------------------------------------------------------------------
 */
-use pyo3::prelude::*;
+use pyo3::{intern, prelude::*};
 
-use crate::app::c_declarations::CDeclarations;
+use crate::{
+    app::{c_declarations::CDeclarations, c_type_info::CTypeInfo},
+    util::indexed_table::IndexedTable,
+};
 
 pub fn module(py: Python) -> PyResult<Bound<PyModule>> {
     let module = PyModule::new_bound(py, "c_file_declarations")?;
@@ -52,5 +55,21 @@ impl CFileDeclarations {
     #[new]
     fn new() -> PyClassInitializer<Self> {
         PyClassInitializer::from(CDeclarations::new()).add_subclass(CFileDeclarations {})
+    }
+
+    fn get_typeinfo<'a>(slf: &Bound<'a, Self>, ix: isize) -> PyResult<Bound<'a, CTypeInfo>> {
+        let py = slf.py();
+        let itv = slf
+            .getattr(intern!(py, "typeinfo_table"))?
+            .downcast::<IndexedTable>()?
+            .clone()
+            .borrow()
+            .retrieve(ix)?
+            .get()
+            .clone();
+        Bound::new(
+            py,
+            CTypeInfo::new(slf.downcast::<CDeclarations>()?.clone().unbind(), itv),
+        )
     }
 }

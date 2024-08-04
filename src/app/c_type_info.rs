@@ -53,7 +53,7 @@ pub struct CTypeInfo {}
 #[pymethods]
 impl CTypeInfo {
     #[new]
-    fn new(cd: Py<CDeclarations>, ixval: IndexedTableValue) -> PyClassInitializer<Self> {
+    pub fn new(cd: Py<CDeclarations>, ixval: IndexedTableValue) -> PyClassInitializer<Self> {
         PyClassInitializer::from(CDeclarationsRecord::new(cd, ixval)).add_subclass(CTypeInfo {})
     }
 

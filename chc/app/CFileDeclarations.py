@@ -239,10 +239,6 @@ class CFileDeclarations(chc_rust.app.c_file_declarations.CFileDeclarations):
     def get_fieldinfo_map(self) -> Dict[int, IndexedTableValue]:
         return self.fieldinfo_table.objectmap(self.get_fieldinfo)
 
-    def get_typeinfo(self, ix: int) -> CTypeInfo:
-        itv = self.typeinfo_table.retrieve(ix)
-        return CTypeInfo(self, itv)
-
     def get_typeinfo_map(self) -> Dict[int, IndexedTableValue]:
         return self.typeinfo_table.objectmap(self.get_typeinfo)
 
