@@ -60,7 +60,6 @@ from chc.app.CEnumItem import CEnumItem
 from chc.app.CFieldInfo import CFieldInfo
 from chc.app.CVarInfo import CVarInfo
 from chc.app.CTyp import CTyp
-from chc.app.CTypeInfo import CTypeInfo
 
 import chc.util.fileutil as UF
 from chc.util.IndexedTable import IndexedTable, IndexedTableValue

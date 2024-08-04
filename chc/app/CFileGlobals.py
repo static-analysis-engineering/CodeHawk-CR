@@ -50,7 +50,6 @@ if TYPE_CHECKING:
     from chc.app.CInitInfo import CInitInfo
     from chc.app.CLocation import CLocation
     from chc.app.CTyp import CTyp
-    from chc.app.CTypeInfo import CTypeInfo
     from chc.app.CVarInfo import CVarInfo
 
 
