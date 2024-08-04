@@ -30,10 +30,28 @@ SOFTWARE.
 */
 use pyo3::prelude::*;
 
+use crate::app::{c_location::CLocation, c_type_info::CTypeInfo};
+
 pub fn module(py: Python) -> PyResult<Bound<PyModule>> {
     let module = PyModule::new_bound(py, "c_file_globals")?;
     module.add_class::<CFileGlobals>()?;
+    module.add_class::<CGType>()?;
     Ok(module)
+}
+
+/// Type definition that associates a name with a type.
+#[pyclass(get_all, set_all)]
+pub struct CGType {
+    location: Py<CLocation>,
+    typeinfo: Py<CTypeInfo>,
+}
+
+#[pymethods]
+impl CGType {
+    #[new]
+    fn new(location: Py<CLocation>, typeinfo: Py<CTypeInfo>) -> CGType {
+        CGType { location, typeinfo }
+    }
 }
 
 #[pyclass(subclass)]

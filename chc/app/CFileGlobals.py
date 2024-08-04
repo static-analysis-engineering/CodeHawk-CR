@@ -111,12 +111,7 @@ class CGFunction:
         return f"{self.vname}: {self.vtype}"
 
 
-@dataclass
-class CGType:
-    """Type definition that associates a name with a type."""
-
-    location: "CLocation"
-    typeinfo: "CTypeInfo"
+CGType = chc_rust.app.c_file_globals.CGType
 
 
 @dataclass
