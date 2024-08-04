@@ -53,30 +53,7 @@ if TYPE_CHECKING:
     from chc.app.CVarInfo import CVarInfo
 
 
-@dataclass
-class CGCompTag:
-    """Definition of a struct."""
-
-    location: "CLocation"
-    compinfo: "CCompInfo"
-
-    @property
-    def name(self) -> str:
-        return self.compinfo.name
-
-    @property
-    def ckey(self) -> int:
-        return self.compinfo.ckey
-
-    @property
-    def is_struct(self) -> bool:
-        return self.compinfo.is_struct
-
-    def __str__(self) -> str:
-        if self.is_struct:
-            return f"struct {self.name} (ckey: {self.ckey})"
-        else:
-            return f"union {self.name} (ckey: {self.ckey})"
+CGCompTag = chc_rust.app.c_file_globals.CGCompTag
 
 
 @dataclass

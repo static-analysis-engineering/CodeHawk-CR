@@ -113,7 +113,7 @@ impl CCompInfo {
     }
 
     #[getter]
-    fn ckey(slf: PyRef<Self>) -> isize {
+    pub fn ckey(slf: PyRef<Self>) -> isize {
         let it = slf.into_super().into_super();
         if it.args()[0] >= 0 {
             it.args()[0]
