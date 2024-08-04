@@ -50,7 +50,6 @@ from chc.app.CFileGlobals import CGFunction
 from chc.app.CFileGlobals import CGType
 from chc.app.CFileGlobals import CGVarDecl
 from chc.app.CFileGlobals import CGVarDef
-from chc.app.CGXrefs import CGXrefs
 
 from chc.proof.CFilePredicateDictionary import CFilePredicateDictionary
 from chc.proof.CFunctionPO import CFunctionPO
