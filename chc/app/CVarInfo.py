@@ -70,67 +70,6 @@ class CVarInfo(chc_rust.app.c_var_info.CVarInfo):
         return super().__new__(cls, cdecls, ixval)
 
     @property
-    def vname(self) -> str:
-        return self.tags[0]
-
-    @property
-    def vtype(self) -> "CTyp":
-        return self.dictionary.get_typ(self.args[1])
-
-    @property
-    def is_global(self) -> bool:
-        return self.vglob
-
-    @property
-    def vglob(self) -> bool:
-        return self.args[3] == 1
-
-    @property
-    def is_inline(self) -> bool:
-        return self.vinline
-
-    @property
-    def vinline(self) -> bool:
-        return self.args[4] == 1
-
-    @property
-    def vdecl(self) -> Optional["CLocation"]:
-        if self.args[5] >= 0:
-            return self.decls.get_location(self.args[5])
-        else:
-            return None
-
-    @property
-    def vaddrof(self) -> bool:
-        return self.args[6] == 1
-
-    @property
-    def vparam(self) -> int:
-        return self.args[7]
-
-    @property
-    def is_param(self) -> bool:
-        return self.args[7] > 0
-
-    @property
-    def vinit(self) -> Optional["CInitInfo"]:
-        if len(self.args) > 8:
-            return self.decls.get_initinfo(self.args[8])
-        else:
-            return None
-
-    @property
-    def vid(self) -> int:
-        """Returns the CIL vid for file vinfos and the index for global vinfos."""
-
-        vid = self.args[0]
-        return vid if vid >= 0 else self.index
-
-    @property
-    def real_vid(self) -> int:
-        return self.args[0]
-
-    @property
     def vstorage(self) -> str:
         if len(self.tags) > 1:
             return self.tags[1]

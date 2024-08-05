@@ -110,8 +110,13 @@ impl CDeclarationsRecord {
     }
 
     #[getter]
-    pub fn dictionary<'a>(&self, py: Python<'a>) -> PyResult<Bound<'a, PyAny>> {
-        self.decls.bind(py).getattr(intern!(py, "dictionary"))
+    pub fn dictionary<'a>(&self, py: Python<'a>) -> PyResult<Bound<'a, CDictionary>> {
+        Ok(self
+            .decls
+            .bind(py)
+            .getattr(intern!(py, "dictionary"))?
+            .downcast()?
+            .clone())
     }
 }
 
